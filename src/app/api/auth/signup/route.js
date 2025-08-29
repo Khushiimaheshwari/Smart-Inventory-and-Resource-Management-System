@@ -17,7 +17,7 @@ export async function POST(request) {
     const user = await createAccount({ name, email, password, role });
 
      const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role },
+      { userId: user._id, email: user.email, role: user.role }, 
       JWT_SECRET,
       { expiresIn: "7d" }
     );

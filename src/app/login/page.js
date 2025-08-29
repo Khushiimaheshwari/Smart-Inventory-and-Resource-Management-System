@@ -6,10 +6,42 @@ import styles from "./login.module.css";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Login details:", { email, password });
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      console.log(res);
+
+      if (!res.ok) {
+        const errData = await res.json();
+        setError(errData.error || "Login failed");
+        setLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+      console.log("Login successful:", data);
+
+      window.location.href = "/profile"; 
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong, try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

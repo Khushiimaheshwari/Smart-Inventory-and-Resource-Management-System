@@ -44,20 +44,21 @@ export async function createAccount({ name, email, password, role }) {
 /**
  * Login user
  */
-export async function loginUser({ email, userPassword}) {
+export async function loginUser({ email, password}) {
   await connectDB();
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ Email: email });
   if (!user) throw new Error("No User exists");
 
-  const isValid = await bcrypt.compare(userPassword, user.password);
+  console.log(password);
+  
+  const isValid = await bcrypt.compare(password, user.Password);
   if (!isValid) throw new Error("Invalid email or password");
 
   const userObj = user.toObject();
-  delete userObj.password;
+  delete userObj.Password;
 
   return userObj;
-
 }
 
 export default User;

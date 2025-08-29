@@ -6,17 +6,21 @@ import { loginUser } from "../../../../models/User.js";
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(request) {
-  try {
+  try { 
+
     const body = await request.json();
     const { email, password } = body;
 
-    if (!name || !email || !password) {
+    if (!email || !password) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
     const user = await loginUser({ email, password });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 401 });
+    }
 
-     const token = jwt.sign(
+    const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
       JWT_SECRET,
       { expiresIn: "7d" }
@@ -36,6 +40,7 @@ export async function POST(request) {
     );
 
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    console.log(error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
