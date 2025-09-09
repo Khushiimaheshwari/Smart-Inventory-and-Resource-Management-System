@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 import { loginUser } from "../../../../models/User.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(request) {
   try { 
-
-    const body = await request.json();
+ 
+    const body = await request.json();    
     const { email, password } = body;
 
     if (!email || !password) {
@@ -26,7 +25,12 @@ export async function POST(request) {
       { expiresIn: "7d" }
     );
 
-    cookies().set("token", token, {
+    const response = NextResponse.json(
+      { message: "User registered successfully", user },
+      { status: 201 }
+    );
+
+    response.cookies.set("token", token, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
@@ -34,10 +38,7 @@ export async function POST(request) {
       maxAge: 7 * 24 * 60 * 60, // 7 days
     });
 
-    return NextResponse.json(
-      { message: "User registered successfully", user },
-      { status: 201 }
-    );
+    return response;
 
   } catch (error) {
     console.log(error);

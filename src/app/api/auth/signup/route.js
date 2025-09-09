@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 import { createAccount } from "../../../../models/User.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -22,7 +21,12 @@ export async function POST(request) {
       { expiresIn: "7d" }
     );
 
-    cookies().set("token", token, {
+    const response = NextResponse.json(
+      { message: "User registered successfully", user },
+      { status: 201 }
+    );
+
+   response.cookies.set("token", token, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
@@ -30,12 +34,11 @@ export async function POST(request) {
       maxAge: 7 * 24 * 60 * 60, // 7 days
     });
 
-    return NextResponse.json(
-      { message: "User registered successfully", user },
-      { status: 201 }
-    );
+    return response;
 
   } catch (error) {
+    console.log(error);
+    
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }

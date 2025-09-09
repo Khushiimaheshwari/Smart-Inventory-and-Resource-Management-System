@@ -13,7 +13,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 3rem;
-  background: #f8f9fa;
+  background: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   position: relative;
 }
@@ -97,12 +97,14 @@
 .heroLeft {
   flex: 1;
   max-width: 600px;
+  margin-left: 5%;
 }
 
 .heroLeft h1 {
-  font-size: 3rem;
-  color: #00c97b;
-  margin-bottom: 0.5rem;
+  font-size: 4rem;
+  color: #1AAE92  ;
+  /* color: #00c97b; */
+  margin-bottom: 1rem;
   line-height: 1.1;
   font-weight: 700;
 }

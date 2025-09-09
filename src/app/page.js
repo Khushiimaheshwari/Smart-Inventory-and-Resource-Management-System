@@ -25,11 +25,6 @@ export default function Home() {
 
 
   return (
-    <div>
-      <h1>Welcome to Smart Inventory System</h1>
-      <Link href="/login">Go to Login</Link> <br />
-      <Link href="/signup">Go to Signup</Link> <br />
-       <button onClick={handleLogout}>Logout</button>
     <div className={styles.container}>
       {/* Navbar */}
       <nav className={styles.navbar}>
@@ -52,7 +47,7 @@ export default function Home() {
       {/* Hero Section */}
       <main className={styles.hero}>
         <div className={styles.heroLeft}>
-          <h1>Asserta</h1>
+          <h1>Assetra</h1>
           <h3>Your Assets, Always in Sight .</h3>
           <p>
             Transform the way you track, manage, and optimize your digital and physical assets with intelligent automation and real-time insights.
@@ -70,9 +65,8 @@ export default function Home() {
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <p>© 2025 Asserta. All rights reserved.</p>
+        <p>© 2025 Assetra. All rights reserved.</p>
       </footer>
-    </div>
     </div>
   );
 }
