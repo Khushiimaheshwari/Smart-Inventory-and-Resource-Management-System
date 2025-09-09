@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link"; // <-- import Link for navigation
 import styles from "./signup.module.css";
 
 export default function SignupPage() {
@@ -71,6 +72,14 @@ export default function SignupPage() {
           required
         />
         <button type="submit">Signup</button>
+
+        {/* Reference link to Login page */}
+        <p className={styles.switch}>
+          Already have an account?{" "}
+          <Link href="/login" className={styles.link}>
+            Login
+          </Link>
+        </p>
       </form>
     </div>
   );
