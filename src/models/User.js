@@ -12,6 +12,9 @@ const UserSchema = new mongoose.Schema({
     default: "faculty"
   },
   ProfileImage: { type: String, default: "" },
+  PhoneNumber: { type: String, default: "" },
+  Location: { type: String, default: "" },
+  AccountStatus: { type: String, enum: ["active", "inactive"], default: "active" },
   Assets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Asset" }],
 }, { timestamps: true });
 

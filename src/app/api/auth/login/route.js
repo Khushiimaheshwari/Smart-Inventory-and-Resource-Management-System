@@ -18,6 +18,7 @@ export async function POST(request) {
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 401 });
     }
+    log("User logged in:", user);
 
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
