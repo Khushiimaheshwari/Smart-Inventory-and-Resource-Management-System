@@ -1,0 +1,303 @@
+/* Container */
+.profileContainer {
+  background: linear-gradient(135deg, #00c97b, #00b8d9);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Background decorations (optional subtle dots) */
+.profileContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+  pointer-events: none;
+}
+
+/* Header */
+.profileHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 2;
+}
+
+.avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.userName {
+  font-size: 2.2rem;
+  color: white;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.userEmail {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+/* Profile Grid */
+/* Profile Cards Grid */
+/* Profile Cards Grid */
+.profileGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Desktop & laptop: 2 cards per row */
+  gap: 1.5rem;
+  max-width: 1200px;
+  width: 100%;
+  z-index: 2;
+  position: relative;
+}
+
+/* Laptop/Desktop */
+@media (min-width: 1200px) {
+  .profileGrid {
+    grid-template-columns: repeat(4, 1fr); /* Large screens: 4 cards side by side */
+  }
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .profileGrid {
+    grid-template-columns: repeat(2, 1fr); /* Tablet: 2 cards per row */
+    gap: 1.2rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .profileGrid {
+    grid-template-columns: 1fr; /* Mobile: 1 card per row */
+    gap: 1rem;
+  }
+}
+
+
+/* Card Styles */
+.profileCard {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.profileCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #00c97b, #00b8d9);
+}
+
+.profileCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.cardTitle {
+  font-size: 1.3rem;
+  color: #1d2b36;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cardContent {
+  color: #666;
+  line-height: 1.6;
+}
+
+.cardContent p {
+  margin: 0.5rem 0;
+}
+
+.cardContent strong {
+  color: #1d2b36;
+}
+
+/* Personal Info Items */
+.infoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.infoItem:last-child {
+  border-bottom: none;
+}
+
+.infoLabel {
+  font-weight: 600;
+  color: #1d2b36;
+}
+
+.infoValue {
+  color: #666;
+  text-align: right;
+  max-width: 60%;
+  word-break: break-word;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  z-index: 2;
+}
+
+.editBtn, .logoutBtn {
+  padding: 0.8rem 2rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.logoutBtn {
+  background: white;
+  color: #1d2b36;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.logoutBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+  background: #f8f9fa;
+}
+
+.editBtn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.editBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .profileGrid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  .profileCard {
+    padding: 1.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profileContainer {
+    padding: 1.5rem 1rem;
+  }
+  .profileGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .avatar {
+    width: 120px;
+    height: 120px;
+  }
+  .userName {
+    font-size: 1.8rem;
+  }
+  .actionButtons {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+  }
+  .logoutBtn, .editBtn {
+    width: 100%;
+  }
+  .infoItem {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 0.3rem;
+  }
+  .infoValue {
+    text-align: left;
+    max-width: 100%;
+  }
+  .infoLabel {
+    color: #00c97b;
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar {
+    width: 100px;
+    height: 100px;
+  }
+  .userName {
+    font-size: 1.6rem;
+  }
+  .profileCard {
+    padding: 1.2rem;
+  }
+  .cardTitle {
+    font-size: 1.2rem;
+  }
+  .profileGrid {
+    gap: 0.8rem;
+  }
+  .infoItem {
+    padding: 0.6rem 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .avatar {
+    width: 90px;
+    height: 90px;
+  }
+  .userName {
+    font-size: 1.4rem;
+  }
+  .profileCard {
+    padding: 1rem;
+  }
+}
