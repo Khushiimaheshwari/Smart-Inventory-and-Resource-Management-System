@@ -3,25 +3,59 @@
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./profile.module.css";
+import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
-  const handleLogout = () => {
-    console.log("User logged out");
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.href = "/login";
   };
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/auth/profile", {
+          method: "GET",
+          credentials: "include", 
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+        } else {
+          console.error("Failed to fetch profile");
+          window.location.href = "/login";
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+
+  if (!user) return <p>No user data found</p>;
 
   return (
     <div className={styles.profileContainer}>
       {/* Profile Header */}
       <div className={styles.profileHeader}>
         <Image
-          src="/profile.png"
+          src={user.ProfileImage}
           alt="Profile"
           width={140}
           height={140}
           className={styles.avatar}
         />
-        <h1 className={styles.userName}>Naina Sharma</h1>
-        <p className={styles.userEmail}>naina@example.com</p>
+        <h1 className={styles.userName}>{user.Name}</h1>
+        <p className={styles.userEmail}>{user.Email}</p>
       </div>
 
       {/* Profile Cards Grid */}
@@ -30,10 +64,10 @@ export default function ProfilePage() {
         <div className={`${styles.profileCard} ${styles.personalInfo}`}>
           <h3 className={styles.cardTitle}> Personal Information</h3>
           <div className={styles.cardContent}>
-            <p><strong>Full Name:</strong> Naina Sharma</p>
-            <p><strong>Phone:</strong> +91 1234567890</p>
-            <p><strong>Location:</strong> Delhi, India</p>
-            <p><strong>Member Since:</strong> January 2024</p>
+            <p><strong>Full Name: </strong>{user.Name}</p>
+            <p><strong>Phone: </strong>{user.PhoneNumber}</p>
+            <p><strong>Location: </strong>{user.City}</p>
+            <p><strong>Member Since: </strong>{new Date(user.createdAt).toDateString()}</p>
           </div>
         </div>
 
@@ -41,10 +75,10 @@ export default function ProfilePage() {
         <div className={styles.profileCard}>
           <h3 className={styles.cardTitle}> Account Status</h3>
           <div className={styles.cardContent}>
-            <p><strong>Status:</strong> Active</p>
-            <p><strong>Access Level:</strong> Manager</p>
-            <p><strong>Last Login:</strong> 2 hours ago</p>
-            <p><strong>Profile Updated:</strong> 5 days ago</p>
+            <p><strong>Status: </strong> Active</p>
+            <p><strong>Access Level: </strong> Manager</p>
+            <p><strong>Last Login: </strong> 2 hours ago</p>
+            <p><strong>Profile Updated: </strong> 5 days ago</p>
           </div>
         </div>
 
@@ -52,9 +86,9 @@ export default function ProfilePage() {
         <div className={styles.profileCard}>
           <h3 className={styles.cardTitle}> Activity Summary</h3>
           <div className={styles.cardContent}>
-            <p><strong>Assets Added This Month:</strong> 23</p>
-            <p><strong>Reports Generated:</strong> 12</p>
-            <p><strong>Total Insights:</strong> 1,247</p>
+            <p><strong>Assets Added This Month: </strong> 23</p>
+            <p><strong>Reports Generated: </strong> 12</p>
+            <p><strong>Total Insights: </strong> 1,247</p>
           </div>
         </div>
 

@@ -54,9 +54,20 @@ export async function loginUser({ email, password}) {
   if (!isValid) throw new Error("Invalid email or password");
 
   const userObj = user.toObject();
-  delete userObj.Password;
+  delete userObj.Password; 
 
   return userObj;
+}
+
+/**
+ * Get user profile
+ */
+export async function userProfile(userId) {
+  await connectDB();
+
+  const user = await User.findById(userId).select("-Password");
+  return user;
+  
 }
 
 export default User;
