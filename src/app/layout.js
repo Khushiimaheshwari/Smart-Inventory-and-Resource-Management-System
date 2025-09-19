@@ -1,16 +1,20 @@
-import "./styles/home.module.css";
+// app/layout.js
+"use client";
 import Navbar from "./components/navbar";
-
-export const metadata = {
-  title: "Assetra",
-  description: "Asset management platform",
-};
+import { usePathname } from "next/navigation";
 
 export default function RootLayout({ children }) {
+  const pathname = usePathname();
+
+  // jin pages pr navbar nahi chahiye
+  const hideNavbarRoutes = ["/login", "/signup"];
+
+  const shouldHideNavbar = hideNavbarRoutes.includes(pathname);
+
   return (
     <html lang="en">
       <body>
-        <Navbar />   {/* 👈 ab har page pe dikhai dega */}
+        {!shouldHideNavbar && <Navbar />}
         {children}
       </body>
     </html>

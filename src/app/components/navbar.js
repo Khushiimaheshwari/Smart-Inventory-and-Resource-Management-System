@@ -24,19 +24,18 @@ export default function Navbar() {
         </Link>
       </div>
 
-      {/* Navigation Links */}
-      <ul className={`${styles.navLinks} ${menuOpen ? styles.active : ""}`}>
+      {/* Desktop Navigation Links */}
+      <ul className={styles.desktopNavLinks}>
         <li><Link href="/">Home</Link></li>
         <li><Link href="/features">Features</Link></li>
         <li><Link href="/pricing">Pricing</Link></li>
         <li><Link href="/contact">Contact</Link></li>
       </ul>
 
-      {/* Right Side: Login + Profile */}
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+      {/* Desktop Right Side: Login + Profile */}
+      <div className={styles.desktopActions}>
         <Link href="/signup">
-          <button className={styles.loginBtn}>Login
-            /Signup</button>
+          <button className={styles.loginBtn}>Login/Signup</button>
         </Link>
 
         <Link href="/profile">
@@ -52,12 +51,30 @@ export default function Navbar() {
         </Link>
       </div>
 
-      {/* Mobile Hamburger */}
+      {/* Mobile Hamburger Button */}
       <button className={styles.mobileMenuBtn} onClick={toggleMenu}>
         <span className={styles.hamburger}></span>
         <span className={styles.hamburger}></span>
         <span className={styles.hamburger}></span>
       </button>
+
+      {/* Mobile Menu */}
+      <ul className={`${styles.mobileNavLinks} ${menuOpen ? styles.active : ""}`}>
+        <li><Link href="/" onClick={() => setMenuOpen(false)}>Home</Link></li>
+        <li><Link href="/features" onClick={() => setMenuOpen(false)}>Features</Link></li>
+        <li><Link href="/pricing" onClick={() => setMenuOpen(false)}>Pricing</Link></li>
+        <li><Link href="/contact" onClick={() => setMenuOpen(false)}>Contact</Link></li>
+        <li><Link href="/signup" onClick={() => setMenuOpen(false)}>Login/Signup</Link></li>
+        <li><Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
+      </ul>
+
+      {/* Mobile Menu Overlay */}
+      {menuOpen && (
+        <div 
+          className={styles.mobileOverlay} 
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
     </nav>
   );
 }
