@@ -47,7 +47,6 @@ export default function SignupPage() {
     } finally {
       setLoading(false);
     }
-=======
 
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
@@ -64,7 +63,6 @@ export default function SignupPage() {
   const handleSocialLogin = (provider) => {
     console.log(`${provider} login clicked`);
     // Add your social login logic here
->>>>>>> origin/onboarding-flow
   };
 
   return (
@@ -93,8 +91,6 @@ export default function SignupPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-<<<<<<< HEAD
-=======
         <input 
           type="password" 
           placeholder="Confirm Password" 
@@ -103,7 +99,6 @@ export default function SignupPage() {
           required
         />
         
->>>>>>> origin/onboarding-flow
         <button type="submit">Signup</button>
 
         {/* Divider */}
