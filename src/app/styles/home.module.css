@@ -1,3 +1,4 @@
+
 .container {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f8f9fa;
@@ -5,6 +6,83 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 3rem;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1d2b36;
+  z-index: 1001;
+}
+
+.logo span {
+  margin-left: 0.5rem;
+}
+
+.navLinks {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.navLinks li {
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.navLinks li:hover {
+  color: #00c97b;
+}
+
+.loginBtn {
+  background: linear-gradient(90deg, #00c97b, #00b8d9);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  color: white;
+  font-weight: bold;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 201, 123, 0.2);
+}
+
+.loginBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 201, 123, 0.3);
+}
+
+/* Mobile Menu Toggle */
+.menuToggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.menuToggle span {
+  width: 25px;
+  height: 3px;
+  background: #1d2b36;
+  margin: 3px 0;
+  transition: 0.3s;
+  border-radius: 2px;
 }
 
 /* Hero Section */
@@ -20,12 +98,14 @@
 .heroLeft {
   flex: 1;
   max-width: 600px;
+  margin-left: 5%;
 }
 
 .heroLeft h1 {
-  font-size: 3rem;
-  color: #00c97b;
-  margin-bottom: 0.5rem;
+  font-size: 4rem;
+  color: #1AAE92  ;
+  /* color: #00c97b; */
+  margin-bottom: 1rem;
   line-height: 1.1;
   font-weight: 700;
 }

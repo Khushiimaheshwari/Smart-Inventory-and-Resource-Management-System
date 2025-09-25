@@ -1,27 +1,22 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { loginUser } from "../../../../models/User.js";
+import { createAccount } from "../../../../models/User.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(request) {
-  try { 
- 
-    const body = await request.json();    
-    const { email, password } = body;
+  try {
+    const body = await request.json();
+    const { name, email, password, role} = body;
 
-    if (!email || !password) {
+    if (!name || !email || !password) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    const user = await loginUser({ email, password });
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 401 });
-    }
-    log("User logged in:", user);
+    const user = await createAccount({ name, email, password, role });
 
-    const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role },
+     const token = jwt.sign(
+      { userId: user._id, email: user.email, role: user.role }, 
       JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -31,7 +26,7 @@ export async function POST(request) {
       { status: 201 }
     );
 
-    response.cookies.set("token", token, {
+   response.cookies.set("token", token, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
@@ -43,6 +38,7 @@ export async function POST(request) {
 
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }

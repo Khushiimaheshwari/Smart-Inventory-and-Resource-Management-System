@@ -7,17 +7,49 @@ import styles from "./login.module.css"; // tumhara CSS module
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter(); // initialize router
+const router = useRouter(); // initialize router
+const [error, setError] = useState("");
+const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    console.log("Login details:", { email, password });
-    // yaha apna login logic add kar sakti ho (API call etc.)
-  };
 
-  const handleSignupClick = () => {
-    router.push("/signup"); // redirect to signup page
-  };
+ const handleLogin = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+
+  try {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      setError(errData.error || "Login failed");
+      setLoading(false);
+      return;
+    }
+
+    const data = await res.json();
+    console.log("Login successful:", data);
+
+    router.push("/profile"); // use router instead of window.location
+  } catch (err) {
+    console.error(err);
+    setError("Something went wrong, try again later.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Keep signup redirect function
+const handleSignupClick = () => {
+  router.push("/signup");
+};
+
 
   return (
     <div className={styles["login-container"]}>
