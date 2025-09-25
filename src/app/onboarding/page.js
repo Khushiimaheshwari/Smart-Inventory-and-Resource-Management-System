@@ -81,7 +81,7 @@ export default function OnboardingPage() {
             className={styles.select}
           >
             
-            <option value="Faculty">Faculty</option>
+            <option value="Lab Attendant">Lab Attendant</option>
             <option value="Admin">Admin</option>
           </select>
         </div>
