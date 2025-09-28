@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";  // 👈 import router
+import { useRouter } from "next/navigation";  
 import styles from "./signup.module.css";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
-  const router = useRouter(); // 👈 initialize router
+  const router = useRouter(); 
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -15,7 +15,6 @@ const UserSchema = new mongoose.Schema({
   PhoneNumber: { type: String, default: "" },
   Location: { type: String, default: "" },
   AccountStatus: { type: String, enum: ["active", "inactive"], default: "active" },
-  Assets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Asset" }],
 }, { timestamps: true });
 
 const User = mongoose.models.User || mongoose.model("User", UserSchema);
