@@ -127,6 +127,39 @@
   transform: none;
 }
 
+/* Signup Option Styles */
+.signup-option {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.signup-option p {
+  color: #718096;
+  font-size: 14px;
+  margin: 0;
+  font-weight: 400;
+}
+
+.signup-link {
+  color: #00c97b;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 5px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.signup-link:hover {
+  color: #00b8d9;
+  text-decoration: underline;
+}
+
+.signup-link:active {
+  transform: translateY(1px);
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -164,5 +197,14 @@
     padding: 12px;
     font-size: 14px;
     margin-top: 4px;
+  }
+
+  .signup-option {
+    margin-top: 16px;
+    padding-top: 16px;
+  }
+
+  .signup-option p {
+    font-size: 13px;
   }
 }
