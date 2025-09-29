@@ -13,11 +13,18 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+     if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+    console.log("Signup details:", { email, password });
 
     try {
       const res = await fetch("/api/auth/signup", {
@@ -38,31 +45,22 @@ export default function SignupPage() {
       }
 
       const data = await res.json();
+
       console.log("Signup successful:", data);
 
-      window.location.href = "/profile"; 
+      router.push("/onboarding");
+
+      // window.location.href = "/profile"; 
     } catch (err) {
       console.error(err);
       setError("Something went wrong, try again later.");
     } finally {
       setLoading(false);
     }
-
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-
-    // 👉 yaha tu signup API call kar sakti hai
-    console.log("Signup details:", { email, password });
-
-    // Agar signup successful ho to onboarding pe bhej do
-    router.push("/onboarding"); // 👈 redirect to onboarding
   };
 
   const handleSocialLogin = (provider) => {
     console.log(`${provider} login clicked`);
-    // Add your social login logic here
   };
 
   return (

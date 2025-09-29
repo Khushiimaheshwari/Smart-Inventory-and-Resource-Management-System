@@ -7,7 +7,7 @@ export default function RootLayout({ children }) {
   const pathname = usePathname();
 
   // jin pages pr navbar nahi chahiye
-  const hideNavbarRoutes = ["/login", "/signup"];
+  const hideNavbarRoutes = ["/login", "/signup", "/onboarding"];
 
   const shouldHideNavbar = hideNavbarRoutes.includes(pathname);
 
