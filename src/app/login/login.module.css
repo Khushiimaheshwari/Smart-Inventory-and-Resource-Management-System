@@ -130,9 +130,7 @@
 /* Signup Option Styles */
 .signup-option {
   text-align: center;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #e2e8f0;
+  margin-top: 25px;
 }
 
 .signup-option p {
@@ -158,6 +156,81 @@
 
 .signup-link:active {
   transform: translateY(1px);
+}
+
+/* Social Login Section */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: #a0aec0;
+  font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.divider span {
+  padding: 0 15px;
+  background: white;
+}
+
+.socialButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.socialBtn {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: white;
+  color: #2d3748;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.socialBtn:hover {
+  border-color: #cbd5e0;
+  background: #f7fafc;
+  transform: translateY(-1px);
+}
+
+.socialBtn.microsoft {
+  background: white;
+  border-color: #0078d4;
+  color: #0078d4;
+}
+
+.socialBtn.microsoft:hover {
+  background: #f0f8ff;
+  border-color: #106ebe;
+  color: #106ebe;
+}
+
+.socialBtn.google {
+  border-color: #db4437;
+  color: #db4437;
+}
+
+.socialBtn.google:hover {
+  background: #fdf2f2;
+  border-color: #c23321;
 }
 
 @keyframes slideUp {

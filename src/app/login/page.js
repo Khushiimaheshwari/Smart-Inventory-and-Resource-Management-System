@@ -74,6 +74,28 @@ const handleSignupClick = () => {
 
         <button type="submit">Login</button>
 
+        {/* Divider */}
+        <div className={styles.divider}>
+          <span>or</span>
+        </div>
+
+        {/* Social Login Buttons */}
+        <div className={styles.socialButtons}>
+          <button 
+            type="button"
+            className={`${styles.socialBtn} ${styles.microsoft}`}
+            onClick={() => handleSocialLogin('Microsoft')}
+          >
+            <svg width="20" height="20" viewBox="0 0 23 23">
+              <path fill="#f35325" d="M1 1h10v10H1z"/>
+              <path fill="#81bc06" d="M12 1h10v10H12z"/>
+              <path fill="#05a6f0" d="M1 12h10v10H1z"/>
+              <path fill="#ffba08" d="M12 12h10v10H12z"/>
+            </svg>
+            Continue with Microsoft
+          </button>
+        </div>
+
         <div className={styles["signup-option"]}>
           <p>
             Don&apos;t have an account?{" "}
