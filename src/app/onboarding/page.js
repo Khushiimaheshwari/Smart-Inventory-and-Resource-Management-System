@@ -8,11 +8,12 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     fullName: "",
-    phone: "",
+    phone: "", 
     location: "",
     avatar: ""
   });
   const [avatarPreview, setAvatarPreview] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
   // Handle input change
   const handleChange = (e) => {
@@ -31,33 +32,68 @@ export default function OnboardingPage() {
     setStep(1);
   };
 
-  // Handle final submit
-  const handleFinalSubmit = (e) => {
-    e.preventDefault();
-    // Here you can send formData to your backend
-    console.log("Form Submitted:", formData);
-    router.push("/dashboard"); // redirect after submit
-  };
-
   // Handle avatar upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result);
-        setFormData({ ...formData, avatar: reader.result });
-      };
-      reader.readAsDataURL(file);
+      setAvatarPreview(URL.createObjectURL(file)); 
+      setFormData({ ...formData, avatar: file });
     }
   };
 
   // Generate random avatar
   const generateRandomAvatar = () => {
     const randomId = Math.floor(Math.random() * 1000);
-    const url = `https://i.pravatar.cc/150?img=${randomId}`;
+    const url = `https://api.dicebear.com/7.x/adventurer/svg?seed=${randomId}`;
     setAvatarPreview(url);
     setFormData({ ...formData, avatar: url });
+  };
+
+  const handleFinalSubmit = async (e) => {
+    e.preventDefault();
+    setIsUploading(true);
+
+    try {
+      let res;
+
+      // Case 1: avatar is a File (uploaded image)
+      if (formData.avatar instanceof File) {
+        const data = new FormData();
+        data.append("fullName", formData.fullName);
+        data.append("phone", formData.phone);
+        data.append("location", formData.location);
+        data.append("profileImage", formData.avatar);
+
+        res = await fetch("/api/auth/onboarding", {
+          method: "POST",
+          body: data,
+        });
+      } 
+      // Case 2: avatar is a URL (dicebear/pravatar)
+      else {
+        res = await fetch("/api/auth/onboarding", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName: formData.fullName,
+            phone: formData.phone,
+            location: formData.location,
+            profileImage: formData.avatar,
+          }),
+        });
+      }
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Something went wrong");
+
+      console.log("Profile Updated:", result);
+      router.push("/profile");
+    } catch (err) {
+      console.error(err.message);
+      alert("Error: " + err.message);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (

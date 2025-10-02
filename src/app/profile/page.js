@@ -47,7 +47,7 @@ export default function ProfilePage() {
     <div className={styles.profileContainer}>
       {/* Profile Header */}
       <div className={styles.profileHeader}>
-        <Image
+        <img
           src={user.ProfileImage}
           alt="Profile"
           width={140}
@@ -66,7 +66,7 @@ export default function ProfilePage() {
           <div className={styles.cardContent}>
             <p><strong>Full Name: </strong>{user.Name}</p>
             <p><strong>Phone: </strong>{user.PhoneNumber}</p>
-            <p><strong>Location: </strong>{user.City}</p>
+            <p><strong>Location: </strong>{user.Location}</p>
             <p><strong>Member Since: </strong>{new Date(user.createdAt).toDateString()}</p>
           </div>
         </div>

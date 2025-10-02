@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     enum: ["admin","faculty"],
     default: "faculty"
-  },
+  }, 
   ProfileImage: { type: String, default: "" },
   PhoneNumber: { type: String, default: "" },
   Location: { type: String, default: "" },
@@ -72,4 +72,23 @@ export async function userProfile(userId) {
   
 }
 
-export default User;
+/**
+ * Onboarding - update user profile
+ */
+export async function updateUserProfile(userId, { fullName, phone, location, profileImage }) {
+  await connectDB();
+
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found");
+
+  user.Name = fullName || user.Name;
+  user.PhoneNumber = phone || user.PhoneNumber;
+  user.Location = location || user.Location;
+  user.ProfileImage = profileImage || user.ProfileImage;
+
+  await user.save();
+
+  const userObj = user.toObject();
+  delete userObj.Password;
+  return userObj;
+}

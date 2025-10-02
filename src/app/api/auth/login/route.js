@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { loginUser } from "../../../../models/User.js";
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET; 
 
 export async function POST(request) {
   try { 
@@ -18,7 +18,7 @@ export async function POST(request) {
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 401 });
     }
-    log("User logged in:", user);
+    console.log("User logged in:", user);
 
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },

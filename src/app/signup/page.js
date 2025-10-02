@@ -50,7 +50,6 @@ export default function SignupPage() {
 
       router.push("/onboarding");
 
-      // window.location.href = "/profile"; 
     } catch (err) {
       console.error(err);
       setError("Something went wrong, try again later.");
@@ -102,7 +101,7 @@ export default function SignupPage() {
         {/* Divider */}
         <div className={styles.divider}>
           <span>or</span>
-        </div>
+        </div> 
 
         {/* Social Login Buttons */}
         <div className={styles.socialButtons}>
