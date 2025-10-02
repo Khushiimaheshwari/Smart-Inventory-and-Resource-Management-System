@@ -1,119 +1,87 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
-export default function UserManagement() {
-  const [users, setUsers] = useState([
+export default function LabManagement() {
+  const [labs, setLabs] = useState([
     {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      role: "Admin",
-      access: {
-        dashboard: true,
-        assetManagement: true,
-        analytics: true,
-        userManagement: true,
-        settings: true
-      }
+      id: 'LAB-001',
+      name: 'Computer Science Lab',
+      location: 'Building A - Floor 3',
+      capacity: 40,
+      status: 'Active',
+      incharge: 'Dr. Sarah Johnson',
+      equipment: 35
     },
     {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "Manager",
-      access: {
-        dashboard: true,
-        assetManagement: true,
-        analytics: true,
-        userManagement: false,
-        settings: false
-      }
+      id: 'LAB-002',
+      name: 'Electronics Lab',
+      location: 'Building B - Floor 2',
+      capacity: 30,
+      status: 'Active',
+      incharge: 'Prof. Mike Chen',
+      equipment: 28
     },
     {
-      id: 3,
-      name: "Mike Johnson",
-      email: "mike@example.com",
-      role: "Viewer",
-      access: {
-        dashboard: true,
-        assetManagement: false,
-        analytics: true,
-        userManagement: false,
-        settings: false
-      }
+      id: 'LAB-003',
+      name: 'Physics Lab',
+      location: 'Building A - Floor 1',
+      capacity: 25,
+      status: 'Under Maintenance',
+      incharge: 'Dr. Priya Sharma',
+      equipment: 20
     }
   ]);
 
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
-  const [newUser, setNewUser] = useState({
-    name: "",
-    email: "",
-    role: "Viewer",
-    access: {
-      dashboard: true,
-      assetManagement: false,
-      analytics: false,
-      userManagement: false,
-      settings: false
-    }
+  const [editingLab, setEditingLab] = useState(null);
+  const [newLab, setNewLab] = useState({
+    name: '',
+    location: '',
+    capacity: '',
+    status: 'Active',
+    incharge: '',
+    equipment: ''
   });
 
-  const handleAddUser = () => {
-    if (newUser.name && newUser.email) {
-      setUsers([...users, { ...newUser, id: users.length + 1 }]);
+  const totalLabs = labs.length;
+  const activeLabs = labs.filter(lab => lab.status === 'Active').length;
+  const underMaintenance = labs.filter(lab => lab.status === 'Under Maintenance').length;
+
+  const handleAddLab = () => {
+    if (newLab.name && newLab.location && newLab.capacity) {
+      const labId = `LAB-${String(labs.length + 1).padStart(3, '0')}`;
+      setLabs([...labs, { ...newLab, id: labId }]);
       setShowAddModal(false);
-      setNewUser({
-        name: "",
-        email: "",
-        role: "Viewer",
-        access: {
-          dashboard: true,
-          assetManagement: false,
-          analytics: false,
-          userManagement: false,
-          settings: false
-        }
-      });
+      resetForm();
     }
   };
 
-  const handleEditUser = (user) => {
-    setEditingUser(user);
+  const handleEditLab = (lab) => {
+    setEditingLab(lab);
     setShowAddModal(true);
-    setNewUser(user);
+    setNewLab(lab);
   };
 
-  const handleUpdateUser = () => {
-    setUsers(users.map(u => u.id === editingUser.id ? newUser : u));
+  const handleUpdateLab = () => {
+    setLabs(labs.map(l => l.id === editingLab.id ? newLab : l));
     setShowAddModal(false);
-    setEditingUser(null);
-    setNewUser({
-      name: "",
-      email: "",
-      role: "Viewer",
-      access: {
-        dashboard: true,
-        assetManagement: false,
-        analytics: false,
-        userManagement: false,
-        settings: false
-      }
-    });
+    setEditingLab(null);
+    resetForm();
   };
 
-  const handleDeleteUser = (userId) => {
-    setUsers(users.filter(u => u.id !== userId));
+  const handleDeleteLab = (labId) => {
+    setLabs(labs.filter(l => l.id !== labId));
   };
 
-  const toggleAccess = (module) => {
-    setNewUser({
-      ...newUser,
-      access: {
-        ...newUser.access,
-        [module]: !newUser.access[module]
-      }
+  const resetForm = () => {
+    setNewLab({
+      name: '',
+      location: '',
+      capacity: '',
+      status: 'Active',
+      incharge: '',
+      equipment: ''
     });
   };
 
@@ -133,23 +101,6 @@ export default function UserManagement() {
       position: 'fixed',
       height: '100vh',
       overflowY: 'auto'
-    },
-    logo: {
-      display: 'flex',
-      alignItems: 'center',
-      padding: '0 20px 20px',
-      gap: '10px'
-    },
-    logoIcon: {
-      width: '32px',
-      height: '32px',
-      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
-      borderRadius: '8px'
-    },
-    logoText: {
-      fontSize: '20px',
-      fontWeight: 700,
-      color: '#2d3748'
     },
     navMenu: {
       listStyle: 'none',
@@ -215,6 +166,29 @@ export default function UserManagement() {
       fontSize: '14px',
       transition: 'all 0.3s ease'
     },
+    statsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      gap: '20px',
+      marginBottom: '30px'
+    },
+    statCard: {
+      background: 'rgba(255, 255, 255, 0.95)',
+      backdropFilter: 'blur(20px)',
+      borderRadius: '16px',
+      padding: '24px',
+      boxShadow: '0 4px 20px rgba(0, 201, 123, 0.08)'
+    },
+    statLabel: {
+      fontSize: '14px',
+      color: '#718096',
+      marginBottom: '8px'
+    },
+    statValue: {
+      fontSize: '36px',
+      fontWeight: 700,
+      color: '#2d3748'
+    },
     tableContainer: {
       background: 'rgba(255, 255, 255, 0.95)',
       backdropFilter: 'blur(20px)',
@@ -247,25 +221,13 @@ export default function UserManagement() {
       fontSize: '12px',
       fontWeight: 600
     },
-    badgeAdmin: {
+    badgeActive: {
       background: 'rgba(0, 201, 123, 0.1)',
       color: '#00c97b'
     },
-    badgeManager: {
-      background: 'rgba(0, 184, 217, 0.1)',
-      color: '#00b8d9'
-    },
-    badgeViewer: {
+    badgeMaintenance: {
       background: 'rgba(246, 173, 85, 0.1)',
       color: '#f6ad55'
-    },
-    checkIcon: {
-      color: '#00c97b',
-      fontSize: '18px'
-    },
-    crossIcon: {
-      color: '#fc8181',
-      fontSize: '18px'
     },
     actionButtons: {
       display: 'flex',
@@ -344,30 +306,6 @@ export default function UserManagement() {
       boxSizing: 'border-box',
       background: 'white'
     },
-    accessSection: {
-      marginTop: '24px'
-    },
-    accessTitle: {
-      fontSize: '16px',
-      fontWeight: 600,
-      color: '#2d3748',
-      marginBottom: '16px'
-    },
-    checkboxGroup: {
-      display: 'flex',
-      alignItems: 'center',
-      padding: '12px',
-      background: '#f8fafb',
-      borderRadius: '8px',
-      marginBottom: '8px',
-      cursor: 'pointer'
-    },
-    checkbox: {
-      width: '20px',
-      height: '20px',
-      marginRight: '12px',
-      cursor: 'pointer'
-    },
     modalActions: {
       display: 'flex',
       gap: '12px',
@@ -420,7 +358,7 @@ export default function UserManagement() {
               </a>
             </li>
             <li style={styles.navItem}>
-              <a href="/lab-manage" style={styles.navLink}>
+              <a href="/lab-manage" style={{...styles.navLink, ...styles.navLinkActive}}>
                 <svg style={styles.navIcon} viewBox="0 0 20 20" fill="currentColor">
                   <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
                 </svg>
@@ -428,7 +366,7 @@ export default function UserManagement() {
               </a>
             </li>
             <li style={styles.navItem}>
-              <a href="#" style={{...styles.navLink, ...styles.navLinkActive}}>
+              <a href="#" style={styles.navLink}>
                 <svg style={styles.navIcon} viewBox="0 0 20 20" fill="currentColor">
                   <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
                 </svg>
@@ -451,48 +389,68 @@ export default function UserManagement() {
       <main style={styles.mainContent}>
         {/* Header */}
         <header style={styles.header}>
-          <h1 style={styles.headerTitle}>Account Management</h1>
+          <h1 style={styles.headerTitle}>Lab Management</h1>
           <button style={styles.addButton} onClick={() => setShowAddModal(true)}>
             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
             </svg>
-            Add New User
+            Add New Lab
           </button>
         </header>
 
-        {/* Users Table */}
+        {/* Stats Cards */}
+        <div style={styles.statsGrid}>
+          <div style={styles.statCard}>
+            <div style={styles.statLabel}>Total Labs</div>
+            <div style={styles.statValue}>{totalLabs}</div>
+          </div>
+          <div style={styles.statCard}>
+            <div style={styles.statLabel}>Active Labs</div>
+            <div style={styles.statValue}>{activeLabs}</div>
+          </div>
+          <div style={styles.statCard}>
+            <div style={styles.statLabel}>Under Maintenance</div>
+            <div style={styles.statValue}>{underMaintenance}</div>
+          </div>
+        </div>
+
+        {/* Labs Table */}
         <div style={styles.tableContainer}>
           <table style={styles.table}>
             <thead>
               <tr>
+                <th style={styles.th}>Lab ID</th>
                 <th style={styles.th}>Name</th>
-                <th style={styles.th}>Email</th>
-                <th style={styles.th}>Role</th>
-                
+                <th style={styles.th}>Location</th>
+                <th style={styles.th}>Capacity</th>
+                <th style={styles.th}>Status</th>
+                <th style={styles.th}>Lab Incharge</th>
+                <th style={styles.th}>Equipment</th>
                 <th style={styles.th}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {users.map(user => (
-                <tr key={user.id}>
-                  <td style={styles.td}>{user.name}</td>
-                  <td style={styles.td}>{user.email}</td>
+              {labs.map(lab => (
+                <tr key={lab.id}>
+                  <td style={styles.td}>{lab.id}</td>
+                  <td style={styles.td}>{lab.name}</td>
+                  <td style={styles.td}>{lab.location}</td>
+                  <td style={styles.td}>{lab.capacity}</td>
                   <td style={styles.td}>
                     <span style={{
                       ...styles.badge,
-                      ...(user.role === 'Admin' ? styles.badgeAdmin : 
-                          user.role === 'Manager' ? styles.badgeManager : 
-                          styles.badgeViewer)
+                      ...(lab.status === 'Active' ? styles.badgeActive : styles.badgeMaintenance)
                     }}>
-                      {user.role}
+                      {lab.status}
                     </span>
                   </td>
-                 
+                  <td style={styles.td}>{lab.incharge}</td>
+                  <td style={styles.td}>{lab.equipment}</td>
                   <td style={styles.td}>
                     <div style={styles.actionButtons}>
                       <button 
                         style={{...styles.iconButton, ...styles.editButton}}
-                        onClick={() => handleEditUser(user)}
+                        onClick={() => handleEditLab(lab)}
                       >
                         <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
                           <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
@@ -500,7 +458,7 @@ export default function UserManagement() {
                       </button>
                       <button 
                         style={{...styles.iconButton, ...styles.deleteButton}}
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => handleDeleteLab(lab.id)}
                       >
                         <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
@@ -514,102 +472,80 @@ export default function UserManagement() {
           </table>
         </div>
 
-        {/* Add/Edit User Modal */}
+        {/* Add/Edit Lab Modal */}
         {showAddModal && (
           <div style={styles.modal} onClick={() => {
             setShowAddModal(false);
-            setEditingUser(null);
+            setEditingLab(null);
           }}>
             <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-              <h2 style={styles.modalHeader}>{editingUser ? 'Edit User' : 'Add New User'}</h2>
+              <h2 style={styles.modalHeader}>{editingLab ? 'Edit Lab' : 'Add New Lab'}</h2>
               
               <div style={styles.formGroup}>
-                <label style={styles.label}>Name</label>
+                <label style={styles.label}>Lab Name</label>
                 <input 
                   type="text"
                   style={styles.input}
-                  value={newUser.name}
-                  onChange={(e) => setNewUser({...newUser, name: e.target.value})}
-                  placeholder="Enter full name"
+                  value={newLab.name}
+                  onChange={(e) => setNewLab({...newLab, name: e.target.value})}
+                  placeholder="Enter lab name"
                 />
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>Email</label>
+                <label style={styles.label}>Location</label>
                 <input 
-                  type="email"
+                  type="text"
                   style={styles.input}
-                  value={newUser.email}
-                  onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                  placeholder="Enter email address"
+                  value={newLab.location}
+                  onChange={(e) => setNewLab({...newLab, location: e.target.value})}
+                  placeholder="Enter location"
                 />
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>Role</label>
+                <label style={styles.label}>Capacity</label>
+                <input 
+                  type="number"
+                  style={styles.input}
+                  value={newLab.capacity}
+                  onChange={(e) => setNewLab({...newLab, capacity: e.target.value})}
+                  placeholder="Enter capacity"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Status</label>
                 <select 
                   style={styles.select}
-                  value={newUser.role}
-                  onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                  value={newLab.status}
+                  onChange={(e) => setNewLab({...newLab, status: e.target.value})}
                 >
-                  <option value="Admin">Admin</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Viewer">Viewer</option>
+                  <option value="Active">Active</option>
+                  <option value="Under Maintenance">Under Maintenance</option>
                 </select>
               </div>
 
-              <div style={styles.accessSection}>
-                <div style={styles.accessTitle}>Access Rights</div>
-                
-                <div style={styles.checkboxGroup} onClick={() => toggleAccess('dashboard')}>
-                  <input 
-                    type="checkbox"
-                    style={styles.checkbox}
-                    checked={newUser.access.dashboard}
-                    onChange={() => {}}
-                  />
-                  <span>Dashboard</span>
-                </div>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Lab Incharge</label>
+                <input 
+                  type="text"
+                  style={styles.input}
+                  value={newLab.incharge}
+                  onChange={(e) => setNewLab({...newLab, incharge: e.target.value})}
+                  placeholder="Enter lab incharge name"
+                />
+              </div>
 
-                <div style={styles.checkboxGroup} onClick={() => toggleAccess('assetManagement')}>
-                  <input 
-                    type="checkbox"
-                    style={styles.checkbox}
-                    checked={newUser.access.assetManagement}
-                    onChange={() => {}}
-                  />
-                  <span>Asset Management</span>
-                </div>
-
-                <div style={styles.checkboxGroup} onClick={() => toggleAccess('analytics')}>
-                  <input 
-                    type="checkbox"
-                    style={styles.checkbox}
-                    checked={newUser.access.analytics}
-                    onChange={() => {}}
-                  />
-                  <span>Analytics & Reports</span>
-                </div>
-
-                <div style={styles.checkboxGroup} onClick={() => toggleAccess('userManagement')}>
-                  <input 
-                    type="checkbox"
-                    style={styles.checkbox}
-                    checked={newUser.access.userManagement}
-                    onChange={() => {}}
-                  />
-                  <span>User Management</span>
-                </div>
-
-                <div style={styles.checkboxGroup} onClick={() => toggleAccess('settings')}>
-                  <input 
-                    type="checkbox"
-                    style={styles.checkbox}
-                    checked={newUser.access.settings}
-                    onChange={() => {}}
-                  />
-                  <span>Settings</span>
-                </div>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Equipment Count</label>
+                <input 
+                  type="number"
+                  style={styles.input}
+                  value={newLab.equipment}
+                  onChange={(e) => setNewLab({...newLab, equipment: e.target.value})}
+                  placeholder="Enter equipment count"
+                />
               </div>
 
               <div style={styles.modalActions}>
@@ -617,16 +553,16 @@ export default function UserManagement() {
                   style={styles.cancelButton}
                   onClick={() => {
                     setShowAddModal(false);
-                    setEditingUser(null);
+                    setEditingLab(null);
                   }}
                 >
                   Cancel
                 </button>
                 <button 
                   style={styles.saveButton}
-                  onClick={editingUser ? handleUpdateUser : handleAddUser}
+                  onClick={editingLab ? handleUpdateLab : handleAddLab}
                 >
-                  {editingUser ? 'Update User' : 'Add User'}
+                  {editingLab ? 'Update Lab' : 'Add Lab'}
                 </button>
               </div>
             </div>
