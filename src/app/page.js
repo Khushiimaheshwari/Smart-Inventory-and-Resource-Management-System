@@ -1,10 +1,63 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import styles from "./styles/home.module.css";
 import './styles/globals.css'
 
 export default function Home() {
+  const [counters, setCounters] = useState([0, 0, 0, 0]);
+  const statsRef = useRef(null);
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasAnimated) {
+            setHasAnimated(true);
+            animateCounters();
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    if (statsRef.current) {
+      observer.observe(statsRef.current);
+    }
+
+    return () => {
+      if (statsRef.current) {
+        observer.unobserve(statsRef.current);
+      }
+    };
+  }, [hasAnimated]);
+
+  const animateCounters = () => {
+    const targets = [15000, 500, 2, 99.9];
+    const duration = 2000;
+    const steps = 60;
+    const stepDuration = duration / steps;
+
+    targets.forEach((target, index) => {
+      let current = 0;
+      const increment = target / steps;
+
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+          current = target;
+          clearInterval(timer);
+        }
+        setCounters(prev => {
+          const newCounters = [...prev];
+          newCounters[index] = current;
+          return newCounters;
+        });
+      }, stepDuration);
+    });
+  };
 
   const handleLogout = async () => {
     try {
@@ -236,15 +289,57 @@ export default function Home() {
             </div>
           </div>
         </div>
-        
-        <div className={styles.ctaSection}>
-          <h3>Ready to Get Started?</h3>
-          <p>Join thousands of companies already using Assetra</p>
-          <button className={styles.primaryBtn}>Start Free Trial</button>
-        </div>
       </section>
 
-      {/* Footer */}
+      {/* Animated Statistics Section */}
+   <section className={styles.statsSection}>
+  <div className={styles.sectionHeader}>
+    <h2>Trusted by Thousands</h2>
+    <p>Real numbers from real companies</p>
+  </div>
+
+  <div className={styles.statsGrid}>
+    <div className={styles.statCard}>
+      <div className={styles.statIcon}>🚀</div>
+      <div className={styles.statNumber}>
+        <span className={styles.countUp}>15,000</span>
+        <span className={styles.plus}>+</span>
+      </div>
+      <div className={styles.statLabel}>Active Users</div>
+      <div className={styles.statGlow}></div>
+    </div>
+
+    <div className={styles.statCard}>
+      <div className={styles.statIcon}>💼</div>
+      <div className={styles.statNumber}>
+        <span className={styles.countUp}>500</span>
+        <span className={styles.plus}>+</span>
+      </div>
+      <div className={styles.statLabel}>Companies Trust Us</div>
+      <div className={styles.statGlow}></div>
+    </div>
+
+    <div className={styles.statCard}>
+      <div className={styles.statIcon}>📦</div>
+      <div className={styles.statNumber}>
+        <span className={styles.countUp}>2.0</span>
+        <span className={styles.plus}>M+</span>
+      </div>
+      <div className={styles.statLabel}>Assets Managed</div>
+      <div className={styles.statGlow}></div>
+    </div>
+
+    <div className={styles.statCard}>
+      <div className={styles.statIcon}>⚡</div>
+      <div className={styles.statNumber}>
+        <span className={styles.countUp}>99.9</span>
+        <span className={styles.plus}>%</span>
+      </div>
+      <div className={styles.statLabel}>Uptime Guarantee</div>
+      <div className={styles.statGlow}></div>
+    </div>
+  </div>
+</section>
       <footer className={styles.footer}>
         <p>© 2025 Assetra. All rights reserved.</p>
       </footer>
