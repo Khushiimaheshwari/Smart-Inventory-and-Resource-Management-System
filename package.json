@@ -12,7 +12,6 @@
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.0",
-    "multer": "^2.0.2",
     "next": "15.4.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
