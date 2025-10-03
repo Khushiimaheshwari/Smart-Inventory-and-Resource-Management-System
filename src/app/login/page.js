@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // router import
-import styles from "./login.module.css"; // tumhara CSS module
+import { useRouter } from "next/navigation"; 
+import styles from "./login.module.css"; 
+import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-const router = useRouter(); // initialize router
-const [error, setError] = useState("");
-const [loading, setLoading] = useState(false);
+  const router = useRouter(); 
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
 
  const handleLogin = async (e) => {
@@ -36,7 +37,7 @@ const [loading, setLoading] = useState(false);
     const data = await res.json();
     console.log("Login successful:", data);
 
-    router.push("/profile"); // use router instead of window.location
+    router.push("/profile"); 
   } catch (err) {
     console.error(err);
     setError("Something went wrong, try again later.");
@@ -45,11 +46,15 @@ const [loading, setLoading] = useState(false);
   }
 };
 
-// Keep signup redirect function
 const handleSignupClick = () => {
   router.push("/signup");
 };
 
+const handleSocialLogin = (provider) => {
+  if (provider === "Microsoft") {
+    signIn("azure-ad", { callbackUrl: "/profile" }); 
+  }
+};
 
   return (
     <div className={styles["login-container"]}>

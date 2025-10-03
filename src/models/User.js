@@ -19,6 +19,8 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.models.User || mongoose.model("User", UserSchema);
 
+export { User };
+
 /**
  * Create a new user account
  */
@@ -71,6 +73,16 @@ export async function userProfile(userId) {
   return user;
   
 }
+
+/**
+ * Get user profile by email for OAuth logins
+ */
+export async function userProfileByEmail(email) {
+  await connectDB();
+  const user = await User.findOne({ Email: email }).select("-Password");
+  return user;
+}
+
 
 /**
  * Onboarding - update user profile

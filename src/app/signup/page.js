@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";  
+import { signIn } from "next-auth/react";
 import styles from "./signup.module.css";
 
 export default function SignupPage() {
@@ -59,7 +60,9 @@ export default function SignupPage() {
   };
 
   const handleSocialLogin = (provider) => {
-    console.log(`${provider} login clicked`);
+    if (provider === "Microsoft") {
+      signIn("azure-ad", { callbackUrl: "/onboarding" }); 
+    }
   };
 
   return (
