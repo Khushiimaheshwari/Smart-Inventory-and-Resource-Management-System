@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { connectDB } from "../app/api/utils/db.js";
 
-const LabExpertSchema = new mongoose.Schema({
+const LabTechnicianSchema = new mongoose.Schema({
   Name: { type: String, required: true },
   Email: { type: String, unique: true, required: true },
   Password: { type: String, required: true },
@@ -18,6 +18,6 @@ const LabExpertSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-const LabExpert = mongoose.models.LabExpert || mongoose.model("LabExpert", LabExpertSchema);
+const LabTechnician = mongoose.models.LabTechnician || mongoose.model("LabTechnician", LabTechnicianSchema);
 
-export default LabExpert;
+export default LabTechnician;
