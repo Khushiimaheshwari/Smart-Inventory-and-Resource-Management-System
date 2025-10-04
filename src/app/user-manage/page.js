@@ -432,7 +432,7 @@ export default function UserManagement() {
                 <svg style={styles.navIcon} viewBox="0 0 20 20" fill="currentColor">
                   <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
                 </svg>
-                Lab expert
+                Lab Technician
               </a>
             </li>
             <li style={styles.navItem}>
@@ -460,59 +460,78 @@ export default function UserManagement() {
           </button>
         </header>
 
-        {/* Users Table */}
-        <div style={styles.tableContainer}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Name</th>
-                <th style={styles.th}>Email</th>
-                <th style={styles.th}>Role</th>
-                
-                <th style={styles.th}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(user => (
-                <tr key={user.id}>
-                  <td style={styles.td}>{user.name}</td>
-                  <td style={styles.td}>{user.email}</td>
-                  <td style={styles.td}>
-                    <span style={{
-                      ...styles.badge,
-                      ...(user.role === 'Admin' ? styles.badgeAdmin : 
-                          user.role === 'Manager' ? styles.badgeManager : 
-                          styles.badgeViewer)
-                    }}>
-                      {user.role}
-                    </span>
-                  </td>
-                 
-                  <td style={styles.td}>
-                    <div style={styles.actionButtons}>
-                      <button 
-                        style={{...styles.iconButton, ...styles.editButton}}
-                        onClick={() => handleEditUser(user)}
-                      >
-                        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                        </svg>
-                      </button>
-                      <button 
-                        style={{...styles.iconButton, ...styles.deleteButton}}
-                        onClick={() => handleDeleteUser(user.id)}
-                      >
-                        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+       {/* Users Table */}
+<div style={styles.tableContainer}>
+  <table style={styles.table}>
+    <thead>
+      <tr>
+        <th style={styles.th}>Name</th>
+        <th style={styles.th}>Email</th>
+        <th style={styles.th}>Password</th>
+        <th style={styles.th}>Role</th>
+        <th style={styles.th}>Profile Image</th>
+        <th style={styles.th}>Phone Number</th>
+        <th style={styles.th}>Location</th>
+        <th style={styles.th}>Account Status</th>
+        <th style={styles.th}>Account Access</th>
+        <th style={styles.th}>Labs</th>
+        <th style={styles.th}>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {users.map(user => (
+        <tr key={user.id}>
+          <td style={styles.td}>{user.name}</td>
+          <td style={styles.td}>{user.email}</td>
+          <td style={styles.td}>{user.Password ? "******" : "N/A"}</td>
+          <td style={styles.td}>
+            <span style={{
+              ...styles.badge,
+              ...(user.role === 'Admin' ? styles.badgeAdmin : 
+                  user.role === 'Manager' ? styles.badgeManager : 
+                  styles.badgeViewer)
+            }}>
+              {user.role}
+            </span>
+          </td>
+          <td style={styles.td}>
+            {user.ProfileImage ? (
+              <img src={user.ProfileImage} alt="Profile" style={{width: '40px', height: '40px', borderRadius: '50%'}} />
+            ) : "N/A"}
+          </td>
+          <td style={styles.td}>{user.PhoneNumber || "N/A"}</td>
+          <td style={styles.td}>{user.Location || "N/A"}</td>
+          <td style={styles.td}>{user.AccountStatus || "active"}</td>
+          <td style={styles.td}>{user.AccountAccess || "View Only"}</td>
+          <td style={styles.td}>
+            {user.Labs && user.Labs.length > 0 ? user.Labs.join(", ") : "No Labs"}
+          </td>
+          <td style={styles.td}>
+            <div style={styles.actionButtons}>
+              <button 
+                style={{...styles.iconButton, ...styles.editButton}}
+                onClick={() => handleEditUser(user)}
+              >
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                </svg>
+              </button>
+              <button 
+                style={{...styles.iconButton, ...styles.deleteButton}}
+                onClick={() => handleDeleteUser(user.id)}
+              >
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
 
         {/* Add/Edit User Modal */}
         {showAddModal && (
