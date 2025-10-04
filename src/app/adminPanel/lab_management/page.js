@@ -1,103 +1,87 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
-export default function AssetManagement() {
-  const [assets, setAssets] = useState([
+export default function LabManagement() {
+  const [labs, setLabs] = useState([
     {
-      id: 1,
-      name: "Dell Laptop XPS 15",
-      assetId: "AST-001",
-      category: "Electronics",
-      status: "Active",
-      assignedTo: "John Doe",
-      purchaseDate: "2024-01-15",
-      value: "₹85,000",
-      location: "Office - Floor 2"
+      id: 'LAB-001',
+      name: 'Computer Science Lab',
+      location: 'Building A - Floor 3',
+      capacity: 40,
+      status: 'Active',
+      incharge: 'Dr. Sarah Johnson',
+      equipment: 35
     },
     {
-      id: 2,
-      name: "HP Printer LaserJet",
-      assetId: "AST-002",
-      category: "Equipment",
-      status: "Active",
-      assignedTo: "Not Assigned",
-      purchaseDate: "2023-11-20",
-      value: "₹25,000",
-      location: "Office - Floor 1"
+      id: 'LAB-002',
+      name: 'Electronics Lab',
+      location: 'Building B - Floor 2',
+      capacity: 30,
+      status: 'Active',
+      incharge: 'Prof. Mike Chen',
+      equipment: 28
     },
     {
-      id: 3,
-      name: "Office Desk",
-      assetId: "AST-003",
-      category: "Furniture",
-      status: "Active",
-      assignedTo: "Jane Smith",
-      purchaseDate: "2023-08-10",
-      value: "₹15,000",
-      location: "Office - Floor 2"
-    },
-    {
-      id: 4,
-      name: "MacBook Pro 14",
-      assetId: "AST-004",
-      category: "Electronics",
-      status: "Maintenance",
-      assignedTo: "Mike Johnson",
-      purchaseDate: "2024-03-05",
-      value: "₹1,50,000",
-      location: "Service Center"
+      id: 'LAB-003',
+      name: 'Physics Lab',
+      location: 'Building A - Floor 1',
+      capacity: 25,
+      status: 'Under Maintenance',
+      incharge: 'Dr. Priya Sharma',
+      equipment: 20
     }
   ]);
 
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingAsset, setEditingAsset] = useState(null);
-  const [newAsset, setNewAsset] = useState({
-    name: "",
-    assetId: "",
-    category: "Electronics",
-    status: "Active",
-    assignedTo: "",
-    purchaseDate: "",
-    value: "",
-    location: ""
+  const [editingLab, setEditingLab] = useState(null);
+  const [newLab, setNewLab] = useState({
+    name: '',
+    location: '',
+    capacity: '',
+    status: 'Active',
+    incharge: '',
+    equipment: ''
   });
 
-  const handleAddAsset = () => {
-    if (newAsset.name && newAsset.assetId) {
-      setAssets([...assets, { ...newAsset, id: assets.length + 1 }]);
+  const totalLabs = labs.length;
+  const activeLabs = labs.filter(lab => lab.status === 'Active').length;
+  const underMaintenance = labs.filter(lab => lab.status === 'Under Maintenance').length;
+
+  const handleAddLab = () => {
+    if (newLab.name && newLab.location && newLab.capacity) {
+      const labId = `LAB-${String(labs.length + 1).padStart(3, '0')}`;
+      setLabs([...labs, { ...newLab, id: labId }]);
       setShowAddModal(false);
       resetForm();
     }
   };
 
-  const handleEditAsset = (asset) => {
-    setEditingAsset(asset);
+  const handleEditLab = (lab) => {
+    setEditingLab(lab);
     setShowAddModal(true);
-    setNewAsset(asset);
+    setNewLab(lab);
   };
 
-  const handleUpdateAsset = () => {
-    setAssets(assets.map(a => a.id === editingAsset.id ? newAsset : a));
+  const handleUpdateLab = () => {
+    setLabs(labs.map(l => l.id === editingLab.id ? newLab : l));
     setShowAddModal(false);
-    setEditingAsset(null);
+    setEditingLab(null);
     resetForm();
   };
 
-  const handleDeleteAsset = (assetId) => {
-    setAssets(assets.filter(a => a.id !== assetId));
+  const handleDeleteLab = (labId) => {
+    setLabs(labs.filter(l => l.id !== labId));
   };
 
   const resetForm = () => {
-    setNewAsset({
-      name: "",
-      assetId: "",
-      category: "Electronics",
-      status: "Active",
-      assignedTo: "",
-      purchaseDate: "",
-      value: "",
-      location: ""
+    setNewLab({
+      name: '',
+      location: '',
+      capacity: '',
+      status: 'Active',
+      incharge: '',
+      equipment: ''
     });
   };
 
@@ -182,9 +166,9 @@ export default function AssetManagement() {
       fontSize: '14px',
       transition: 'all 0.3s ease'
     },
-    statsContainer: {
+    statsGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+      gridTemplateColumns: 'repeat(3, 1fr)',
       gap: '20px',
       marginBottom: '30px'
     },
@@ -192,7 +176,7 @@ export default function AssetManagement() {
       background: 'rgba(255, 255, 255, 0.95)',
       backdropFilter: 'blur(20px)',
       borderRadius: '16px',
-      padding: '20px',
+      padding: '24px',
       boxShadow: '0 4px 20px rgba(0, 201, 123, 0.08)'
     },
     statLabel: {
@@ -201,7 +185,7 @@ export default function AssetManagement() {
       marginBottom: '8px'
     },
     statValue: {
-      fontSize: '28px',
+      fontSize: '36px',
       fontWeight: 700,
       color: '#2d3748'
     },
@@ -244,10 +228,6 @@ export default function AssetManagement() {
     badgeMaintenance: {
       background: 'rgba(246, 173, 85, 0.1)',
       color: '#f6ad55'
-    },
-    badgeInactive: {
-      background: 'rgba(252, 129, 129, 0.1)',
-      color: '#fc8181'
     },
     actionButtons: {
       display: 'flex',
@@ -355,130 +335,75 @@ export default function AssetManagement() {
     }
   };
 
-  const totalAssets = assets.length;
-  const activeAssets = assets.filter(a => a.status === "Active").length;
-  const maintenanceAssets = assets.filter(a => a.status === "Maintenance").length;
-
   return (
     <div style={styles.container}>
-      {/* Sidebar */}
-      <aside style={styles.sidebar}>
-        <nav>
-          <ul style={styles.navMenu}>
-            <li style={styles.navItem}>
-              <a href="/admin" style={styles.navLink}>
-                <svg style={styles.navIcon} viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-                </svg>
-                Dashboard
-              </a>
-            </li>
-            <li style={styles.navItem}>
-              <a href="#" style={{...styles.navLink, ...styles.navLinkActive}}>
-                <svg style={styles.navIcon} viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
-                </svg>
-                Asset Management
-              </a>
-            </li>
-            <li style={styles.navItem}>
-              <a href="/lab-manage" style={styles.navLink}>
-                <svg style={styles.navIcon} viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-                </svg>
-                Lab Management
-              </a>
-            </li>
-            <li style={styles.navItem}>
-              <a href="/user-manage" style={styles.navLink}>
-                <svg style={styles.navIcon} viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-                </svg>
-                Lab Technician
-              </a>
-            </li>
-            <li style={styles.navItem}>
-              <a href="#" style={styles.navLink}>
-                <svg style={styles.navIcon} viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/>
-                </svg>
-                Settings
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </aside>
 
       {/* Main Content */}
       <main style={styles.mainContent}>
         {/* Header */}
         <header style={styles.header}>
-          <h1 style={styles.headerTitle}>Asset Management</h1>
+          <h1 style={styles.headerTitle}>Lab Management</h1>
           <button style={styles.addButton} onClick={() => setShowAddModal(true)}>
             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
             </svg>
-            Add New Asset
+            Add New Lab
           </button>
         </header>
 
         {/* Stats Cards */}
-        <div style={styles.statsContainer}>
+        <div style={styles.statsGrid}>
           <div style={styles.statCard}>
-            <div style={styles.statLabel}>Total Assets</div>
-            <div style={styles.statValue}>{totalAssets}</div>
+            <div style={styles.statLabel}>Total Labs</div>
+            <div style={styles.statValue}>{totalLabs}</div>
           </div>
           <div style={styles.statCard}>
-            <div style={styles.statLabel}>Active Assets</div>
-            <div style={styles.statValue}>{activeAssets}</div>
+            <div style={styles.statLabel}>Active Labs</div>
+            <div style={styles.statValue}>{activeLabs}</div>
           </div>
           <div style={styles.statCard}>
             <div style={styles.statLabel}>Under Maintenance</div>
-            <div style={styles.statValue}>{maintenanceAssets}</div>
+            <div style={styles.statValue}>{underMaintenance}</div>
           </div>
         </div>
 
-        {/* Assets Table */}
+        {/* Labs Table */}
         <div style={styles.tableContainer}>
           <table style={styles.table}>
             <thead>
               <tr>
-                <th style={styles.th}>Asset ID</th>
+                <th style={styles.th}>Lab ID</th>
                 <th style={styles.th}>Name</th>
-                <th style={styles.th}>Category</th>
+                <th style={styles.th}>Location</th>
+                <th style={styles.th}>Capacity</th>
                 <th style={styles.th}>Status</th>
-                <th style={styles.th}>Assigned To</th>
-                <th style={styles.th}>Purchase Date</th>
-                <th style={styles.th}>Value</th>
-                <th style={styles.th}>Lab</th>
+                <th style={styles.th}>Lab Incharge</th>
+                <th style={styles.th}>Equipment</th>
                 <th style={styles.th}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {assets.map(asset => (
-                <tr key={asset.id}>
-                  <td style={styles.td}>{asset.assetId}</td>
-                  <td style={styles.td}>{asset.name}</td>
-                  <td style={styles.td}>{asset.category}</td>
+              {labs.map(lab => (
+                <tr key={lab.id}>
+                  <td style={styles.td}>{lab.id}</td>
+                  <td style={styles.td}>{lab.name}</td>
+                  <td style={styles.td}>{lab.location}</td>
+                  <td style={styles.td}>{lab.capacity}</td>
                   <td style={styles.td}>
                     <span style={{
                       ...styles.badge,
-                      ...(asset.status === 'Active' ? styles.badgeActive : 
-                          asset.status === 'Maintenance' ? styles.badgeMaintenance : 
-                          styles.badgeInactive)
+                      ...(lab.status === 'Active' ? styles.badgeActive : styles.badgeMaintenance)
                     }}>
-                      {asset.status}
+                      {lab.status}
                     </span>
                   </td>
-                  <td style={styles.td}>{asset.assignedTo}</td>
-                  <td style={styles.td}>{asset.purchaseDate}</td>
-                  <td style={styles.td}>{asset.value}</td>
-                  <td style={styles.td}>{asset.location}</td>
+                  <td style={styles.td}>{lab.incharge}</td>
+                  <td style={styles.td}>{lab.equipment}</td>
                   <td style={styles.td}>
                     <div style={styles.actionButtons}>
                       <button 
                         style={{...styles.iconButton, ...styles.editButton}}
-                        onClick={() => handleEditAsset(asset)}
+                        onClick={() => handleEditLab(lab)}
                       >
                         <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
                           <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
@@ -486,7 +411,7 @@ export default function AssetManagement() {
                       </button>
                       <button 
                         style={{...styles.iconButton, ...styles.deleteButton}}
-                        onClick={() => handleDeleteAsset(asset.id)}
+                        onClick={() => handleDeleteLab(lab.id)}
                       >
                         <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
@@ -500,94 +425,23 @@ export default function AssetManagement() {
           </table>
         </div>
 
-        {/* Add/Edit Asset Modal */}
+        {/* Add/Edit Lab Modal */}
         {showAddModal && (
           <div style={styles.modal} onClick={() => {
             setShowAddModal(false);
-            setEditingAsset(null);
+            setEditingLab(null);
           }}>
             <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-              <h2 style={styles.modalHeader}>{editingAsset ? 'Edit Asset' : 'Add New Asset'}</h2>
+              <h2 style={styles.modalHeader}>{editingLab ? 'Edit Lab' : 'Add New Lab'}</h2>
               
               <div style={styles.formGroup}>
-                <label style={styles.label}>Asset ID</label>
+                <label style={styles.label}>Lab Name</label>
                 <input 
                   type="text"
                   style={styles.input}
-                  value={newAsset.assetId}
-                  onChange={(e) => setNewAsset({...newAsset, assetId: e.target.value})}
-                  placeholder="e.g., AST-001"
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Asset Name</label>
-                <input 
-                  type="text"
-                  style={styles.input}
-                  value={newAsset.name}
-                  onChange={(e) => setNewAsset({...newAsset, name: e.target.value})}
-                  placeholder="Enter asset name"
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Category</label>
-                <select 
-                  style={styles.select}
-                  value={newAsset.category}
-                  onChange={(e) => setNewAsset({...newAsset, category: e.target.value})}
-                >
-                  <option value="Electronics">Electronics</option>
-                  <option value="Equipment">Equipment</option>
-                  <option value="Furniture">Furniture</option>
-                  <option value="Vehicle">Vehicle</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Status</label>
-                <select 
-                  style={styles.select}
-                  value={newAsset.status}
-                  onChange={(e) => setNewAsset({...newAsset, status: e.target.value})}
-                >
-                  <option value="Active">Active</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Assigned To</label>
-                <input 
-                  type="text"
-                  style={styles.input}
-                  value={newAsset.assignedTo}
-                  onChange={(e) => setNewAsset({...newAsset, assignedTo: e.target.value})}
-                  placeholder="Enter user name or 'Not Assigned'"
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Purchase Date</label>
-                <input 
-                  type="date"
-                  style={styles.input}
-                  value={newAsset.purchaseDate}
-                  onChange={(e) => setNewAsset({...newAsset, purchaseDate: e.target.value})}
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Value</label>
-                <input 
-                  type="text"
-                  style={styles.input}
-                  value={newAsset.value}
-                  onChange={(e) => setNewAsset({...newAsset, value: e.target.value})}
-                  placeholder="e.g., ₹85,000"
+                  value={newLab.name}
+                  onChange={(e) => setNewLab({...newLab, name: e.target.value})}
+                  placeholder="Enter lab name"
                 />
               </div>
 
@@ -596,9 +450,54 @@ export default function AssetManagement() {
                 <input 
                   type="text"
                   style={styles.input}
-                  value={newAsset.location}
-                  onChange={(e) => setNewAsset({...newAsset, location: e.target.value})}
-                  placeholder="e.g., Office - Floor 2"
+                  value={newLab.location}
+                  onChange={(e) => setNewLab({...newLab, location: e.target.value})}
+                  placeholder="Enter location"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Capacity</label>
+                <input 
+                  type="number"
+                  style={styles.input}
+                  value={newLab.capacity}
+                  onChange={(e) => setNewLab({...newLab, capacity: e.target.value})}
+                  placeholder="Enter capacity"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Status</label>
+                <select 
+                  style={styles.select}
+                  value={newLab.status}
+                  onChange={(e) => setNewLab({...newLab, status: e.target.value})}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Under Maintenance">Under Maintenance</option>
+                </select>
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Lab Incharge</label>
+                <input 
+                  type="text"
+                  style={styles.input}
+                  value={newLab.incharge}
+                  onChange={(e) => setNewLab({...newLab, incharge: e.target.value})}
+                  placeholder="Enter lab incharge name"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Equipment Count</label>
+                <input 
+                  type="number"
+                  style={styles.input}
+                  value={newLab.equipment}
+                  onChange={(e) => setNewLab({...newLab, equipment: e.target.value})}
+                  placeholder="Enter equipment count"
                 />
               </div>
 
@@ -607,16 +506,16 @@ export default function AssetManagement() {
                   style={styles.cancelButton}
                   onClick={() => {
                     setShowAddModal(false);
-                    setEditingAsset(null);
+                    setEditingLab(null);
                   }}
                 >
                   Cancel
                 </button>
                 <button 
                   style={styles.saveButton}
-                  onClick={editingAsset ? handleUpdateAsset : handleAddAsset}
+                  onClick={editingLab ? handleUpdateLab : handleAddLab}
                 >
-                  {editingAsset ? 'Update Asset' : 'Add Asset'}
+                  {editingLab ? 'Update Lab' : 'Add Lab'}
                 </button>
               </div>
             </div>
