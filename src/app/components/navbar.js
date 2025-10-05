@@ -38,17 +38,6 @@ export default function Navbar() {
           <button className={styles.loginBtn}>Login/Signup</button>
         </Link>
 
-        <Link href="/profile">
-          <div className={styles.profileLink}>
-            <Image
-              src="/profile.png"
-              alt="Profile"
-              width={40}
-              height={40}
-              className={styles.profileImg}
-            />
-          </div>
-        </Link>
       </div>
 
       {/* Mobile Hamburger Button */}
@@ -65,7 +54,6 @@ export default function Navbar() {
         <li><Link href="/pricing" onClick={() => setMenuOpen(false)}>Pricing</Link></li>
         <li><Link href="/contact" onClick={() => setMenuOpen(false)}>Contact</Link></li>
         <li><Link href="/signup" onClick={() => setMenuOpen(false)}>Login/Signup</Link></li>
-        <li><Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
       </ul>
 
       {/* Mobile Menu Overlay */}
