@@ -37,7 +37,16 @@ export default function LoginPage() {
     const data = await res.json();
     console.log("Login successful:", data);
 
-    router.push("/profile"); 
+    const role = data?.user?.role;
+
+    if (role === "admin") {
+      router.push("/adminPanel");
+    } else if (role === "lab_technician") {
+      router.push("/lab_technicianPanel");
+    } else {
+      router.push("/facultyPanel");
+    }
+
   } catch (err) {
     console.error(err);
     setError("Something went wrong, try again later.");
@@ -52,7 +61,7 @@ const handleSignupClick = () => {
 
 const handleSocialLogin = (provider) => {
   if (provider === "Microsoft") {
-    signIn("azure-ad", { callbackUrl: "/profile" }); 
+    signIn("azure-ad", { callbackUrl: "/redirectAfterLogin" }); 
   }
 };
 

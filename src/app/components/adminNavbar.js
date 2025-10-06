@@ -62,7 +62,7 @@ export default function Navbar() {
   </svg>
 </button>
 
-        <Link href="/profile">
+        <Link href="/adminPanel/profile">
           <div className={styles.profileLink}>
             <Image
               src="/profile.png"

@@ -1,6 +1,6 @@
 import Sidebar from "./components/Faculty_Sidebar";
 // import Navbar from "@/components/Navbar";
-import "./adminDashboard.module.css";
+import "./facultyDashboard.module.css";
 
 export default function AdminPanelLayout({ children }) {
   return (

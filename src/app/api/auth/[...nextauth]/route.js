@@ -1,13 +1,17 @@
-import { connection } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { NextResponse } from "next/server";
 import NextAuth from "next-auth";
 import AzureADProvider from "next-auth/providers/azure-ad";
 import { connectDB } from "../../utils/db";
 import { User } from "../../../../models/User";
 
 export const authOptions = {
+
+  session: {
+    strategy: "jwt",
+    maxAge: 7 * 24 * 60 * 60, // 7 days
+  },
+
   providers: [
     AzureADProvider({
       clientId: process.env.AZURE_AD_CLIENT_ID,
@@ -65,12 +69,17 @@ export const authOptions = {
     },
 
     async session({ session, token }) {
-    //   session.user.id = token.sub;
       session.user.id = token.id;
       session.user.role = token.role;
       session.user.email = token.email;  
       session.user.customJWT = token.customJWT;
       return session;
+    },
+  },
+
+  events: {
+    async signOut({ token }) {
+      token = null; 
     },
   },
 };

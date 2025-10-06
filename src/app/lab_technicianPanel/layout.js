@@ -1,6 +1,6 @@
 import Sidebar from "./components/Lab_Technician_Sidebar";
 // import Navbar from "@/components/Navbar";
-import "./adminDashboard.module.css";
+import "./lab_technicianDashboard.module.css";
 
 export default function AdminPanelLayout({ children }) {
   return (

@@ -3,6 +3,7 @@
 import Navbar from "./components/navbar";
 import AdminNavbar from "./components/adminNavbar";
 import { usePathname } from "next/navigation";
+import Providers from "./providers";
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
@@ -16,11 +17,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        {!shouldHideNavbar && (
-          isAdminRoute ? <AdminNavbar /> : <Navbar />
-        )}
-        
-        {children}
+        <Providers>
+          {!shouldHideNavbar && (
+            isAdminRoute ? <AdminNavbar /> : <Navbar />
+          )}
+          
+          {children}
+        </Providers>  
       </body>
     </html>
   );

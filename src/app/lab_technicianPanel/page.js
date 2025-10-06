@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import styles from "./adminDashboard.module.css";
+import styles from "./lab_technicianDashboard.module.css";
 
 export default function Dashboard() {
   const [metrics] = useState({
