@@ -1,14 +1,19 @@
 import Sidebar from "./components/Admin_Sidebar";
-// import Navbar from "@/components/Navbar";
+import AdminNavbar from "./components/adminNavbar"; // ✅ import your admin navbar
 import "./adminDashboard.module.css";
 
 export default function AdminPanelLayout({ children }) {
   return (
     <div className="admin-panel">
-      {/* <Navbar /> */}
-      <div style={{ display: "flex" }}>
+      {/* ✅ Top Navbar visible on every page */}
+      <AdminNavbar />
+
+      <div style={{ display: "flex", minHeight: "100vh" }}>
+        {/* ✅ Left Sidebar */}
         <Sidebar />
-        <main style={{ flex: 1, padding: "20px" }}>
+
+        {/* ✅ Main Content Area */}
+        <main style={{ flex: 1, padding: "20px", backgroundColor: "#f9fafb" }}>
           {children}
         </main>
       </div>

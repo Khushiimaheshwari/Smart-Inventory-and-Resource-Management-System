@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import styles from "../styles/navbar.module.css";
+import styles from "./adminNavbar.module.css";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
