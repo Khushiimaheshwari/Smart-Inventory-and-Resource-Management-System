@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function LabManagement() {
   const [labs, setLabs] = useState([
@@ -35,25 +35,87 @@ export default function LabManagement() {
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingLab, setEditingLab] = useState(null);
+  const [technicians, setTechnicians] = useState([]);
   const [newLab, setNewLab] = useState({
+    id: '',
     name: '',
     location: '',
     capacity: '',
     status: 'Active',
     incharge: '',
-    equipment: ''
   });
 
   const totalLabs = labs.length;
   const activeLabs = labs.filter(lab => lab.status === 'Active').length;
   const underMaintenance = labs.filter(lab => lab.status === 'Under Maintenance').length;
 
-  const handleAddLab = () => {
-    if (newLab.name && newLab.location && newLab.capacity) {
-      const labId = `LAB-${String(labs.length + 1).padStart(3, '0')}`;
-      setLabs([...labs, { ...newLab, id: labId }]);
-      setShowAddModal(false);
-      resetForm();
+  useEffect(() => {
+    const fetchTechnicians = async () => {
+      try {
+        const res = await fetch("/api/admin/getlabTechnicians");
+        const data = await res.json();
+        if (res.ok) {
+          setTechnicians(data.technicians);
+          console.log(data);
+          
+        } else {
+          console.error("Failed to fetch technicians:", data.error);
+        }
+      } catch (err) {
+        console.error("Error fetching technicians:", err);
+      }
+    };
+
+    fetchTechnicians();
+  }, []);
+
+
+  // const handleAddLab = () => {
+  //   if (newLab.name && newLab.location && newLab.capacity) {
+  //     const labId = `LAB-${String(labs.length + 1).padStart(3, '0')}`;
+  //     setLabs([...labs, { ...newLab, id: labId }]);
+  //     setShowAddModal(false);
+  //     resetForm();
+  //   }
+  // };
+
+  const handleAddLab = async () => {
+    if (!newLab.name || !newLab.location || !newLab.capacity || !newLab.incharge) {
+      alert("Please fill in all required fields!");
+      return;
+    }
+
+    const labId = `LAB-${String(labs.length + 1).padStart(3, '0')}`;
+
+    const payload = {
+      labId,
+      labName: newLab.name,
+      location: newLab.location,
+      capacity: newLab.capacity,
+      status: newLab.status,
+      incharge: newLab.incharge, 
+    };
+
+    try {
+      const res = await fetch("/api/admin/addLab", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Lab added successfully!");
+        setLabs([...labs, { ...newLab, id: labId }]);
+        setShowAddModal(false);
+        resetForm();
+      } else {
+        alert(data.error || "Failed to add lab");
+      }
+    } catch (error) {
+      console.error("Error adding lab:", error);
+      alert("Something went wrong while adding the lab.");
     }
   };
 
@@ -76,6 +138,7 @@ export default function LabManagement() {
 
   const resetForm = () => {
     setNewLab({
+      id: '',
       name: '',
       location: '',
       capacity: '',
@@ -435,6 +498,17 @@ export default function LabManagement() {
               <h2 style={styles.modalHeader}>{editingLab ? 'Edit Lab' : 'Add New Lab'}</h2>
               
               <div style={styles.formGroup}>
+                <label style={styles.label}>Lab ID</label>
+                <input 
+                  type="text"
+                  style={styles.input}
+                  value={newLab.id}
+                  onChange={(e) => setNewLab({...newLab, id: e.target.value})}
+                  placeholder="Enter lab Id"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
                 <label style={styles.label}>Lab Name</label>
                 <input 
                   type="text"
@@ -481,24 +555,20 @@ export default function LabManagement() {
 
               <div style={styles.formGroup}>
                 <label style={styles.label}>Lab Incharge</label>
-                <input 
-                  type="text"
+                <select
                   style={styles.input}
                   value={newLab.incharge}
-                  onChange={(e) => setNewLab({...newLab, incharge: e.target.value})}
-                  placeholder="Enter lab incharge name"
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Equipment Count</label>
-                <input 
-                  type="number"
-                  style={styles.input}
-                  value={newLab.equipment}
-                  onChange={(e) => setNewLab({...newLab, equipment: e.target.value})}
-                  placeholder="Enter equipment count"
-                />
+                  onChange={(e) =>
+                    setNewLab({ ...newLab, incharge: e.target.value })
+                  }
+                >
+                  <option value="">Select Lab Incharge</option>
+                  {technicians.map((tech) => (
+                    <option key={tech._id} value={tech._id}>
+                      {tech.Name} ({tech.Email})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div style={styles.modalActions}>
