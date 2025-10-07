@@ -103,10 +103,13 @@ export default function AssetManagement() {
 
   const styles = {
     container: {
-      display: 'flex',
+      width: 'calc(100% - 288px)', // Use percentage instead of viewport width
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f8fafb 0%, #f1f5f7 100%)',
-      fontFamily: "Times New Roman, Times, serif",
+      backgroundColor: '#f9fafb',
+      padding: '1.5rem',
+      boxSizing: 'border-box',
+      marginLeft: '150px',
+      overflowX: 'hidden',
     },
     sidebar: {
       width: '260px',
