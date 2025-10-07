@@ -4,6 +4,7 @@ import Navbar from "./components/navbar";
 import { usePathname } from "next/navigation";
 import Providers from "./providers";
 
+
 export default function RootLayout({ children }) {
   const pathname = usePathname();
 
@@ -12,6 +13,9 @@ export default function RootLayout({ children }) {
   const shouldHideNavbar =
     hideNavbarRoutes.includes(pathname) || pathname.startsWith("/adminPanel");
 
+  // ✅ Define admin route check
+  const isAdminRoute = pathname.startsWith("/adminPanel");
+
   return (
     <html lang="en">
       <body>
@@ -19,7 +23,6 @@ export default function RootLayout({ children }) {
           {!shouldHideNavbar && (
             isAdminRoute ? <AdminNavbar /> : <Navbar />
           )}
-          
           {children}
         </Providers>  
       </body>
