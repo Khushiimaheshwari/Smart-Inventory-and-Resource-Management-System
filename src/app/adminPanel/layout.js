@@ -1,6 +1,6 @@
 import Sidebar from "./components/Admin_Sidebar";
 import AdminNavbar from "./components/adminNavbar"; // ✅ import your admin navbar
-import "./adminDashboard.module.css";
+
 
 export default function AdminPanelLayout({ children }) {
   return (
