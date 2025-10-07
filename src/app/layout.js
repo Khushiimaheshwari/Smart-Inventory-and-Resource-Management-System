@@ -15,7 +15,8 @@ export default function RootLayout({ children }) {
   const shouldHideNavbar =
     hideNavbarRoutes.includes(pathname) ||
     pathname.startsWith("/adminPanel") ||
-    pathname.startsWith("/facultyPanel");
+    pathname.startsWith("/facultyPanel")||
+    pathname.startsWith("/lab_technicianPanel");
 
 
   const isAdminRoute = pathname.startsWith("/adminPanel");
