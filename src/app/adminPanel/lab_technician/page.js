@@ -3,48 +3,16 @@
 import { useState, useRef, useEffect } from "react";
 import { X } from 'lucide-react';
 
-export default function UserManagement() {
+export default function LabTechnicianManagement() {
   const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      access: {
-        dashboard: true,
-        assetManagement: true,
-        analytics: true,
-        userManagement: true,
-        settings: true,
-      },
-      labAccess: ["Lab 1", "Lab 2"],
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      access: {
-        dashboard: true,
-        assetManagement: true,
-        analytics: true,
-        userManagement: false,
-        settings: false,
-      },
-      labAccess: ["Lab 1"],
-
-    },
-    {
-      id: 3,
-      name: "Mike Johnson",
-      email: "mike@example.com",
-      access: {
-        dashboard: true,
-        assetManagement: false,
-        analytics: true,
-        userManagement: false,
-        settings: false,
-      },
-      labAccess: ["Lab 2"],
-    },
+    // id,
+    // name,
+    // email,
+    // phoneNumber,
+    // profileImage,
+    // location,
+    // status,
+    // labAccess,
   ]);
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -54,9 +22,42 @@ export default function UserManagement() {
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
-    password: "",
+    phoneNumber: "",
     labAccess: [],
   });
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch("/api/admin/getlabTechnicians");
+        console.log(res);
+
+        if(!res.ok) {
+          throw new Error("Failed to fetch users");
+        }
+
+        const data = await res.json();
+        setUsers(
+          data.technicians.map(t => ({
+            id: t._id,
+            name: t.Name,
+            email: t.Email,
+            phoneNumber: t.PhoneNumber,
+            profileImage: t.ProfileImage,
+            location: t.Location,
+            status: t.AccountStatus,
+            labAccess: t.Labs?.map(lab => lab.Lab_Name),
+          }))
+        );
+        console.log(data);
+        
+      }catch (err) {
+        console.error("Fetch Users Error:", err);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleAddUser = async () => {
     if (!newUser.name || !newUser.email || !newUser.password) {
@@ -162,6 +163,9 @@ export default function UserManagement() {
   document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  console.log(users);
+  
 
   const styles = {
     container: {
@@ -535,9 +539,9 @@ export default function UserManagement() {
             {users.map((user) => (
               <tr key={user.id}>
                 <td style={styles.td}>
-                  {user.ProfileImage ? (
+                  {user.profileImage ? (
                     <img
-                      src={user.ProfileImage}
+                      src={user.profileImage}
                       alt="Profile"
                       style={{
                         width: "40px",
@@ -551,12 +555,12 @@ export default function UserManagement() {
                 </td>
                 <td style={styles.td}>{user.name}</td>
                 <td style={styles.td}>{user.email}</td>
-                <td style={styles.td}>{user.PhoneNumber || "N/A"}</td>
-                <td style={styles.td}>{user.Location || "N/A"}</td>
-                <td style={styles.td}>{user.AccountStatus || "Active"}</td>
+                <td style={styles.td}>{user.phoneNumber || "N/A"}</td>
+                <td style={styles.td}>{user.location || "N/A"}</td>
+                <td style={styles.td}>{(user.status).charAt(0).toUpperCase() + user.status.slice(1) || "N/A"}</td>
                 <td style={styles.td}>
-                  {user.Labs && user.Labs.length > 0
-                    ? user.Labs.join(", ")
+                  {user.labAccess && user.labAccess.length > 0
+                    ? user.labAccess.join(", ")
                     : "No Labs"}
                 </td>
                 <td style={styles.td}>

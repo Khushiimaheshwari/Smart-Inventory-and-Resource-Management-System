@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "../../../../app/api/utils/db";
 import LabTechnician from "../../../../models/Lab_Technician";
+import Lab from "../../../../models/Labs";
 
 export async function GET() {
   try {
@@ -8,8 +9,8 @@ export async function GET() {
 
     const technicians = await LabTechnician.find(
       {},
-      "Name Email _id"
-    ); 
+      "_id Name Email ProfileImage PhoneNumber Location AccountStatus Labs"
+    ).populate("Labs", "Lab_ID Lab_Name");
 
     return NextResponse.json({ technicians });
   } catch (error) {
