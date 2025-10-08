@@ -2,13 +2,12 @@
 "use client";  
 
 import Sidebar from "./components/Faculty_Sidebar.js";
-import AdminNavbar from "./components/facultyNavbar.js";
+import FacultyNavbar from "./components/facultyNavbar.js";
 
 export default function FacultyPanelLayout({ children }) {
   return (
     <div className="faculty-panel">
-    
-      <AdminNavbar />
+      <FacultyNavbar />
 
       <div style={{ display: "flex", minHeight: "100vh" }}>
         {/* ✅ Left Sidebar */}

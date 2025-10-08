@@ -37,14 +37,16 @@ export default function LoginPage() {
     const data = await res.json();
     console.log("Login successful:", data);
 
-    const role = data?.user?.role;
+    const role = data?.user?.Role;
 
     if (role === "admin") {
       router.push("/adminPanel");
     } else if (role === "lab_technician") {
       router.push("/lab_technicianPanel");
-    } else {
+    } else if (role === "faculty") {
       router.push("/facultyPanel");
+    }else {
+      router.push("/login");
     }
 
   } catch (err) {

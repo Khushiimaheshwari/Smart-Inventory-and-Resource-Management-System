@@ -2,13 +2,13 @@
 "use client";  
 
 import Sidebar from "./components/Lab_Technician_Sidebar.js";
-import AdminNavbar from "./components/labNavbar.js";
+import Lab_Technician_Navbar from "./components/labNavbar.js";
 
 export default function FacultyPanelLayout({ children }) {
   return (
     <div className="faculty-panel">
     
-      <AdminNavbar />
+      <Lab_Technician_Navbar />
 
       <div style={{ display: "flex", minHeight: "100vh" }}>
         {/* ✅ Left Sidebar */}

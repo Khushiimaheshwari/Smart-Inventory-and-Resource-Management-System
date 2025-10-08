@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "./facultyNavbar.module.css";
 
-export default function Navbar() {
+export default function FacultyNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -13,7 +13,7 @@ export default function Navbar() {
     <nav className={styles.navbar}>
       {/* Logo */}
       <div className={styles.logo}>
-        <Link href="/">
+        <Link href="/facultyPanel">
           <Image
             src="/logo.jpg"
             alt="Asserta Logo"
@@ -62,7 +62,7 @@ export default function Navbar() {
   </svg>
 </button>
 
-        <Link href="/adminPanel/profile">
+        <Link href="/facultyPanel/profile">
           <div className={styles.profileLink}>
             <Image
               src="/profile.png"
@@ -84,9 +84,9 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <ul className={`${styles.mobileNavLinks} ${menuOpen ? styles.active : ""}`}>
-        <li><Link href="/" onClick={() => setMenuOpen(false)}>Home</Link></li>
+        <li><Link href="/facultyPanel" onClick={() => setMenuOpen(false)}>Home</Link></li>
         
-        <li><Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
+        <li><Link href="/facultyPanel/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
       </ul>
 
       {/* Mobile Menu Overlay */}

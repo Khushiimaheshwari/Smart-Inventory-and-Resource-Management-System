@@ -9,7 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function GET() {
   try {
-    const token = cookies().get("tokesn")?.value;
+    const token = cookies().get("token")?.value;
 
     if (token) {
       const decoded = jwt.verify(token, JWT_SECRET);

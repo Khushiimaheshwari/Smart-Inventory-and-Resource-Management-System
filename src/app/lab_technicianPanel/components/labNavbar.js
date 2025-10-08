@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "./labNavbar.module.css";
 
-export default function Navbar() {
+export default function Lab_Technician_Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -13,7 +13,7 @@ export default function Navbar() {
     <nav className={styles.navbar}>
       {/* Logo */}
       <div className={styles.logo}>
-        <Link href="/">
+        <Link href="/lab_technician">
           <Image
             src="/logo.jpg"
             alt="Asserta Logo"
@@ -62,7 +62,7 @@ export default function Navbar() {
   </svg>
 </button>
 
-        <Link href="/adminPanel/profile">
+        <Link href="/lab_technician/profile">
           <div className={styles.profileLink}>
             <Image
               src="/profile.png"
@@ -84,9 +84,9 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <ul className={`${styles.mobileNavLinks} ${menuOpen ? styles.active : ""}`}>
-        <li><Link href="/" onClick={() => setMenuOpen(false)}>Home</Link></li>
+        <li><Link href="/lab_technician" onClick={() => setMenuOpen(false)}>Home</Link></li>
         
-        <li><Link href="/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
+        <li><Link href="/lab_technician/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
       </ul>
 
       {/* Mobile Menu Overlay */}

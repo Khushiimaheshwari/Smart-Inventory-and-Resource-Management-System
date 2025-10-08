@@ -37,8 +37,6 @@ export default function ProfilePage() {
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
-          console.log(data.user);
-          
         } else {
           console.error("Failed to fetch profile");
           window.location.href = "/login";
