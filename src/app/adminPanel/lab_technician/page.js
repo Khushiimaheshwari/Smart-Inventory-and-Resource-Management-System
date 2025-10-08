@@ -1,81 +1,108 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { X } from 'lucide-react';
 
-export default function UserManagement() {
+export default function LabTechnicianManagement() {
   const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      role: "Admin",
-      access: {
-        dashboard: true,
-        assetManagement: true,
-        analytics: true,
-        userManagement: true,
-        settings: true,
-      },
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "Manager",
-      access: {
-        dashboard: true,
-        assetManagement: true,
-        analytics: true,
-        userManagement: false,
-        settings: false,
-      },
-    },
-    {
-      id: 3,
-      name: "Mike Johnson",
-      email: "mike@example.com",
-      role: "Viewer",
-      access: {
-        dashboard: true,
-        assetManagement: false,
-        analytics: true,
-        userManagement: false,
-        settings: false,
-      },
-    },
+    // id,
+    // name,
+    // email,
+    // phoneNumber,
+    // profileImage,
+    // location,
+    // status,
+    // labAccess,
   ]);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
-    role: "Viewer",
-    access: {
-      dashboard: true,
-      assetManagement: false,
-      analytics: false,
-      userManagement: false,
-      settings: false,
-    },
+    phoneNumber: "",
+    labAccess: [],
   });
 
-  const handleAddUser = () => {
-    if (newUser.name && newUser.email) {
-      setUsers([...users, { ...newUser, id: users.length + 1 }]);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch("/api/admin/getlabTechnicians");
+        console.log(res);
+
+        if(!res.ok) {
+          throw new Error("Failed to fetch users");
+        }
+
+        const data = await res.json();
+        setUsers(
+          data.technicians.map(t => ({
+            id: t._id,
+            name: t.Name,
+            email: t.Email,
+            phoneNumber: t.PhoneNumber,
+            profileImage: t.ProfileImage,
+            location: t.Location,
+            status: t.AccountStatus,
+            labAccess: t.Labs?.map(lab => lab.Lab_Name),
+          }))
+        );
+        console.log(data);
+        
+      }catch (err) {
+        console.error("Fetch Users Error:", err);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const handleAddUser = async () => {
+    if (!newUser.name || !newUser.email || !newUser.password) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/addLabTechnician", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newUser.name,
+          email: newUser.email,
+          password: newUser.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
+        return;
+      }
+
+      setUsers([
+        ...users,
+        {
+          id: users.length + 1,
+          name: newUser.name,
+          email: newUser.email,
+        },
+      ]);
+
+      alert("Lab Technician added successfully!");
       setShowAddModal(false);
       setNewUser({
         name: "",
         email: "",
-        role: "Viewer",
-        access: {
-          dashboard: true,
-          assetManagement: false,
-          analytics: false,
-          userManagement: false,
-          settings: false,
-        },
+        password: "",
+        labAccess: [],
       });
+    } catch (err) {
+      console.error("Add Technician Error:", err);
+      alert("Something went wrong while adding user.");
     }
   };
 
@@ -92,14 +119,8 @@ export default function UserManagement() {
     setNewUser({
       name: "",
       email: "",
-      role: "Viewer",
-      access: {
-        dashboard: true,
-        assetManagement: false,
-        analytics: false,
-        userManagement: false,
-        settings: false,
-      },
+      password: "",
+      labAccess: [],
     });
   };
 
@@ -107,19 +128,48 @@ export default function UserManagement() {
     setUsers(users.filter((u) => u.id !== userId));
   };
 
-  const toggleAccess = (module) => {
-    setNewUser({
-      ...newUser,
-      access: {
-        ...newUser.access,
-        [module]: !newUser.access[module],
-      },
-    });
+  const allLabs = ["Lab 1", "Lab 2", "Lab 3", "Lab 4"];
+
+   const handleLabSelect = (lab) => {
+    if (lab === "No Lab Access") {
+      setNewUser((prev) => ({
+        ...prev,
+        labAccess: [],
+      }));
+    } else {
+      setNewUser((prev) => ({
+        ...prev,
+        labAccess: prev.labAccess.includes(lab)
+          ? prev.labAccess.filter((l) => l !== lab)
+          : [...prev.labAccess, lab],
+      }));
+    }
   };
+
+  const handleRemoveLab = (labToRemove) => {
+    setNewUser((prev) => ({
+      ...prev,
+      labAccess: prev.labAccess.filter((lab) => lab !== labToRemove),
+    }));
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+  document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  console.log(users);
+  
 
   const styles = {
     container: {
-      width: 'calc(100% - 288px)', // Use percentage instead of viewport width
+      width: 'calc(100% - 288px)', 
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
       padding: '1.5rem',
@@ -237,6 +287,17 @@ export default function UserManagement() {
     deleteButton: {
       color: "#fc8181",
     },
+    generateButton: {
+      padding: "8px",
+      background: "transparent",
+      border: "2px solid #e2e8f0",
+      borderRadius: "8px",
+      cursor: "pointer",
+      transition: "all 0.3s ease",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
     modal: {
       position: "fixed",
       top: 0,
@@ -263,6 +324,12 @@ export default function UserManagement() {
       fontWeight: 700,
       color: "#2d3748",
       marginBottom: "20px",
+    },
+    passwordFormGroup: {
+      display: "flex",
+      alignItems: "center", 
+      marginBottom: "20px",
+      gap: "10px",
     },
     formGroup: {
       marginBottom: "20px",
@@ -344,13 +411,103 @@ export default function UserManagement() {
       cursor: "pointer",
       fontSize: "14px",
     },
+    accessSection: {
+      marginTop: '1rem',
+      position: 'relative',
+    },
+    accessTitle: {
+      fontWeight: '600',
+      marginBottom: '8px',
+      fontSize: '14px',
+      color: '#333',
+    },
+    selectorContainer: {
+      position: 'relative',
+      width: '100%',
+    },
+    inputArea: {
+      width: '96%',
+      minHeight: '42px',
+      padding: '2px 12px',
+      borderRadius: '8px',
+      border: '2px solid #e2e8f0',
+      backgroundColor: 'white',
+      cursor: 'pointer',
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '6px',
+      alignItems: 'center',
+    },
+    inputAreaFocused: {
+      borderColor: '#14b8a6',
+      outline: 'none',
+      boxShadow: '0 0 0 2px rgba(20, 184, 166, 0.1)',
+    },
+    placeholder: {
+      color: '#999',
+      fontSize: '14px',
+    },
+    chip: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+      backgroundColor: '#14b8a6',
+      color: 'white',
+      padding: '4px 8px',
+      borderRadius: '4px',
+      fontSize: '13px',
+      fontWeight: '500',
+    },
+    removeButton: {
+      background: 'none',
+      border: 'none',
+      color: 'white',
+      cursor: 'pointer',
+      padding: '0',
+      display: 'flex',
+      alignItems: 'center',
+      opacity: '0.8',
+    },
+    dropdown: {
+      position: 'absolute',
+      top: '100%',
+      left: '0',
+      right: '0',
+      marginTop: '4px',
+      backgroundColor: 'white',
+      border: '1px solid #ddd',
+      borderRadius: '6px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      maxHeight: '200px',
+      overflowY: 'auto',
+      zIndex: 1000,
+    },
+    dropdownItem: {
+      padding: '10px 12px',
+      cursor: 'pointer',
+      fontSize: '14px',
+      color: '#333',
+      transition: 'background-color 0.15s',
+    },
+    dropdownItemHover: {
+      backgroundColor: '#f5f5f5',
+    },
+    dropdownItemSelected: {
+      backgroundColor: '#e6f7f5',
+      color: '#14b8a6',
+      fontWeight: '500',
+    },
+    noAccessItem: {
+      borderBottom: '1px solid #eee',
+      color: '#666',
+    },
   };
 
   return (
     <div style={styles.container}>
       {/* Header */}
       <header style={styles.header}>
-        <h1 style={styles.headerTitle}>Account Management</h1>
+        <h1 style={styles.headerTitle}>Lab Technician Management</h1>
         <button style={styles.addButton} onClick={() => setShowAddModal(true)}>
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
             <path
@@ -359,7 +516,7 @@ export default function UserManagement() {
               clipRule="evenodd"
             />
           </svg>
-          Add New User
+          Add New
         </button>
       </header>
 
@@ -368,15 +525,12 @@ export default function UserManagement() {
         <table style={styles.table}>
           <thead>
             <tr>
+              <th style={styles.th}>Profile Image</th>
               <th style={styles.th}>Name</th>
               <th style={styles.th}>Email</th>
-              <th style={styles.th}>Password</th>
-              <th style={styles.th}>Role</th>
-              <th style={styles.th}>Profile Image</th>
               <th style={styles.th}>Phone</th>
               <th style={styles.th}>Location</th>
               <th style={styles.th}>Status</th>
-              <th style={styles.th}>Access</th>
               <th style={styles.th}>Labs</th>
               <th style={styles.th}>Actions</th>
             </tr>
@@ -384,27 +538,10 @@ export default function UserManagement() {
           <tbody>
             {users.map((user) => (
               <tr key={user.id}>
-                <td style={styles.td}>{user.name}</td>
-                <td style={styles.td}>{user.email}</td>
-                <td style={styles.td}>{user.Password ? "******" : "N/A"}</td>
                 <td style={styles.td}>
-                  <span
-                    style={{
-                      ...styles.badge,
-                      ...(user.role === "Admin"
-                        ? styles.badgeAdmin
-                        : user.role === "Manager"
-                        ? styles.badgeManager
-                        : styles.badgeViewer),
-                    }}
-                  >
-                    {user.role}
-                  </span>
-                </td>
-                <td style={styles.td}>
-                  {user.ProfileImage ? (
+                  {user.profileImage ? (
                     <img
-                      src={user.ProfileImage}
+                      src={user.profileImage}
                       alt="Profile"
                       style={{
                         width: "40px",
@@ -416,27 +553,26 @@ export default function UserManagement() {
                     "N/A"
                   )}
                 </td>
-                <td style={styles.td}>{user.PhoneNumber || "N/A"}</td>
-                <td style={styles.td}>{user.Location || "N/A"}</td>
-                <td style={styles.td}>{user.AccountStatus || "Active"}</td>
-                <td style={styles.td}>{user.AccountAccess || "View Only"}</td>
+                <td style={styles.td}>{user.name}</td>
+                <td style={styles.td}>{user.email}</td>
+                <td style={styles.td}>{user.phoneNumber || "N/A"}</td>
+                <td style={styles.td}>{user.location || "N/A"}</td>
+                <td style={styles.td}>{(user.status).charAt(0).toUpperCase() + user.status.slice(1) || "N/A"}</td>
                 <td style={styles.td}>
-                  {user.Labs && user.Labs.length > 0
-                    ? user.Labs.join(", ")
+                  {user.labAccess && user.labAccess.length > 0
+                    ? user.labAccess.join(", ")
                     : "No Labs"}
                 </td>
                 <td style={styles.td}>
                   <div style={styles.actionButtons}>
                     <button
                       style={{ ...styles.iconButton, ...styles.editButton }}
-                      onClick={() => handleEditUser(user)}
-                    >
+                      onClick={() => handleEditUser(user)}>
                       <svg
                         width="18"
                         height="18"
                         viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
+                        fill="currentColor">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                       </svg>
                     </button>
@@ -509,38 +645,130 @@ export default function UserManagement() {
             </div>
 
             <div style={styles.formGroup}>
-              <label style={styles.label}>Role</label>
-              <select
-                style={styles.select}
-                value={newUser.role}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, role: e.target.value })
-                }
-              >
-                <option value="Admin">Admin</option>
-                <option value="Manager">Manager</option>
-                <option value="Viewer">Viewer</option>
-              </select>
+              <label style={styles.label}>Password</label>
+              <div style={styles.passwordFormGroup}>
+                <input
+                  type="text"
+                  style={styles.input}
+                  value={newUser.password}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, password: e.target.value })
+                  }
+                  placeholder="Enter password"
+                />
+                <button
+                  style={styles.generateButton}
+                >
+                  <svg
+                    width="25"
+                    height="25"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-label="Generate icon"
+                    role="img">
+
+                    <path d="M3 13.5V17h3.5l9-9-3.5-3.5-9 9z" fill="currentColor" opacity="0.25"/>
+                    <path d="M10.5 6.5l-7 7V17h1.5l7-7-1-1z" fill="currentColor"/>
+                    <path d="M12.7 4.3l1-1 1.0 1.0-1 1-1-1z" fill="currentColor" opacity="0.6"/>
+
+                    <path d="M15 5l2-2 1 1-2 2-1-1z" fill="currentColor" opacity="0.8"/>
+                    <path d="M12 8l-2 2-1-1 2-2 1 1z" fill="currentColor" opacity="0.6"/>
+
+                    <circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-opacity="0.15" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
-            <div style={styles.accessSection}>
-              <div style={styles.accessTitle}>Access Rights</div>
-
-              {Object.keys(newUser.access).map((key) => (
+            <div style={styles.accessSection} ref={dropdownRef}>
+              <div style={styles.accessTitle}>Lab Access</div>
+              
+              <div style={styles.selectorContainer}>
                 <div
-                  key={key}
-                  style={styles.checkboxGroup}
-                  onClick={() => toggleAccess(key)}
+                  style={{
+                    ...styles.inputArea,
+                    ...(isDropdownOpen ? styles.inputAreaFocused : {}),
+                  }}
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
-                  <input
-                    type="checkbox"
-                    style={styles.checkbox}
-                    checked={newUser.access[key]}
-                    onChange={() => {}}
-                  />
-                  <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                  {newUser.labAccess.length === 0 ? (
+                    <span style={styles.placeholder}>Select lab access</span>
+                  ) : (
+                    newUser.labAccess.map((lab) => (
+                      <div key={lab} style={styles.chip}>
+                        <span>{lab}</span>
+                        <button
+                          style={styles.removeButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveLab(lab);
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                          onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))
+                  )}
                 </div>
-              ))}
+
+                {isDropdownOpen && (
+                  <div style={styles.dropdown}>
+                    <div
+                      style={{
+                        ...styles.dropdownItem,
+                        ...styles.noAccessItem,
+                        ...(newUser.labAccess.length === 0 ? styles.dropdownItemSelected : {}),
+                      }}
+                      onClick={() => handleLabSelect("No Lab Access")}
+                      onMouseEnter={(e) => {
+                        if (newUser.labAccess.length !== 0) {
+                          e.currentTarget.style.backgroundColor = styles.dropdownItemHover.backgroundColor;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (newUser.labAccess.length !== 0) {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }
+                      }}
+                    >
+                      No Lab Access
+                    </div>
+
+                    {allLabs.map((lab) => {
+                      const isSelected = newUser.labAccess.includes(lab);
+                      return (
+                        <div
+                          key={lab}
+                          style={{
+                            ...styles.dropdownItem,
+                            ...(isSelected ? styles.dropdownItemSelected : {}),
+                          }}
+                          onClick={() => handleLabSelect(lab)}
+                          onMouseEnter={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.backgroundColor = styles.dropdownItemHover.backgroundColor;
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                            }
+                          }}
+                        >
+                          {lab} {isSelected && '✓'}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '6px' }}>
+                <strong>Selected Labs:</strong>{' '}
+                {newUser.labAccess.length > 0 ? newUser.labAccess.join(', ') : 'None'}
+              </div>
             </div>
 
             <div style={styles.modalActions}>

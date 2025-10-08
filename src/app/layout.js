@@ -7,11 +7,9 @@ import Providers from "./providers";
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
-
-
+  
   const hideNavbarRoutes = ["/login", "/signup", "/onboarding"];
 
- 
   const shouldHideNavbar =
     hideNavbarRoutes.includes(pathname) ||
     pathname.startsWith("/adminPanel") ||
@@ -24,9 +22,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <Providers>
-         
-          {!shouldHideNavbar && (isAdminRoute ? <AdminNavbar /> : <Navbar />)}
+        <Providers>         
+          {!shouldHideNavbar && (
+            isAdminRoute ? <AdminNavbar /> : <Navbar />
+          )}          
           {children}
         </Providers>
       </body>

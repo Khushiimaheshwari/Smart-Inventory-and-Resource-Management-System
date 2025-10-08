@@ -1,15 +1,18 @@
 import mongoose from "mongoose";
-import { connectDB } from "../app/api/utils/db.js";
 
 const LabSchema = new mongoose.Schema({
+  Lab_ID: { type: String, unique: true, required: true },
   Lab_Name: { type: String, required: true },
-  Lab_Technician: { type: String, required: true },
-  TimeTable: { type: String, default: "" },
   Location: { type: String, default: "" },
+  Lab_Incharge: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lab_Technician" }],
+  Total_Capacity: { type: Number, default: 0 },
+  Status: { type: String, enum: ["active", "inactive"], default: "active" },
   Software_Specifications: { type: String, default: "" },
   Hardware_Specifications: { type: String, default: "" },
-  Total_Seats: { type: Number, default: 0 },
   PCs: [{ type: mongoose.Schema.Types.ObjectId, ref: "PCs" }],
+  TimeTable: { type: String, default: "" },
+  Remarks: { type: String, default: "" },
+
 }, { timestamps: true });
 
 const Lab = mongoose.models.Lab || mongoose.model("Lab", LabSchema);
