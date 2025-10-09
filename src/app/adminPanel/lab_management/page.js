@@ -3,35 +3,7 @@
 import { useEffect, useState } from 'react';
 
 export default function LabManagement() {
-  const [labs, setLabs] = useState([
-    {
-      id: 'LAB-001',
-      name: 'Computer Science Lab',
-      location: 'Building A - Floor 3',
-      capacity: 40,
-      status: 'Active',
-      incharge: 'Dr. Sarah Johnson',
-      equipment: 35
-    },
-    {
-      id: 'LAB-002',
-      name: 'Electronics Lab',
-      location: 'Building B - Floor 2',
-      capacity: 30,
-      status: 'Active',
-      incharge: 'Prof. Mike Chen',
-      equipment: 28
-    },
-    {
-      id: 'LAB-003',
-      name: 'Physics Lab',
-      location: 'Building A - Floor 1',
-      capacity: 25,
-      status: 'Under Maintenance',
-      incharge: 'Dr. Priya Sharma',
-      equipment: 20
-    }
-  ]);
+  const [labs, setLabs] = useState([]);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingLab, setEditingLab] = useState(null);
@@ -39,9 +11,11 @@ export default function LabManagement() {
   const [newLab, setNewLab] = useState({
     id: '',
     name: '',
-    location: '',
+    block: '',
+    labRoom: '',
     capacity: '',
     status: 'Active',
+    technician: '',
     incharge: '',
   });
 
@@ -69,23 +43,45 @@ export default function LabManagement() {
     fetchTechnicians();
   }, []);
 
+  useEffect(() => {
+    const fetchTab = async () => {
+      try {
+        const res = await fetch("/api/admin/getLabs");
+        const data = await res.json();
+        if (res.ok) {
+          setLabs(data.labs);
+          console.log(data);
+          
+        } else {
+          console.error("Failed to fetch lab:", data.error);
+        }
+      } catch (err) {
+        console.error("Error fetching lab:", err);
+      }
+    };
+
+    fetchTab();
+  }, []);
+
   const handleAddLab = async () => {
-    if (!newLab.name || !newLab.location || !newLab.capacity || !newLab.incharge) {
+    if (!newLab.name || !newLab.block || !newLab.capacity || !newLab.technician) {
       alert("Please fill in all required fields!");
       return;
     }
 
-    const labId = `LAB-${String(labs.length + 1).padStart(3, '0')}`;
+    // const labId = `LAB-${String(labs.length + 1).padStart(3, '0')}`;
 
     const payload = {
-      labId,
+      labId: newLab.id,
       labName: newLab.name,
-      location: newLab.location,
+      block: newLab.block,
+      labRoom: newLab.labRoom,
       capacity: newLab.capacity,
       status: newLab.status,
-      incharge: newLab.incharge, 
+      technician: newLab.technician,
+      incharge: newLab.incharge,
     };
-
+    
     try {
       const res = await fetch("/api/admin/addLab", {
         method: "POST",
@@ -97,7 +93,7 @@ export default function LabManagement() {
 
       if (res.ok) {
         alert("Lab added successfully!");
-        setLabs([...labs, { ...newLab, id: labId }]);
+        setLabs([...labs, { ...newLab, id: newLab._id }]);
         setShowAddModal(false);
         resetForm();
       } else {
@@ -130,11 +126,12 @@ export default function LabManagement() {
     setNewLab({
       id: '',
       name: '',
-      location: '',
+      block: '',
+      labRoom: '',
       capacity: '',
       status: 'Active',
+      technician: '',
       incharge: '',
-      equipment: ''
     });
   };
 
@@ -391,17 +388,18 @@ export default function LabManagement() {
     modalContent: {
       background: 'white',
       borderRadius: '16px',
-      padding: '30px',
+      padding: '18px 30px',
       width: '90%',
       maxWidth: '600px',
-      maxHeight: '90vh',
+      maxHeight: '95vh',
       overflowY: 'auto'
     },
     modalHeader: {
       fontSize: '24px',
       fontWeight: 700,
       color: '#2d3748',
-      marginBottom: '20px'
+      marginBottom: '20px',
+      marginTop: 0
     },
     formGroup: {
       marginBottom: '20px'
@@ -506,7 +504,7 @@ export default function LabManagement() {
                   </div>
                   <div style={styles.cardInfo}>
                     <div style={styles.cardIdRow}>
-                      <span style={styles.cardId}>#{lab.id}</span>
+                      <span style={styles.cardId}>#{lab.Lab_Name}</span>
                       <span
                         style={{
                           ...styles.statusBadge,
@@ -515,10 +513,10 @@ export default function LabManagement() {
                             : styles.statusMaintenance),
                         }}
                       >
-                        {lab.status}
+                        {lab.Status}
                       </span>
                     </div>
-                    <h3 style={styles.cardName}>{lab.name}</h3>
+                    <h3 style={styles.cardName}>{lab.Lab_ID}</h3>
                   </div>
                 </div>
 
@@ -528,22 +526,22 @@ export default function LabManagement() {
                       <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
                         <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
                       </svg>
-                      <span style={styles.detailLabel}>Block:</span>
-                      <span style={styles.detailValue}>{lab.location}</span>
+                      <span style={styles.detailLabel}>Lab Room:</span>
+                      <span style={styles.detailValue}>{lab.Lab_Room}</span>
                     </div>
                     <div style={styles.detailItem}>
                       <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
                         <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                       </svg>
-                      <span style={styles.detailLabel}>Room:</span>
-                      <span style={styles.detailValue}>{lab.capacity}</span>
+                      <span style={styles.detailLabel}>Capacity:</span>
+                      <span style={styles.detailValue}>{lab.Total_Capacity}</span>
                     </div>
                     <div style={styles.detailItem}>
                       <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
                         <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                       </svg>
                       <span style={styles.detailLabel}>Technician:</span>
-                      <span style={styles.detailValue}>{lab.incharge}</span>
+                      <span style={styles.detailValue}>{lab.LabTechnician[0]?.Name}</span>
                     </div>
                   </div>
 
@@ -571,7 +569,6 @@ export default function LabManagement() {
                     <button
                       style={{ ...styles.iconButton, ...styles.viewButton }}
                       onClick={() => {
-                        // Navigate to detailed page - replace with your navigation logic
                         window.location.href = `/lab/${lab.id}`;
                       }}
                     >
@@ -618,14 +615,28 @@ export default function LabManagement() {
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>Location</label>
-                <input 
-                  type="text"
-                  style={styles.input}
-                  value={newLab.location}
-                  onChange={(e) => setNewLab({...newLab, location: e.target.value})}
-                  placeholder="Enter location"
-                />
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={styles.label}>Block</label>
+                      <input 
+                        type="text"
+                        style={styles.input}
+                        value={newLab.block}
+                        onChange={(e) => setNewLab({...newLab, block: e.target.value})}
+                        placeholder="Enter Block"
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={styles.label}>Lab Room</label>
+                      <input 
+                        type="text"
+                        style={styles.input}
+                        value={newLab.labRoom}
+                        onChange={(e) => setNewLab({...newLab, labRoom: e.target.value})}
+                        placeholder="Enter labRoom"
+                      />
+                    </div>
+                </div>
               </div>
 
               <div style={styles.formGroup}>
@@ -652,15 +663,31 @@ export default function LabManagement() {
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>Lab Incharge</label>
+                <label style={styles.label}>Lab technician</label>
+                <select
+                  style={styles.input}
+                  value={newLab.technician}
+                  onChange={(e) =>
+                    setNewLab({ ...newLab, technician: e.target.value })
+                  }>
+                  <option value="">Select Lab technician</option>
+                  {technicians.map((tech) => (
+                    <option key={tech._id} value={tech._id}>
+                      {tech.Name} ({tech.Email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Lab incharge</label>
                 <select
                   style={styles.input}
                   value={newLab.incharge}
                   onChange={(e) =>
                     setNewLab({ ...newLab, incharge: e.target.value })
-                  }
-                >
-                  <option value="">Select Lab Incharge</option>
+                  }>
+                  <option value="">Select Lab incharge</option>
                   {technicians.map((tech) => (
                     <option key={tech._id} value={tech._id}>
                       {tech.Name} ({tech.Email})

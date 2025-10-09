@@ -36,7 +36,7 @@ export default function LabTechnicianManagement() {
             profileImage: t.ProfileImage,
             location: t.Location,
             status: t.AccountStatus,
-            labAccess: t.Labs?.map(lab => lab.Lab_Name),
+            labAccess: t.Labs?.map(lab => lab.Lab_ID),
           }))
         );
         console.log(data);
