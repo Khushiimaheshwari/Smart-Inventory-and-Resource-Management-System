@@ -21,7 +21,6 @@ export default function LabTechnicianManagement() {
     const fetchUsers = async () => {
       try {
         const res = await fetch("/api/admin/getlabTechnicians");
-        console.log(res);
 
         if(!res.ok) {
           throw new Error("Failed to fetch users");
@@ -804,7 +803,7 @@ export default function LabTechnicianManagement() {
                         <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
                           <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                         </svg>
-                        Phone
+                        Phone 
                       </span>
                       <span style={styles.infoValue}>{user.phoneNumber || "Not provided"}</span>
                     </div>

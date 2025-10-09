@@ -69,16 +69,6 @@ export default function LabManagement() {
     fetchTechnicians();
   }, []);
 
-
-  // const handleAddLab = () => {
-  //   if (newLab.name && newLab.location && newLab.capacity) {
-  //     const labId = `LAB-${String(labs.length + 1).padStart(3, '0')}`;
-  //     setLabs([...labs, { ...newLab, id: labId }]);
-  //     setShowAddModal(false);
-  //     resetForm();
-  //   }
-  // };
-
   const handleAddLab = async () => {
     if (!newLab.name || !newLab.location || !newLab.capacity || !newLab.incharge) {
       alert("Please fill in all required fields!");
@@ -152,8 +142,7 @@ export default function LabManagement() {
     container: {
       display: 'flex',
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f8fafb 0%, #f1f5f7 100%)',
-      fontFamily: "Times New Roman, Times, serif",
+      backgroundColor: '#f9fafb',
     },
     sidebar: {
       width: '260px',
@@ -252,66 +241,140 @@ export default function LabManagement() {
       fontWeight: 700,
       color: '#2d3748'
     },
-    tableContainer: {
-      background: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '16px',
-      padding: '24px',
-      boxShadow: '0 4px 20px rgba(0, 201, 123, 0.08)',
-      overflowX: 'auto'
+    cardContainer: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "1rem",
     },
-    table: {
-      width: '100%',
-      borderCollapse: 'collapse'
+    card: {
+      background: "white",
+      borderRadius: "12px",
+      padding: "1.5rem",
+      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+      transition: "all 0.2s ease",
+      border: "1px solid #e5e7eb",
     },
-    th: {
-      textAlign: 'left',
-      padding: '12px',
-      borderBottom: '2px solid #e2e8f0',
-      color: '#718096',
+    cardHeader: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: "1.5rem",
+      flexWrap: "wrap",
+    },
+    cardLeft: {
+      display: "flex",
+      alignItems: "center",
+      gap: "1rem",
+      flex: "1",
+      minWidth: "250px",
+    },
+    labIcon: {
+      width: "48px",
+      height: "48px",
+      borderRadius: "10px",
+      background: "linear-gradient(135deg, #e0f7f0 0%, #d1f5ea 100%)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      color: "#00c97b",
+      flexShrink: 0,
+    },
+    cardInfo: {
+      flex: "1",
+      display: "flex",
+      flexDirection: "column",
+      gap: "6px",
+    },
+    cardIdRow: {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+    },
+    cardId: {
+      fontSize: "13px",
       fontWeight: 600,
-      fontSize: '14px'
+      color: "#6b7280",
+      letterSpacing: "0.5px",
     },
-    td: {
-      padding: '16px 12px',
-      borderBottom: '1px solid #e2e8f0',
-      color: '#2d3748'
+    cardName: {
+      fontSize: "18px",
+      fontWeight: 700,
+      color: "#1f2937",
+      margin: 0,
     },
-    badge: {
-      display: 'inline-block',
-      padding: '4px 12px',
-      borderRadius: '20px',
-      fontSize: '12px',
-      fontWeight: 600
+    statusBadge: {
+      display: "inline-flex",
+      alignItems: "center",
+      padding: "4px 10px",
+      borderRadius: "6px",
+      fontSize: "11px",
+      fontWeight: 600,
+      textTransform: "uppercase",
+      letterSpacing: "0.3px",
     },
-    badgeActive: {
-      background: 'rgba(0, 201, 123, 0.1)',
-      color: '#00c97b'
+    statusActive: {
+      background: "#d1fae5",
+      color: "#065f46",
     },
-    badgeMaintenance: {
-      background: 'rgba(246, 173, 85, 0.1)',
-      color: '#f6ad55'
+    statusMaintenance: {
+      background: "#fef3c7",
+      color: "#92400e",
+    },
+    cardRight: {
+      display: "flex",
+      alignItems: "center",
+      gap: "1.5rem",
+      flexWrap: "wrap",
+    },
+    cardDetails: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "8px",
+    },
+    detailItem: {
+      display: "flex",
+      alignItems: "center",
+      fontSize: "13px",
+      color: "#4b5563",
+      gap: "2px",
+    },
+    detailLabel: {
+      fontWeight: 600,
+      color: "#6b7280",
+      marginRight: "4px",
+    },
+    detailValue: {
+      fontWeight: 600,
+      color: "#1f2937",
     },
     actionButtons: {
-      display: 'flex',
-      gap: '8px'
+      display: "flex",
+      gap: "8px",
+      alignItems: "center",
     },
     iconButton: {
-      padding: '8px',
-      background: 'transparent',
-      border: 'none',
-      borderRadius: '8px',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
+      width: "36px",
+      height: "36px",
+      background: "transparent",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      transition: "all 0.2s ease",
     },
     editButton: {
-      color: '#00b8d9'
+      color: "#00c97b",
+      background: "#f0fdf4",
     },
     deleteButton: {
-      color: '#fc8181'
+      color: "#ef4444",
+      background: "#fef2f2",
+    },
+    viewButton: {
+      color: "#00b8d9",
+      background: "#ecfeff",
     },
     modal: {
       position: 'fixed',
@@ -430,62 +493,97 @@ export default function LabManagement() {
           </div>
         </div>
 
-        {/* Labs Table */}
-        <div style={styles.tableContainer}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Lab ID</th>
-                <th style={styles.th}>Name</th>
-                <th style={styles.th}>Location</th>
-                <th style={styles.th}>Capacity</th>
-                <th style={styles.th}>Status</th>
-                <th style={styles.th}>Lab Incharge</th>
-                <th style={styles.th}>Equipment</th>
-                <th style={styles.th}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {labs.map(lab => (
-                <tr key={lab.id}>
-                  <td style={styles.td}>{lab.id}</td>
-                  <td style={styles.td}>{lab.name}</td>
-                  <td style={styles.td}>{lab.location}</td>
-                  <td style={styles.td}>{lab.capacity}</td>
-                  <td style={styles.td}>
-                    <span style={{
-                      ...styles.badge,
-                      ...(lab.status === 'Active' ? styles.badgeActive : styles.badgeMaintenance)
-                    }}>
-                      {lab.status}
-                    </span>
-                  </td>
-                  <td style={styles.td}>{lab.incharge}</td>
-                  <td style={styles.td}>{lab.equipment}</td>
-                  <td style={styles.td}>
-                    <div style={styles.actionButtons}>
-                      <button 
-                        style={{...styles.iconButton, ...styles.editButton}}
-                        onClick={() => handleEditLab(lab)}
+        {/* Card List */}
+        <div style={styles.cardContainer}>
+          {labs.map((lab) => (
+            <div key={lab.id} style={styles.card}>
+              <div style={styles.cardHeader}>
+                <div style={styles.cardLeft}>
+                  <div style={styles.labIcon}>
+                    <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                    </svg>
+                  </div>
+                  <div style={styles.cardInfo}>
+                    <div style={styles.cardIdRow}>
+                      <span style={styles.cardId}>#{lab.id}</span>
+                      <span
+                        style={{
+                          ...styles.statusBadge,
+                          ...(lab.status === 'Active'
+                            ? styles.statusActive
+                            : styles.statusMaintenance),
+                        }}
                       >
-                        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                        </svg>
-                      </button>
-                      <button 
-                        style={{...styles.iconButton, ...styles.deleteButton}}
-                        onClick={() => handleDeleteLab(lab.id)}
-                      >
-                        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
-                        </svg>
-                      </button>
+                        {lab.status}
+                      </span>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <h3 style={styles.cardName}>{lab.name}</h3>
+                  </div>
+                </div>
+
+                <div style={styles.cardRight}>
+                  <div style={styles.cardDetails}>
+                    <div style={styles.detailItem}>
+                      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
+                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
+                      </svg>
+                      <span style={styles.detailLabel}>Block:</span>
+                      <span style={styles.detailValue}>{lab.location}</span>
+                    </div>
+                    <div style={styles.detailItem}>
+                      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                      </svg>
+                      <span style={styles.detailLabel}>Room:</span>
+                      <span style={styles.detailValue}>{lab.capacity}</span>
+                    </div>
+                    <div style={styles.detailItem}>
+                      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
+                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                      </svg>
+                      <span style={styles.detailLabel}>Technician:</span>
+                      <span style={styles.detailValue}>{lab.incharge}</span>
+                    </div>
+                  </div>
+
+                  <div style={styles.actionButtons}>
+                    <button
+                      style={{ ...styles.iconButton, ...styles.editButton }}
+                      onClick={() => handleEditLab(lab)}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                      </svg>
+                    </button>
+                    <button
+                      style={{ ...styles.iconButton, ...styles.deleteButton }}
+                      onClick={() => handleDeleteLab(lab.id)}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                          fillRule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      style={{ ...styles.iconButton, ...styles.viewButton }}
+                      onClick={() => {
+                        // Navigate to detailed page - replace with your navigation logic
+                        window.location.href = `/lab/${lab.id}`;
+                      }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Add/Edit Lab Modal */}
@@ -595,3 +693,5 @@ export default function LabManagement() {
     </div>
   );
 }
+
+

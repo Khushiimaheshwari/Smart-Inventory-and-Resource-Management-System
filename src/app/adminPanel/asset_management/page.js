@@ -1,277 +1,303 @@
 "use client";
 
-import { useState } from "react";
+import { withRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 export default function AssetManagement() {
-  const [assets, setAssets] = useState([
-    {
-      id: 1,
-      name: "Dell Laptop XPS 15",
-      assetId: "AST-001",
-      category: "Electronics",
-      status: "Active",
-      assignedTo: "John Doe",
-      purchaseDate: "2024-01-15",
-      value: "₹85,000",
-      location: "Office - Floor 2"
-    },
-    {
-      id: 2,
-      name: "HP Printer LaserJet",
-      assetId: "AST-002",
-      category: "Equipment",
-      status: "Active",
-      assignedTo: "Not Assigned",
-      purchaseDate: "2023-11-20",
-      value: "₹25,000",
-      location: "Office - Floor 1"
-    },
-    {
-      id: 3,
-      name: "Office Desk",
-      assetId: "AST-003",
-      category: "Furniture",
-      status: "Active",
-      assignedTo: "Jane Smith",
-      purchaseDate: "2023-08-10",
-      value: "₹15,000",
-      location: "Office - Floor 2"
-    },
-    {
-      id: 4,
-      name: "MacBook Pro 14",
-      assetId: "AST-004",
-      category: "Electronics",
-      status: "Maintenance",
-      assignedTo: "Mike Johnson",
-      purchaseDate: "2024-03-05",
-      value: "₹1,50,000",
-      location: "Service Center"
-    }
-  ]);
-
+  const [pcs, setPCs] = useState([]);
+  const [labs, setLabs] = useState([]);
+  const [selectedLab, setSelectedLab] = useState("all");
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingAsset, setEditingAsset] = useState(null);
-  const [newAsset, setNewAsset] = useState({
-    name: "",
-    assetId: "",
-    category: "Electronics",
-    status: "Active",
-    assignedTo: "",
-    purchaseDate: "",
-    value: "",
-    location: ""
+  const [editingPC, setEditingPC] = useState(null);
+  const [newPC, setNewPC] = useState({
+    PC_Name: "",
+    Lab: "",
+    Assets: []
   });
 
-  const handleAddAsset = () => {
-    if (newAsset.name && newAsset.assetId) {
-      setAssets([...assets, { ...newAsset, id: assets.length + 1 }]);
+  useEffect(() => {
+    const fetchPCs = async () => {
+      try {
+        const res = await fetch('/api/admin/getlabPCs');
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch PCs');
+        }
+
+        const data = await res.json();
+        console.log(data);
+        
+        setPCs(
+          data.pcs.map(pc => ({
+            id: pc._id,
+            PC_Name: pc.PC_Name,
+            Lab: pc.Lab,
+            Assets: pc.Assets || []
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching PCs:", error);
+      }
+    };
+    fetchPCs();
+  }, []);
+
+  useEffect(() => {
+    const fetchLabs = async () => {
+      try {
+        const res = await fetch("/api/admin/getLabs");
+        const data = await res.json();
+        console.log(data);       
+
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to fetch labs");
+        }
+
+        setLabs(data.labs);
+      } catch (err) {
+        console.error("Error fetching labs:", err);
+        alert("Failed to load labs. Please try again later.");
+      } finally {
+        // setLoadingLabs(false);
+      }
+    };
+
+    fetchLabs();
+  }, []);
+
+  const filteredPCs = selectedLab === "all" 
+    ? pcs 
+    : pcs.filter(pc => pc.Lab._id === selectedLab);
+
+  const handleAddPC = async () => {
+    if (!newPC.PC_Name || !newPC.Lab) {
+      alert("Please fill all required fields");
+      return;
+    }
+    console.log(newPC.Lab);  
+
+    try {
+      const res = await fetch("/api/admin/addLabPCs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          PC_Name: newPC.PC_Name,
+          Lab: newPC.Lab,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
+        return;
+      }
+
+      setPCs([
+        ...pcs,
+        {
+          id: pcs.length + 1,
+          PC_Name: newPC.PC_Name,
+          Lab: newPC.Lab,
+        },
+      ]);
+
+      alert("Lab Technician added successfully!");
       setShowAddModal(false);
+      setNewPC({
+        PC_Name: "",
+        Lab: "",
+        Assets: [],
+      });
       resetForm();
+    } catch (err) {
+      console.error("Add Technician Error:", err);
+      alert("Something went wrong while adding user.");
     }
   };
 
-  const handleEditAsset = (asset) => {
-    setEditingAsset(asset);
+  const handleEditPC = (pc) => {
+    setEditingPC(pc);
     setShowAddModal(true);
-    setNewAsset(asset);
+    setNewPC(pc);
   };
 
-  const handleUpdateAsset = () => {
-    setAssets(assets.map(a => a.id === editingAsset.id ? newAsset : a));
+  const handleUpdatePC = () => {
+    setPCs(pcs.map(p => p.id === editingPC.id ? { ...newPC, id: editingPC.id } : p));
     setShowAddModal(false);
-    setEditingAsset(null);
+    setEditingPC(null);
     resetForm();
   };
 
-  const handleDeleteAsset = (assetId) => {
-    setAssets(assets.filter(a => a.id !== assetId));
+  const handleDeletePC = (pcId) => {
+    if (window.confirm("Are you sure you want to delete this PC?")) {
+      setPCs(pcs.filter(p => p.id !== pcId));
+    }
+  };
+
+  const handleRedirect = (pc) => {
+    console.log("Redirecting to PC details:", pc);
   };
 
   const resetForm = () => {
-    setNewAsset({
-      name: "",
-      assetId: "",
-      category: "Electronics",
-      status: "Active",
-      assignedTo: "",
-      purchaseDate: "",
-      value: "",
-      location: ""
-    });
+    setNewPC({ PC_Name: "", Lab: "", Assets: [] });
   };
+
+  const getLabName = (labData) => {
+    if (!labData) return "Unknown Lab";
+    return labData.name || labData.Lab_ID || "Unnamed Lab";
+
+}
 
   const styles = {
     container: {
-      width: 'calc(100% - 288px)', // Use percentage instead of viewport width
+      width: 'calc(100% - 220px)', 
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
-      padding: '1.5rem',
+      padding: '2rem',
       boxSizing: 'border-box',
-      marginLeft: '150px',
+      marginLeft: '245px',
       overflowX: 'hidden',
-    },
-    sidebar: {
-      width: '260px',
-      background: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(20px)',
-      borderRight: '1px solid #e2e8f0',
-      padding: '20px 0',
-      position: 'fixed',
-      height: '100vh',
-      overflowY: 'auto'
-    },
-    navMenu: {
-      listStyle: 'none',
-      padding: '0 20px',
-      margin: 0
-    },
-    navItem: {
-      marginBottom: '5px'
-    },
-    navLink: {
-      display: 'flex',
-      alignItems: 'center',
-      padding: '12px 16px',
-      textDecoration: 'none',
-      color: '#718096',
-      borderRadius: '10px',
-      transition: 'all 0.3s ease',
-      fontWeight: 500,
-      cursor: 'pointer'
-    },
-    navLinkActive: {
-      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
-      color: 'white'
-    },
-    navIcon: {
-      width: '20px',
-      height: '20px',
-      marginRight: '12px'
-    },
-    mainContent: {
-      flex: 1,
-      marginLeft: '260px',
-      padding: '20px 30px'
     },
     header: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '30px',
-      background: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '16px',
-      padding: '20px 25px',
-      boxShadow: '0 4px 20px rgba(0, 201, 123, 0.08)'
+      marginBottom: '2rem',
+      background: 'white',
+      borderRadius: '12px',
+      padding: '1.5rem 2rem',
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
     },
     headerTitle: {
       fontSize: '28px',
-      fontWeight: 700,
+      fontWeight: 600,
       color: '#2d3748',
       margin: 0
     },
     addButton: {
-      padding: '12px 24px',
-      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
+      padding: '0.75rem 1.5rem',
+      background: '#10b981',
       color: 'white',
       border: 'none',
-      borderRadius: '12px',
+      borderRadius: '8px',
       fontWeight: 600,
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
       fontSize: '14px',
-      transition: 'all 0.3s ease'
+      transition: 'background 0.2s ease'
     },
-    statsContainer: {
+    filterSection: {
+      background: 'white',
+      borderRadius: '12px',
+      padding: '1.5rem',
+      marginBottom: '2rem',
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
+    },
+    filterLabel: {
+      fontSize: '14px',
+      fontWeight: 600,
+      color: '#4a5568',
+      marginBottom: '0.75rem',
+      display: 'block'
+    },
+    filterButtons: {
+      display: 'flex',
+      gap: '0.75rem',
+      flexWrap: 'wrap'
+    },
+    filterButton: {
+      padding: '0.5rem 1rem',
+      background: '#f7fafc',
+      color: '#4a5568',
+      border: '2px solid #e2e8f0',
+      borderRadius: '8px',
+      fontWeight: 500,
+      cursor: 'pointer',
+      fontSize: '14px',
+      transition: 'all 0.2s ease'
+    },
+    filterButtonActive: {
+      background: '#10b981',
+      color: 'white',
+      borderColor: '#10b981'
+    },
+    pcGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '20px',
-      marginBottom: '30px'
+      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+      gap: '1.5rem'
     },
-    statCard: {
-      background: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '16px',
-      padding: '20px',
-      boxShadow: '0 4px 20px rgba(0, 201, 123, 0.08)'
+    pcCard: {
+      background: 'white',
+      borderRadius: '12px',
+      padding: '1.5rem',
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+      cursor: 'pointer',
+      position: 'relative'
     },
-    statLabel: {
+    pcCardHover: {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+    },
+    pcName: {
+      fontSize: '18px',
+      fontWeight: 600,
+      color: '#2d3748',
+      marginBottom: '0.5rem'
+    },
+    pcLab: {
       fontSize: '14px',
       color: '#718096',
-      marginBottom: '8px'
+      marginBottom: '1rem',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem'
     },
-    statValue: {
-      fontSize: '28px',
-      fontWeight: 700,
-      color: '#2d3748'
+    assetsSection: {
+      marginBottom: '1rem'
     },
-    tableContainer: {
-      background: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '16px',
-      padding: '24px',
-      boxShadow: '0 4px 20px rgba(0, 201, 123, 0.08)',
-      overflowX: 'auto'
-    },
-    table: {
-      width: '100%',
-      borderCollapse: 'collapse'
-    },
-    th: {
-      textAlign: 'left',
-      padding: '12px',
-      borderBottom: '2px solid #e2e8f0',
-      color: '#718096',
-      fontWeight: 600,
-      fontSize: '14px'
-    },
-    td: {
-      padding: '16px 12px',
-      borderBottom: '1px solid #e2e8f0',
-      color: '#2d3748'
-    },
-    badge: {
-      display: 'inline-block',
-      padding: '4px 12px',
-      borderRadius: '20px',
+    assetsLabel: {
       fontSize: '12px',
-      fontWeight: 600
+      fontWeight: 600,
+      color: '#4a5568',
+      marginBottom: '0.5rem',
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px'
     },
-    badgeActive: {
-      background: 'rgba(0, 201, 123, 0.1)',
-      color: '#00c97b'
-    },
-    badgeMaintenance: {
-      background: 'rgba(246, 173, 85, 0.1)',
-      color: '#f6ad55'
-    },
-    badgeInactive: {
-      background: 'rgba(252, 129, 129, 0.1)',
-      color: '#fc8181'
+    assetsCount: {
+      fontSize: '14px',
+      color: '#718096'
     },
     actionButtons: {
       display: 'flex',
-      gap: '8px'
+      gap: '0.5rem',
+      marginTop: '1rem',
+      paddingTop: '1rem',
+      borderTop: '1px solid #e2e8f0'
     },
     iconButton: {
-      padding: '8px',
-      background: 'transparent',
+      padding: '0.5rem',
+      background: '#f7fafc',
       border: 'none',
-      borderRadius: '8px',
+      borderRadius: '6px',
       cursor: 'pointer',
-      transition: 'all 0.3s ease',
+      transition: 'background 0.2s ease',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      flex: 1
     },
     editButton: {
-      color: '#00b8d9'
+      color: '#10b981'
     },
     deleteButton: {
-      color: '#fc8181'
+      color: '#ef4444'
+    },
+    redirectButton: {
+      color: '#3b82f6'
     },
     modal: {
       position: 'fixed',
@@ -287,56 +313,56 @@ export default function AssetManagement() {
     },
     modalContent: {
       background: 'white',
-      borderRadius: '16px',
-      padding: '30px',
+      borderRadius: '12px',
+      padding: '2rem',
       width: '90%',
-      maxWidth: '600px',
+      maxWidth: '500px',
       maxHeight: '90vh',
       overflowY: 'auto'
     },
     modalHeader: {
       fontSize: '24px',
-      fontWeight: 700,
+      fontWeight: 600,
       color: '#2d3748',
-      marginBottom: '20px'
+      marginBottom: '1.5rem'
     },
     formGroup: {
-      marginBottom: '20px'
+      marginBottom: '1.5rem'
     },
     label: {
       display: 'block',
       fontSize: '14px',
       fontWeight: 600,
       color: '#2d3748',
-      marginBottom: '8px'
+      marginBottom: '0.5rem'
     },
     input: {
       width: '100%',
-      padding: '12px',
+      padding: '0.75rem',
       border: '2px solid #e2e8f0',
       borderRadius: '8px',
       fontSize: '14px',
-      transition: 'all 0.3s ease',
+      transition: 'border-color 0.2s ease',
       boxSizing: 'border-box'
     },
     select: {
       width: '100%',
-      padding: '12px',
+      padding: '0.75rem',
       border: '2px solid #e2e8f0',
       borderRadius: '8px',
       fontSize: '14px',
-      transition: 'all 0.3s ease',
+      transition: 'border-color 0.2s ease',
       boxSizing: 'border-box',
       background: 'white'
     },
     modalActions: {
       display: 'flex',
-      gap: '12px',
-      marginTop: '24px'
+      gap: '0.75rem',
+      marginTop: '2rem'
     },
     cancelButton: {
       flex: 1,
-      padding: '12px',
+      padding: '0.75rem',
       background: 'white',
       color: '#718096',
       border: '2px solid #e2e8f0',
@@ -347,238 +373,322 @@ export default function AssetManagement() {
     },
     saveButton: {
       flex: 1,
-      padding: '12px',
-      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
+      padding: '0.75rem',
+      background: '#10b981',
       color: 'white',
       border: 'none',
       borderRadius: '8px',
       fontWeight: 600,
       cursor: 'pointer',
       fontSize: '14px'
+    },
+    emptyState: {
+      padding: '3rem',
+      color: '#718096'
     }
   };
 
-  const totalAssets = assets.length;
-  const activeAssets = assets.filter(a => a.status === "Active").length;
-  const maintenanceAssets = assets.filter(a => a.status === "Maintenance").length;
-
   return (
     <div style={styles.container}>
+      {/* Header */}
+      <header style={styles.header}>
+        <h1 style={styles.headerTitle}>Asset Management</h1>
+        <button style={styles.addButton} onClick={() => setShowAddModal(true)}>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
+          </svg>
+          Add New PC
+        </button>
+      </header>
 
-      {/* Main Content */}
-      <main style={styles.mainContent}>
-        {/* Header */}
-        <header style={styles.header}>
-          <h1 style={styles.headerTitle}>Asset Management</h1>
-          <button style={styles.addButton} onClick={() => setShowAddModal(true)}>
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
-            </svg>
-            Add New Asset
+      {/* Filter Section */}
+      <div style={styles.filterSection}>
+        <label style={styles.filterLabel}>Filter by Lab</label>
+        <div style={styles.filterButtons}>
+          <button
+            style={{
+              ...styles.filterButton,
+              ...(selectedLab === "all" ? styles.filterButtonActive : {})
+            }}
+            onClick={() => setSelectedLab("all")}
+          >
+            All Labs
           </button>
-        </header>
-
-        {/* Stats Cards */}
-        <div style={styles.statsContainer}>
-          <div style={styles.statCard}>
-            <div style={styles.statLabel}>Total Assets</div>
-            <div style={styles.statValue}>{totalAssets}</div>
-          </div>
-          <div style={styles.statCard}>
-            <div style={styles.statLabel}>Active Assets</div>
-            <div style={styles.statValue}>{activeAssets}</div>
-          </div>
-          <div style={styles.statCard}>
-            <div style={styles.statLabel}>Under Maintenance</div>
-            <div style={styles.statValue}>{maintenanceAssets}</div>
-          </div>
+          {labs.map(lab => (
+            <button
+              key={lab._id}
+              style={{
+                ...styles.filterButton,
+                ...(selectedLab === lab._id ? styles.filterButtonActive : {})
+              }}
+              onClick={() => setSelectedLab(lab._id)}
+            >
+              {lab.Lab_ID}
+            </button>
+          ))}
         </div>
+      </div>
 
-        {/* Assets Table */}
-        <div style={styles.tableContainer}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Asset ID</th>
-                <th style={styles.th}>Name</th>
-                <th style={styles.th}>Category</th>
-                <th style={styles.th}>Status</th>
-                <th style={styles.th}>Assigned To</th>
-                <th style={styles.th}>Purchase Date</th>
-                <th style={styles.th}>Value</th>
-                <th style={styles.th}>Lab</th>
-                <th style={styles.th}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {assets.map(asset => (
-                <tr key={asset.id}>
-                  <td style={styles.td}>{asset.assetId}</td>
-                  <td style={styles.td}>{asset.name}</td>
-                  <td style={styles.td}>{asset.category}</td>
-                  <td style={styles.td}>
-                    <span style={{
-                      ...styles.badge,
-                      ...(asset.status === 'Active' ? styles.badgeActive : 
-                          asset.status === 'Maintenance' ? styles.badgeMaintenance : 
-                          styles.badgeInactive)
-                    }}>
-                      {asset.status}
-                    </span>
-                  </td>
-                  <td style={styles.td}>{asset.assignedTo}</td>
-                  <td style={styles.td}>{asset.purchaseDate}</td>
-                  <td style={styles.td}>{asset.value}</td>
-                  <td style={styles.td}>{asset.location}</td>
-                  <td style={styles.td}>
-                    <div style={styles.actionButtons}>
-                      <button 
-                        style={{...styles.iconButton, ...styles.editButton}}
-                        onClick={() => handleEditAsset(asset)}
-                      >
-                        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                        </svg>
-                      </button>
-                      <button 
-                        style={{...styles.iconButton, ...styles.deleteButton}}
-                        onClick={() => handleDeleteAsset(asset.id)}
-                      >
-                        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Add/Edit Asset Modal */}
-        {showAddModal && (
-          <div style={styles.modal} onClick={() => {
-            setShowAddModal(false);
-            setEditingAsset(null);
-          }}>
-            <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-              <h2 style={styles.modalHeader}>{editingAsset ? 'Edit Asset' : 'Add New Asset'}</h2>
-              
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Asset ID</label>
-                <input 
-                  type="text"
-                  style={styles.input}
-                  value={newAsset.assetId}
-                  onChange={(e) => setNewAsset({...newAsset, assetId: e.target.value})}
-                  placeholder="e.g., AST-001"
-                />
+      {/* PC Cards Grid */}
+      <div style={styles.pcGrid}>
+        {filteredPCs.length > 0 ? (
+          filteredPCs.map(pc => (
+            <div
+              key={pc._id}
+              style={styles.pcCard}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
+              }}
+            >
+              <div style={styles.pcName}>{pc.PC_Name}</div>
+              <div style={styles.pcLab}>
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style={{color: '#10b981'}}>
+                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
+                </svg>
+                {getLabName(pc.Lab)}
               </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Asset Name</label>
-                <input 
-                  type="text"
-                  style={styles.input}
-                  value={newAsset.name}
-                  onChange={(e) => setNewAsset({...newAsset, name: e.target.value})}
-                  placeholder="Enter asset name"
-                />
+              <div style={styles.assetsSection}>
+                <div style={styles.assetsLabel}>Assets</div>
+                <div style={styles.assetsCount}>
+                  {pc.Assets.length} item{pc.Assets.length !== 1 ? 's' : ''} assigned
+                </div>
               </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Category</label>
-                <select 
-                  style={styles.select}
-                  value={newAsset.category}
-                  onChange={(e) => setNewAsset({...newAsset, category: e.target.value})}
-                >
-                  <option value="Electronics">Electronics</option>
-                  <option value="Equipment">Equipment</option>
-                  <option value="Furniture">Furniture</option>
-                  <option value="Vehicle">Vehicle</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Status</label>
-                <select 
-                  style={styles.select}
-                  value={newAsset.status}
-                  onChange={(e) => setNewAsset({...newAsset, status: e.target.value})}
-                >
-                  <option value="Active">Active</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Assigned To</label>
-                <input 
-                  type="text"
-                  style={styles.input}
-                  value={newAsset.assignedTo}
-                  onChange={(e) => setNewAsset({...newAsset, assignedTo: e.target.value})}
-                  placeholder="Enter user name or 'Not Assigned'"
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Purchase Date</label>
-                <input 
-                  type="date"
-                  style={styles.input}
-                  value={newAsset.purchaseDate}
-                  onChange={(e) => setNewAsset({...newAsset, purchaseDate: e.target.value})}
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Value</label>
-                <input 
-                  type="text"
-                  style={styles.input}
-                  value={newAsset.value}
-                  onChange={(e) => setNewAsset({...newAsset, value: e.target.value})}
-                  placeholder="e.g., ₹85,000"
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Location</label>
-                <input 
-                  type="text"
-                  style={styles.input}
-                  value={newAsset.location}
-                  onChange={(e) => setNewAsset({...newAsset, location: e.target.value})}
-                  placeholder="e.g., Office - Floor 2"
-                />
-              </div>
-
-              <div style={styles.modalActions}>
-                <button 
-                  style={styles.cancelButton}
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setEditingAsset(null);
+              <div style={styles.actionButtons}>
+                <button
+                  style={{...styles.iconButton, ...styles.redirectButton}}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRedirect(pc);
                   }}
+                  title="View Details"
                 >
-                  Cancel
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                    <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
+                  </svg>
                 </button>
-                <button 
-                  style={styles.saveButton}
-                  onClick={editingAsset ? handleUpdateAsset : handleAddAsset}
+                <button
+                  style={{...styles.iconButton, ...styles.editButton}}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditPC(pc);
+                  }}
+                  title="Edit PC"
                 >
-                  {editingAsset ? 'Update Asset' : 'Add Asset'}
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                  </svg>
+                </button>
+                <button
+                  style={{...styles.iconButton, ...styles.deleteButton}}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeletePC(pc.id);
+                  }}
+                  title="Delete PC"
+                >
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+                  </svg>
                 </button>
               </div>
             </div>
+          ))
+        ) : (
+          <div style={styles.emptyState}>
+            <p>No PCs found for the selected lab.</p>
           </div>
         )}
-      </main>
+      </div>
+
+      {/* Add/Edit Modal */}
+      {showAddModal && (
+        <div style={styles.modal} onClick={() => {
+          setShowAddModal(false);
+          setEditingPC(null);
+          resetForm();
+        }}>
+          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h2 style={styles.modalHeader}>
+              {editingPC ? "Edit PC" : "Add New PC"}
+            </h2>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>PC Name</label>
+              <input
+                type="text"
+                style={styles.input}
+                value={newPC.PC_Name}
+                onChange={(e) => setNewPC({...newPC, PC_Name: e.target.value})}
+                placeholder="Enter PC name"
+              />
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Lab</label>
+              <select
+                style={styles.select}
+                value={newPC.Lab}
+                onChange={(e) => setNewPC({...newPC, Lab: e.target.value})}>
+                <option value="">Select Lab</option>
+                {labs.length > 0 ? (
+                  labs.map((lab) => (
+                    <option key={lab._id} value={lab._id}>
+                      {lab.Lab_ID}
+                    </option>
+                  ))
+                ) : (
+                  <option disabled>No labs found</option>
+                )}
+              </select>
+            </div>
+            <div style={styles.modalActions}>
+              <button
+                style={styles.cancelButton}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setEditingPC(null);
+                  resetForm();
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                style={styles.saveButton}
+                onClick={editingPC ? handleUpdatePC : handleAddPC}
+              >
+                {editingPC ? "Update PC" : "Add PC"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+
+// {showAddModal && (
+//           <div style={styles.modal} onClick={() => {
+//             setShowAddModal(false);
+//             setEditingAsset(null);
+//           }}>
+//             <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+//               <h2 style={styles.modalHeader}>{editingAsset ? 'Edit Asset' : 'Add New Asset'}</h2>
+              
+//               <div style={styles.formGroup}>
+//                 <label style={styles.label}>Asset ID</label>
+//                 <input 
+//                   type="text"
+//                   style={styles.input}
+//                   value={newAsset.assetId}
+//                   onChange={(e) => setNewAsset({...newAsset, assetId: e.target.value})}
+//                   placeholder="e.g., AST-001"
+//                 />
+//               </div>
+
+//               <div style={styles.formGroup}>
+//                 <label style={styles.label}>Asset Name</label>
+//                 <input 
+//                   type="text"
+//                   style={styles.input}
+//                   value={newAsset.name}
+//                   onChange={(e) => setNewAsset({...newAsset, name: e.target.value})}
+//                   placeholder="Enter asset name"
+//                 />
+//               </div>
+
+//               <div style={styles.formGroup}>
+//                 <label style={styles.label}>Category</label>
+//                 <select 
+//                   style={styles.select}
+//                   value={newAsset.category}
+//                   onChange={(e) => setNewAsset({...newAsset, category: e.target.value})}
+//                 >
+//                   <option value="Electronics">Electronics</option>
+//                   <option value="Equipment">Equipment</option>
+//                   <option value="Furniture">Furniture</option>
+//                   <option value="Vehicle">Vehicle</option>
+//                   <option value="Other">Other</option>
+//                 </select>
+//               </div>
+
+//               <div style={styles.formGroup}>
+//                 <label style={styles.label}>Status</label>
+//                 <select 
+//                   style={styles.select}
+//                   value={newAsset.status}
+//                   onChange={(e) => setNewAsset({...newAsset, status: e.target.value})}
+//                 >
+//                   <option value="Active">Active</option>
+//                   <option value="Maintenance">Maintenance</option>
+//                   <option value="Inactive">Inactive</option>
+//                 </select>
+//               </div>
+
+//               <div style={styles.formGroup}>
+//                 <label style={styles.label}>Assigned To</label>
+//                 <input 
+//                   type="text"
+//                   style={styles.input}
+//                   value={newAsset.assignedTo}
+//                   onChange={(e) => setNewAsset({...newAsset, assignedTo: e.target.value})}
+//                   placeholder="Enter user name or 'Not Assigned'"
+//                 />
+//               </div>
+
+//               <div style={styles.formGroup}>
+//                 <label style={styles.label}>Purchase Date</label>
+//                 <input 
+//                   type="date"
+//                   style={styles.input}
+//                   value={newAsset.purchaseDate}
+//                   onChange={(e) => setNewAsset({...newAsset, purchaseDate: e.target.value})}
+//                 />
+//               </div>
+
+//               <div style={styles.formGroup}>
+//                 <label style={styles.label}>Value</label>
+//                 <input 
+//                   type="text"
+//                   style={styles.input}
+//                   value={newAsset.value}
+//                   onChange={(e) => setNewAsset({...newAsset, value: e.target.value})}
+//                   placeholder="e.g., ₹85,000"
+//                 />
+//               </div>
+
+//               <div style={styles.formGroup}>
+//                 <label style={styles.label}>Location</label>
+//                 <input 
+//                   type="text"
+//                   style={styles.input}
+//                   value={newAsset.location}
+//                   onChange={(e) => setNewAsset({...newAsset, location: e.target.value})}
+//                   placeholder="e.g., Office - Floor 2"
+//                 />
+//               </div>
+
+//               <div style={styles.modalActions}>
+//                 <button 
+//                   style={styles.cancelButton}
+//                   onClick={() => {
+//                     setShowAddModal(false);
+//                     setEditingAsset(null);
+//                   }}
+//                 >
+//                   Cancel
+//                 </button>
+//                 <button 
+//                   style={styles.saveButton}
+//                   onClick={editingAsset ? handleUpdateAsset : handleAddAsset}
+//                 >
+//                   {editingAsset ? 'Update Asset' : 'Add Asset'}
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+//         )}

@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 const LabSchema = new mongoose.Schema({
   Lab_ID: { type: String, unique: true, required: true },
   Lab_Name: { type: String, required: true },
-  Location: { type: String, default: "" },
+  Block: { type: String, default: "" },
+  Lab_Room: { type: String, default: "" },
   Lab_Incharge: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lab_Technician" }],
   Total_Capacity: { type: Number, default: 0 },
   Status: { type: String, enum: ["active", "inactive"], default: "active" },
