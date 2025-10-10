@@ -20,8 +20,8 @@ export default function LabManagement() {
   });
 
   const totalLabs = labs.length;
-  const activeLabs = labs.filter(lab => lab.status === 'Active').length;
-  const underMaintenance = labs.filter(lab => lab.status === 'Under Maintenance').length;
+  const activeLabs = labs.filter(lab => lab.Status === 'active').length;
+  const underMaintenance = labs.filter(lab => lab.Status === 'under maintenance').length;
 
   useEffect(() => {
     const fetchTechnicians = async () => {
@@ -44,7 +44,7 @@ export default function LabManagement() {
   }, []);
 
   useEffect(() => {
-    const fetchTab = async () => {
+    const fetchLab = async () => {
       try {
         const res = await fetch("/api/admin/getLabs");
         const data = await res.json();
@@ -60,7 +60,7 @@ export default function LabManagement() {
       }
     };
 
-    fetchTab();
+    fetchLab();
   }, []);
 
   const handleAddLab = async () => {
@@ -68,8 +68,6 @@ export default function LabManagement() {
       alert("Please fill in all required fields!");
       return;
     }
-
-    // const labId = `LAB-${String(labs.length + 1).padStart(3, '0')}`;
 
     const payload = {
       labId: newLab.id,
@@ -569,7 +567,7 @@ export default function LabManagement() {
                     <button
                       style={{ ...styles.iconButton, ...styles.viewButton }}
                       onClick={() => {
-                        window.location.href = `/lab/${lab.id}`;
+                        window.location.href = `/adminPanel/lab_management/lab/${lab._id}`;
                       }}
                     >
                       <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">

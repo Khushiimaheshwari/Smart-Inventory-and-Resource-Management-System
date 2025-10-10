@@ -1,25 +1,34 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { useParams } from 'next/navigation';
 
 const LabTimetablePage = () => {
+  const { id } = useParams();
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [view, setView] = useState('week');
+  const [labData, setLabData] = useState('week');
 
-  // Lab Data
-  const labData = {
-    Lab_ID: "LAB-001",
-    Lab_Name: "Lab 1",
-    Location: "Building A - Floor 3",
-    Lab_Incharge: "Dr. Sarah Johnson",
-    Total_Capacity: 40,
-    Status: "active",
-    Software_Specifications: "Windows 11, Visual Studio, Python 3.11, MySQL",
-    Hardware_Specifications: "Intel i5 10th Gen, 16GB RAM, 512GB SSD",
-    Total_PCs: 35,
-    Remarks: "Air conditioned lab with projector facilities"
-  };
+  useEffect(() => {
+      const fetchLab = async () => {
+        try {
+          const res = await fetch(`/api/admin/getLabById/${id}`);
+          const data = await res.json();
+          if (res.ok) {
+            setLabData(data.lab);
+            console.log(data);
+            
+          } else {
+            console.error("Failed to fetch lab:", data.error);
+          }
+        } catch (err) {
+          console.error("Error fetching lab:", err);
+        }
+      };
+  
+      fetchLab();
+    }, []);
 
   // Timetable Data
   const timetableData = [
@@ -311,8 +320,22 @@ const LabTimetablePage = () => {
             <span style={styles.infoValue}>{labData.Lab_ID}</span>
           </div>
           <div style={styles.infoItem}>
-            <span style={styles.infoLabel}>Location</span>
-            <span style={styles.infoValue}>{labData.Location}</span>
+            <span style={styles.infoLabel}>Lab Name</span>
+            <span style={styles.infoValue}>{labData.Lab_Name}</span>
+          </div>
+          <div style={styles.infoItem}>
+            <span style={styles.infoLabel}>Block</span>
+            <span style={styles.infoValue}>{labData.Block}</span>
+          </div>
+          <div style={styles.infoItem}>
+            <span style={styles.infoLabel}>Lab Room</span>
+            <span style={styles.infoValue}>{labData.Lab_Room}</span>
+          </div>
+          <div style={styles.infoItem}>
+            <span style={styles.infoLabel}>Lab Technician</span>
+            <span style={styles.infoValue}>{labData.LabTechnician[0]?.Name}</span>
+            <span style={styles.infoValue}>{labData.LabTechnician[0]?.Email}</span>
+            <span style={styles.infoValue}>{labData.LabTechnician[0]?.PhoneNumber}</span>
           </div>
           <div style={styles.infoItem}>
             <span style={styles.infoLabel}>Lab Incharge</span>
@@ -320,11 +343,11 @@ const LabTimetablePage = () => {
           </div>
           <div style={styles.infoItem}>
             <span style={styles.infoLabel}>Total Capacity</span>
-            <span style={styles.infoValue}>{labData.Total_Capacity} Students</span>
+            <span style={styles.infoValue}>{labData.Total_Capacity}</span>
           </div>
           <div style={styles.infoItem}>
             <span style={styles.infoLabel}>Total PCs</span>
-            <span style={styles.infoValue}>{labData.Total_PCs} Working</span>
+            <span style={styles.infoValue}>{labData.PCs.length}</span>
           </div>
           <div style={styles.infoItem}>
             <span style={styles.infoLabel}>Software</span>
