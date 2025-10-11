@@ -135,10 +135,6 @@ export default function AssetManagement() {
     }
   };
 
-  const handleRedirect = (pc) => {
-    console.log("Redirecting to PC details:", pc);
-  };
-
   const resetForm = () => {
     setNewPC({ PC_Name: "", Lab: "", Assets: [] });
   };
@@ -461,9 +457,8 @@ export default function AssetManagement() {
               <div style={styles.actionButtons}>
                 <button
                   style={{...styles.iconButton, ...styles.redirectButton}}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRedirect(pc);
+                  onClick={() => {
+                    window.location.href = `/adminPanel/asset_management/asset/${pc.id}`;
                   }}
                   title="View Details"
                 >

@@ -299,7 +299,7 @@ const LabTimetablePage = () => {
     const timeStr = `${time24.toString().padStart(2, '0')}:${time.split(':')[1].split(' ')[0]}`;
 
     return timetableData.find(event => {
-      const eventStart = parseInt(event.startTime.split(':')[0]);
+      const eventStart = parseInt(event.startTime.split(':')[0]); 
       const eventEnd = parseInt(event.endTime.split(':')[0]);
       return event.day === day && time24 >= eventStart && time24 < eventEnd;
     });

@@ -13,7 +13,7 @@ export default function Navbar() {
     <nav className={styles.navbar}>
       {/* Logo */}
       <div className={styles.logo}>
-        <Link href="/">
+        <Link href="/adminPanel">
           <Image
             src="/logo.jpg"
             alt="Asserta Logo"

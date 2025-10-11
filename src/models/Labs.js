@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { connectDB } from "../app/api/utils/db.js";
 
 const LabSchema = new mongoose.Schema({
   Lab_ID: { type: String, unique: true, required: true },

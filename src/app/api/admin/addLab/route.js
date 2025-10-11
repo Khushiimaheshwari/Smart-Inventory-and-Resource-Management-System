@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 
 export async function POST(req) {
   try {
-    await connectDB();
+    await connectDB(); 
 
     const body = await req.json();
     console.log(body);
