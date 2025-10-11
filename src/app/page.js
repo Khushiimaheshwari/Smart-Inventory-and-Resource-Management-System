@@ -292,54 +292,51 @@ export default function Home() {
       </section>
 
       {/* Animated Statistics Section */}
-   <section className={styles.statsSection}>
-  <div className={styles.sectionHeader}>
-    <h2>Trusted by Thousands</h2>
-    <p>Real numbers from real companies</p>
-  </div>
+      <section ref={statsRef} className={styles.statsSection}>
+        <div className={styles.sectionHeader}>
+          <h2>Trusted by Thousands</h2>
+          <p>Real numbers from real companies</p>
+        </div>
 
-  <div className={styles.statsGrid}>
-    <div className={styles.statCard}>
-      <div className={styles.statIcon}>🚀</div>
-      <div className={styles.statNumber}>
-        <span className={styles.countUp}>15,000</span>
-        <span className={styles.plus}>+</span>
-      </div>
-      <div className={styles.statLabel}>Active Users</div>
-      <div className={styles.statGlow}></div>
-    </div>
+        <div className={styles.statsGrid}>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>🚀</div>
+            <div className={styles.statNumber}>
+              <span className={styles.countUp}>{Math.floor(counters[0]).toLocaleString()}</span>
+              <span className={styles.plus}>+</span>
+            </div>
+            <div className={styles.statLabel}>Active Users</div>
+          </div>
 
-    <div className={styles.statCard}>
-      <div className={styles.statIcon}>💼</div>
-      <div className={styles.statNumber}>
-        <span className={styles.countUp}>500</span>
-        <span className={styles.plus}>+</span>
-      </div>
-      <div className={styles.statLabel}>Companies Trust Us</div>
-      <div className={styles.statGlow}></div>
-    </div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>💼</div>
+            <div className={styles.statNumber}>
+              <span className={styles.countUp}>{Math.floor(counters[1]).toLocaleString()}</span>
+              <span className={styles.plus}>+</span>
+            </div>
+            <div className={styles.statLabel}>Companies Trust Us</div>
+          </div>
 
-    <div className={styles.statCard}>
-      <div className={styles.statIcon}>📦</div>
-      <div className={styles.statNumber}>
-        <span className={styles.countUp}>2.0</span>
-        <span className={styles.plus}>M+</span>
-      </div>
-      <div className={styles.statLabel}>Assets Managed</div>
-      <div className={styles.statGlow}></div>
-    </div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>📦</div>
+            <div className={styles.statNumber}>
+              <span className={styles.countUp}>{counters[2].toFixed(1)}</span>
+              <span className={styles.plus}>M+</span>
+            </div>
+            <div className={styles.statLabel}>Assets Managed</div>
+          </div>
 
-    <div className={styles.statCard}>
-      <div className={styles.statIcon}>⚡</div>
-      <div className={styles.statNumber}>
-        <span className={styles.countUp}>99.9</span>
-        <span className={styles.plus}>%</span>
-      </div>
-      <div className={styles.statLabel}>Uptime Guarantee</div>
-      <div className={styles.statGlow}></div>
-    </div>
-  </div>
-</section>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>⚡</div>
+            <div className={styles.statNumber}>
+              <span className={styles.countUp}>{counters[3].toFixed(1)}</span>
+              <span className={styles.plus}>%</span>
+            </div>
+            <div className={styles.statLabel}>Uptime Guarantee</div>
+          </div>
+        </div>
+      </section>
+
       <footer className={styles.footer}>
         <p>© 2025 Assetra. All rights reserved.</p>
       </footer>

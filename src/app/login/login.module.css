@@ -10,7 +10,7 @@
   position: relative;
 }
 
-/* Animated Background Orbs */
+/* Animated Background Orbs - Enhanced */
 .login-container::before,
 .login-container::after {
   content: '';
@@ -45,6 +45,14 @@
   66% { transform: translate(-20px, 20px) rotate(240deg); }
 }
 
+/* Additional floating particles */
+.login-container::after {
+  box-shadow: 
+    400px 200px 100px rgba(0, 201, 123, 0.1),
+    -300px -150px 80px rgba(0, 184, 217, 0.1),
+    200px -250px 90px rgba(102, 126, 234, 0.1);
+}
+
 .form {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -58,8 +66,24 @@
   max-width: 350px;
   position: relative;
   overflow: hidden;
-  animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1), pulse 2s ease-in-out 1s infinite;
   z-index: 1;
+}
+
+/* Subtle pulse animation for form */
+@keyframes pulse {
+  0%, 100% { 
+    box-shadow: 
+      0 15px 30px rgba(0, 201, 123, 0.08),
+      0 8px 20px rgba(0, 184, 217, 0.04),
+      0 0 0 1px rgba(255, 255, 255, 0.8);
+  }
+  50% { 
+    box-shadow: 
+      0 20px 40px rgba(0, 201, 123, 0.12),
+      0 10px 25px rgba(0, 184, 217, 0.08),
+      0 0 0 1px rgba(255, 255, 255, 0.9);
+  }
 }
 
 .form::before {
@@ -69,11 +93,18 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #00c97b 0%, #00b8d9 100%);
+  background: linear-gradient(90deg, #00c97b 0%, #00b8d9 50%, #667eea 100%);
+  background-size: 200% 100%;
   border-radius: 20px 20px 0 0;
+  animation: gradientShift 3s ease infinite;
 }
 
-/* Shimmer effect on form */
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Enhanced shimmer effect on form */
 .form::after {
   content: '';
   position: absolute;
@@ -103,7 +134,14 @@
   margin-bottom: 20px;
   text-align: center;
   letter-spacing: -0.5px;
-  animation: fadeInDown 0.6s ease 0.2s backwards;
+  animation: fadeInDown 0.6s ease 0.2s backwards, textGlow 3s ease-in-out 1s infinite;
+  position: relative;
+}
+
+/* Text glow animation */
+@keyframes textGlow {
+  0%, 100% { text-shadow: 0 0 10px rgba(0, 201, 123, 0); }
+  50% { text-shadow: 0 0 20px rgba(0, 201, 123, 0.3); }
 }
 
 @keyframes fadeInDown {
@@ -130,6 +168,7 @@
   color: #2d3748;
   box-sizing: border-box;
   animation: fadeInUp 0.6s ease backwards;
+  position: relative;
 }
 
 /* Stagger animation for inputs */
@@ -150,6 +189,12 @@
 .form input::placeholder {
   color: #a0aec0;
   font-weight: 400;
+  transition: all 0.3s ease;
+}
+
+.form input:focus::placeholder {
+  transform: translateX(10px);
+  opacity: 0.5;
 }
 
 .form input:focus {
@@ -159,12 +204,20 @@
     0 4px 12px rgba(0, 201, 123, 0.1);
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 1);
+  animation: inputFocus 0.3s ease;
+}
+
+@keyframes inputFocus {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
 }
 
 .form button {
   width: 100%;
   padding: 14px 16px;
   background: linear-gradient(135deg, #00c97b 0%, #00b8d9 100%);
+  background-size: 200% 100%;
   border: none;
   border-radius: 12px;
   color: white;
@@ -176,7 +229,16 @@
   position: relative;
   overflow: hidden;
   margin-top: 6px;
-  animation: fadeInUp 0.6s ease 0.5s backwards;
+  animation: fadeInUp 0.6s ease 0.5s backwards, buttonGlow 2s ease-in-out 1.5s infinite;
+}
+
+@keyframes buttonGlow {
+  0%, 100% { 
+    box-shadow: 0 4px 15px rgba(0, 201, 123, 0.3);
+  }
+  50% { 
+    box-shadow: 0 6px 25px rgba(0, 201, 123, 0.5);
+  }
 }
 
 .form button::before {
@@ -186,15 +248,22 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   transition: left 0.5s;
+  animation: slideShine 3s ease-in-out infinite;
+}
+
+@keyframes slideShine {
+  0%, 100% { left: -100%; }
+  50% { left: 100%; }
 }
 
 .form button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.02);
   box-shadow: 
     0 8px 20px rgba(0, 201, 123, 0.25),
     0 4px 12px rgba(0, 184, 217, 0.15);
+  background-position: 100% 0;
 }
 
 .form button:hover::before {
@@ -261,7 +330,12 @@
   margin: 20px 0;
   color: #a0aec0;
   font-size: 14px;
-  animation: fadeIn 0.6s ease 0.6s backwards;
+  animation: fadeIn 0.6s ease 0.6s backwards, dividerPulse 3s ease-in-out 2s infinite;
+}
+
+@keyframes dividerPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
 }
 
 @keyframes fadeIn {
@@ -274,12 +348,25 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: #e2e8f0;
+  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+  animation: dividerGrow 1s ease 0.7s backwards;
+}
+
+@keyframes dividerGrow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 .divider span {
   padding: 0 15px;
   background: white;
+  position: relative;
+  animation: bounce 1s ease 1.5s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 /* Social Login Section */
@@ -309,6 +396,18 @@
   text-decoration: none;
   position: relative;
   overflow: hidden;
+  animation: slideInRight 0.5s ease 0.8s backwards;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .socialBtn::before {
@@ -332,17 +431,24 @@
 .socialBtn:hover {
   border-color: #cbd5e0;
   background: #f7fafc;
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.02);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .socialBtn svg {
   transition: transform 0.3s ease;
   z-index: 1;
+  animation: iconSpin 3s ease-in-out infinite;
+}
+
+@keyframes iconSpin {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(5deg); }
 }
 
 .socialBtn:hover svg {
-  transform: scale(1.1) rotate(5deg);
+  transform: scale(1.2) rotate(360deg);
+  animation: none;
 }
 
 .socialBtn.microsoft {
@@ -371,7 +477,7 @@
 .signup-option {
   text-align: center;
   margin-top: 25px;
-  animation: fadeIn 0.6s ease 0.8s backwards;
+  animation: fadeIn 0.6s ease 0.8s backwards, slideUp 0.5s ease 0.9s backwards;
 }
 
 .signup-option p {
@@ -389,6 +495,12 @@
   transition: all 0.2s ease;
   text-decoration: none;
   position: relative;
+  animation: colorShift 3s ease-in-out infinite;
+}
+
+@keyframes colorShift {
+  0%, 100% { color: #00c97b; }
+  50% { color: #00b8d9; }
 }
 
 .signup-link::after {
@@ -408,6 +520,8 @@
 
 .signup-link:hover {
   color: #00b8d9;
+  transform: translateY(-1px);
+  text-shadow: 0 2px 8px rgba(0, 201, 123, 0.3);
 }
 
 .signup-link:active {
