@@ -18,7 +18,7 @@ export default function AssetManagement() {
   useEffect(() => {
     const fetchPCs = async () => {
       try {
-        const res = await fetch('/api/admin/getlabPCs');
+        const res = await fetch('/api/lab_technician/getlabPCs');
 
         if (!res.ok) {
           throw new Error('Failed to fetch PCs');
@@ -45,7 +45,7 @@ export default function AssetManagement() {
   useEffect(() => {
     const fetchLabs = async () => {
       try {
-        const res = await fetch("/api/admin/getLabs");
+        const res = await fetch("/api/lab_technician/getLabs");
         const data = await res.json();
         console.log(data);       
 
@@ -77,7 +77,7 @@ export default function AssetManagement() {
     console.log(newPC.Lab);  
 
     try {
-      const res = await fetch("/api/admin/addLabPCs", {
+      const res = await fetch("/api/lab_technician/addLabPCs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -133,10 +133,6 @@ export default function AssetManagement() {
     if (window.confirm("Are you sure you want to delete this PC?")) {
       setPCs(pcs.filter(p => p.id !== pcId));
     }
-  };
-
-  const handleRedirect = (pc) => {
-    console.log("Redirecting to PC details:", pc);
   };
 
   const resetForm = () => {
@@ -461,9 +457,8 @@ export default function AssetManagement() {
               <div style={styles.actionButtons}>
                 <button
                   style={{...styles.iconButton, ...styles.redirectButton}}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRedirect(pc);
+                  onClick={() => {
+                    window.location.href = `/lab_technicianPanel/asset_management/asset/${pc.id}`;
                   }}
                   title="View Details"
                 >
@@ -569,126 +564,3 @@ export default function AssetManagement() {
     </div>
   );
 }
-
-
-// {showAddModal && (
-//           <div style={styles.modal} onClick={() => {
-//             setShowAddModal(false);
-//             setEditingAsset(null);
-//           }}>
-//             <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-//               <h2 style={styles.modalHeader}>{editingAsset ? 'Edit Asset' : 'Add New Asset'}</h2>
-              
-//               <div style={styles.formGroup}>
-//                 <label style={styles.label}>Asset ID</label>
-//                 <input 
-//                   type="text"
-//                   style={styles.input}
-//                   value={newAsset.assetId}
-//                   onChange={(e) => setNewAsset({...newAsset, assetId: e.target.value})}
-//                   placeholder="e.g., AST-001"
-//                 />
-//               </div>
-
-//               <div style={styles.formGroup}>
-//                 <label style={styles.label}>Asset Name</label>
-//                 <input 
-//                   type="text"
-//                   style={styles.input}
-//                   value={newAsset.name}
-//                   onChange={(e) => setNewAsset({...newAsset, name: e.target.value})}
-//                   placeholder="Enter asset name"
-//                 />
-//               </div>
-
-//               <div style={styles.formGroup}>
-//                 <label style={styles.label}>Category</label>
-//                 <select 
-//                   style={styles.select}
-//                   value={newAsset.category}
-//                   onChange={(e) => setNewAsset({...newAsset, category: e.target.value})}
-//                 >
-//                   <option value="Electronics">Electronics</option>
-//                   <option value="Equipment">Equipment</option>
-//                   <option value="Furniture">Furniture</option>
-//                   <option value="Vehicle">Vehicle</option>
-//                   <option value="Other">Other</option>
-//                 </select>
-//               </div>
-
-//               <div style={styles.formGroup}>
-//                 <label style={styles.label}>Status</label>
-//                 <select 
-//                   style={styles.select}
-//                   value={newAsset.status}
-//                   onChange={(e) => setNewAsset({...newAsset, status: e.target.value})}
-//                 >
-//                   <option value="Active">Active</option>
-//                   <option value="Maintenance">Maintenance</option>
-//                   <option value="Inactive">Inactive</option>
-//                 </select>
-//               </div>
-
-//               <div style={styles.formGroup}>
-//                 <label style={styles.label}>Assigned To</label>
-//                 <input 
-//                   type="text"
-//                   style={styles.input}
-//                   value={newAsset.assignedTo}
-//                   onChange={(e) => setNewAsset({...newAsset, assignedTo: e.target.value})}
-//                   placeholder="Enter user name or 'Not Assigned'"
-//                 />
-//               </div>
-
-//               <div style={styles.formGroup}>
-//                 <label style={styles.label}>Purchase Date</label>
-//                 <input 
-//                   type="date"
-//                   style={styles.input}
-//                   value={newAsset.purchaseDate}
-//                   onChange={(e) => setNewAsset({...newAsset, purchaseDate: e.target.value})}
-//                 />
-//               </div>
-
-//               <div style={styles.formGroup}>
-//                 <label style={styles.label}>Value</label>
-//                 <input 
-//                   type="text"
-//                   style={styles.input}
-//                   value={newAsset.value}
-//                   onChange={(e) => setNewAsset({...newAsset, value: e.target.value})}
-//                   placeholder="e.g., ₹85,000"
-//                 />
-//               </div>
-
-//               <div style={styles.formGroup}>
-//                 <label style={styles.label}>Location</label>
-//                 <input 
-//                   type="text"
-//                   style={styles.input}
-//                   value={newAsset.location}
-//                   onChange={(e) => setNewAsset({...newAsset, location: e.target.value})}
-//                   placeholder="e.g., Office - Floor 2"
-//                 />
-//               </div>
-
-//               <div style={styles.modalActions}>
-//                 <button 
-//                   style={styles.cancelButton}
-//                   onClick={() => {
-//                     setShowAddModal(false);
-//                     setEditingAsset(null);
-//                   }}
-//                 >
-//                   Cancel
-//                 </button>
-//                 <button 
-//                   style={styles.saveButton}
-//                   onClick={editingAsset ? handleUpdateAsset : handleAddAsset}
-//                 >
-//                   {editingAsset ? 'Update Asset' : 'Add Asset'}
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         )}

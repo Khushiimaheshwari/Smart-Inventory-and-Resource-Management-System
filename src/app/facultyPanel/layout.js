@@ -3,8 +3,28 @@
 
 import Sidebar from "./components/Faculty_Sidebar.js";
 import FacultyNavbar from "./components/facultyNavbar.js";
+// import { cookies } from "next/headers";
+// import jwt from "jsonwebtoken";
 
 export default function FacultyPanelLayout({ children }) {
+
+  // const token = cookies().get("token")?.value;
+
+  // if (!token) {
+  //   redirect("/login");
+  // }
+
+  // try {
+  //   const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  //   console.log("Decoded Token in Faculty Layout:", decoded);
+    
+  //   if (decoded.role !== "faculty") {
+  //     redirect("/unauthorized");
+  //   }
+  // } catch (err) {
+  //   redirect("/login");
+  // }
+  
   return (
     <div className="faculty-panel">
       <FacultyNavbar />

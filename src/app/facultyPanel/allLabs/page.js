@@ -567,7 +567,7 @@ export default function LabManagement() {
                     <button
                       style={{ ...styles.iconButton, ...styles.viewButton }}
                       onClick={() => {
-                        window.location.href = `/adminPanel/lab_management/lab/${lab._id}`;
+                        window.location.href = `/facultyPanel/allLabs/lab/${lab._id}`;
                       }}
                     >
                       <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
@@ -718,5 +718,3 @@ export default function LabManagement() {
     </div>
   );
 }
-
-

@@ -24,29 +24,9 @@ export default function LabManagement() {
   const underMaintenance = labs.filter(lab => lab.Status === 'under maintenance').length;
 
   useEffect(() => {
-    const fetchTechnicians = async () => {
-      try {
-        const res = await fetch("/api/admin/getlabTechnicians");
-        const data = await res.json();
-        if (res.ok) {
-          setTechnicians(data.technicians);
-          console.log(data);
-          
-        } else {
-          console.error("Failed to fetch technicians:", data.error);
-        }
-      } catch (err) {
-        console.error("Error fetching technicians:", err);
-      }
-    };
-
-    fetchTechnicians();
-  }, []);
-
-  useEffect(() => {
     const fetchLab = async () => {
       try {
-        const res = await fetch("/api/admin/getLabs");
+        const res = await fetch("/api/lab_technician/getLabs");
         const data = await res.json();
         if (res.ok) {
           setLabs(data.labs);
@@ -62,46 +42,6 @@ export default function LabManagement() {
 
     fetchLab();
   }, []);
-
-  const handleAddLab = async () => {
-    if (!newLab.name || !newLab.block || !newLab.capacity || !newLab.technician) {
-      alert("Please fill in all required fields!");
-      return;
-    }
-
-    const payload = {
-      labId: newLab.id,
-      labName: newLab.name,
-      block: newLab.block,
-      labRoom: newLab.labRoom,
-      capacity: newLab.capacity,
-      status: newLab.status,
-      technician: newLab.technician,
-      incharge: newLab.incharge,
-    };
-    
-    try {
-      const res = await fetch("/api/admin/addLab", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Lab added successfully!");
-        setLabs([...labs, { ...newLab, id: newLab._id }]);
-        setShowAddModal(false);
-        resetForm();
-      } else {
-        alert(data.error || "Failed to add lab");
-      }
-    } catch (error) {
-      console.error("Error adding lab:", error);
-      alert("Something went wrong while adding the lab.");
-    }
-  };
 
   const handleEditLab = (lab) => {
     setEditingLab(lab);
@@ -465,12 +405,6 @@ export default function LabManagement() {
         {/* Header */}
         <header style={styles.header}>
           <h1 style={styles.headerTitle}>Lab Management</h1>
-          <button style={styles.addButton} onClick={() => setShowAddModal(true)}>
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
-            </svg>
-            Add New Lab
-          </button>
         </header>
 
         {/* Stats Cards */}
@@ -567,7 +501,7 @@ export default function LabManagement() {
                     <button
                       style={{ ...styles.iconButton, ...styles.viewButton }}
                       onClick={() => {
-                        window.location.href = `/adminPanel/lab_management/lab/${lab._id}`;
+                        window.location.href = `/lab_technicianPanel/lab_management/lab/${lab._id}`;
                       }}
                     >
                       <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">

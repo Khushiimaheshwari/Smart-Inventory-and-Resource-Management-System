@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "./adminNavbar.module.css";
 
-export default function Navbar() {
+export default function AdminNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const toggleMenu = () => setMenuOpen(!menuOpen);
 

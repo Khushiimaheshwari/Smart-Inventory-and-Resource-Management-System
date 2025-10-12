@@ -13,7 +13,7 @@ export default function Lab_Technician_Navbar() {
     <nav className={styles.navbar}>
       {/* Logo */}
       <div className={styles.logo}>
-        <Link href="/lab_technician">
+        <Link href="/lab_technicianPanel">
           <Image
             src="/logo.jpg"
             alt="Asserta Logo"
@@ -62,7 +62,7 @@ export default function Lab_Technician_Navbar() {
   </svg>
 </button>
 
-        <Link href="/lab_technician/profile">
+        <Link href="/lab_technicianPanel/profile">
           <div className={styles.profileLink}>
             <Image
               src="/profile.png"
@@ -84,9 +84,9 @@ export default function Lab_Technician_Navbar() {
 
       {/* Mobile Menu */}
       <ul className={`${styles.mobileNavLinks} ${menuOpen ? styles.active : ""}`}>
-        <li><Link href="/lab_technician" onClick={() => setMenuOpen(false)}>Home</Link></li>
+        <li><Link href="/lab_technicianPanel" onClick={() => setMenuOpen(false)}>Home</Link></li>
         
-        <li><Link href="/lab_technician/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
+        <li><Link href="/lab_technicianPanel/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
       </ul>
 
       {/* Mobile Menu Overlay */}

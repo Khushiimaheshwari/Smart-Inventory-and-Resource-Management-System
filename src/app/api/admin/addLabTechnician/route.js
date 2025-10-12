@@ -2,16 +2,20 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectDB } from "../../../../app/api/utils/db";
 import LabTechnician from "../../../../models/Lab_Technician";
+import Lab from "../../../../models/Labs";
 import { User } from "../../../../models/User";
+import mongoose from "mongoose";
 
 export async function POST(req) {
   try {
     await connectDB();
 
     const body = await req.json();
-    const { name, email, password } = body;
+    const { name, email, password, labAccess } = body;
+    console.log(body);
+    
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !labAccess) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
@@ -31,13 +35,20 @@ export async function POST(req) {
       Role: "lab_technician",
     });
 
+    const labObjectIds = labAccess.map((id) => new mongoose.Types.ObjectId(id));
+
     const newTech = await LabTechnician.create({
       Name: name,
       Email: email,
       Password: hashedPassword,
       Role: "lab_technician",
-    //   Labs: labAccess || [],
+      Labs: labObjectIds,
     });
+
+    await Lab.updateMany(
+      { _id: { $in: labObjectIds } },
+      { $push: { LabTechnician: newTech._id } }
+    );
 
     return NextResponse.json({
       message: "Lab Technician created successfully",
@@ -50,7 +61,7 @@ export async function POST(req) {
       labTechnician: {
         _id: newTech._id,
         name: newTech.Name,
-        // labs: newTech.Labs,
+        labs: newTech.Labs,
       },
     });
   } catch (error) {

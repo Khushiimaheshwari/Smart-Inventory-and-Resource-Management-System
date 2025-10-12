@@ -12,18 +12,21 @@ export default function RedirectAfterLogin() {
     if (status === "loading") return; 
 
     if (!session) {
-      router.push("/login");
+      alert("No active session found, redirecting to login.");
+      window.location.href("/login");
       return;
     }
 
     const role = session?.user?.role;
 
     if (role === "admin") {
-      router.push("/adminPanel");
+      window.location.href = "/adminPanel";
     } else if (role === "lab_technician") {
-      router.push("/lab_technicianPanel");
-    } else {
-      router.push("/facultyPanel");
+      window.location.href = "/lab_technicianPanel";
+    } else if (role === "faculty") {
+      window.location.href = "/facultyPanel";
+    }else {
+      router.push("/login");
     }
   }, [session, status, router]);
 

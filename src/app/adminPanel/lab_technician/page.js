@@ -5,6 +5,7 @@ import { X, ChevronDown } from 'lucide-react';
 
 export default function LabTechnicianManagement() {
   const [users, setUsers] = useState([]);
+  const [allLabs, setAllLabs] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -49,8 +50,37 @@ export default function LabTechnicianManagement() {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    const fetchLab = async () => {
+      try {
+        const res = await fetch("/api/admin/getLabs");
+
+        if(!res.ok) {
+          throw new Error("Failed to fetch Labs");
+        }
+
+        const data = await res.json();
+        setAllLabs(
+          data.labs.map(l => ({
+           Lab: l.Lab_ID,
+           Lab_id: l._id,
+          }))
+        );
+        console.log("Fetched labs",data);
+        
+      }catch (err) {
+        console.error("Fetch Labs Error:", err);
+      }
+    };
+
+    fetchLab();
+  }, []);
+
+  console.log("Labs", allLabs);
+  
+
   const handleAddUser = async () => {
-    if (!newUser.name || !newUser.email || !newUser.password) {
+    if (!newUser.name || !newUser.email || !newUser.password || newUser.labAccess.length === 0) {
       alert("Please fill all required fields");
       return;
     }
@@ -63,6 +93,8 @@ export default function LabTechnicianManagement() {
           name: newUser.name,
           email: newUser.email,
           password: newUser.password,
+          // labAccess: newUser.labAccess,
+          labAccess: newUser.labAccess.map(lab => lab.Lab_id),
         }),
       });
 
@@ -118,30 +150,27 @@ export default function LabTechnicianManagement() {
     setUsers(users.filter((u) => u.id !== userId));
   };
 
-  const allLabs = ["Lab 1", "Lab 2", "Lab 3", "Lab 4"];
+  const handleLabSelect = (selectedLab) => {
+    setNewUser((prev) => {
+      const alreadySelected = prev.labAccess.some(
+        (lab) => lab.Lab_id === selectedLab.Lab_id
+      );
 
-  const handleLabSelect = (lab) => {
-    if (lab === "No Lab Access") {
-      setNewUser((prev) => ({
+      return {
         ...prev,
-        labAccess: [],
-      }));
-    } else {
-      setNewUser((prev) => ({
-        ...prev,
-        labAccess: prev.labAccess.includes(lab)
-          ? prev.labAccess.filter((l) => l !== lab)
-          : [...prev.labAccess, lab],
-      }));
-    }
+        labAccess: alreadySelected
+          ? prev.labAccess.filter((lab) => lab.Lab_id !== selectedLab.Lab_id)
+          : [...prev.labAccess, selectedLab],
+      };
+    });
   };
 
-  const handleRemoveLab = (labToRemove) => {
-    setNewUser((prev) => ({
-      ...prev,
-      labAccess: prev.labAccess.filter((lab) => lab !== labToRemove),
-    }));
-  };
+  const handleRemoveLab = (labIdToRemove) => {
+  setNewUser((prev) => ({
+    ...prev,
+    labAccess: prev.labAccess.filter((lab) => lab.Lab_id !== labIdToRemove),
+  }));
+};
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -154,7 +183,7 @@ export default function LabTechnicianManagement() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  console.log(users);
+  console.log("Selected Labs:", newUser.labAccess);
 
   const styles = {
     container: {
@@ -757,7 +786,7 @@ export default function LabTechnicianManagement() {
                         />
                       )}
                     </svg>
-                    {(user.status).charAt(0).toUpperCase() + user.status.slice(1)}
+                    {(user?.status)?.charAt(0).toUpperCase() + user?.status?.slice(1)}
                   </span>
 
                   <div style={styles.actionButtons}>
@@ -965,13 +994,13 @@ export default function LabTechnicianManagement() {
                     <span style={styles.placeholder}>Select lab access</span>
                   ) : (
                     newUser.labAccess.map((lab) => (
-                      <div key={lab} style={styles.chip}>
-                        <span>{lab}</span>
+                      <div key={lab.Lab_id} style={styles.chip}>
+                        <span>{lab.Lab}</span>
                         <button
                           style={styles.removeButton}
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleRemoveLab(lab);
+                            handleRemoveLab(lab.Lab_id);
                           }}
                           onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
                           onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
@@ -1006,7 +1035,8 @@ export default function LabTechnicianManagement() {
                       No Lab Access
                     </div>
 
-                    {allLabs.map((lab) => {
+                    {/* {allLabs.map((labObj) => {
+                      const lab = labObj.Lab;
                       const isSelected = newUser.labAccess.includes(lab);
                       return (
                         <div
@@ -1030,14 +1060,57 @@ export default function LabTechnicianManagement() {
                           {lab} {isSelected && '✓'}
                         </div>
                       );
+                    })} */}
+                    {allLabs.map((labObj) => {
+                      const isSelected = newUser.labAccess.some(
+                        (lab) => lab.Lab_id === labObj.Lab_id
+                      );
+
+                      return (
+                        <div
+                          key={labObj.Lab_id}
+                          style={{
+                            ...styles.dropdownItem,
+                            ...(isSelected ? styles.dropdownItemSelected : {}),
+                          }}
+                          onClick={() => handleLabSelect(labObj)} 
+                          onMouseEnter={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.backgroundColor =
+                                styles.dropdownItemHover.backgroundColor;
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.backgroundColor = "transparent";
+                            }
+                          }}
+                        >
+                          {console.log(labObj.Lab)}
+                          {labObj.Lab} {isSelected && "✓"}
+                        </div>
+                      );
                     })}
                   </div>
                 )}
               </div>
 
-              <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '6px' }}>
-                <strong>Selected Labs:</strong>{' '}
-                {newUser.labAccess.length > 0 ? newUser.labAccess.join(', ') : 'None'}
+              <div
+                style={{
+                  marginTop: "20px",
+                  padding: "15px",
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "6px",
+                }}>
+                <strong>Selected Labs:</strong>{" "}
+                {newUser.labAccess.length > 0
+                  ? newUser.labAccess.map((lab, index) => (
+                      <span key={lab.Lab_id}>
+                        {lab.Lab}
+                        {index < newUser.labAccess.length - 1 ? ", " : ""}
+                      </span>
+                    ))
+                  : "None"}
               </div>
             </div>
 

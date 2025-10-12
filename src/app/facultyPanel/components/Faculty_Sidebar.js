@@ -14,14 +14,14 @@ const navItems = [
   },
   {
     name: "Assets",
-    href: "/facultyPanel/assets",
+    href: "/facultyPanel/allAssets",
     icon: (
       <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
     ),
   },
   {
-    name: "Lab Management",
-    href: "/facultyPanel/labs",
+    name: "Labs",
+    href: "/facultyPanel/allLabs",
     icon: (
       <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
     ),

@@ -40,11 +40,11 @@ export default function LoginPage() {
     const role = data?.user?.Role;
 
     if (role === "admin") {
-      router.push("/adminPanel");
+      window.location.href = "/adminPanel";
     } else if (role === "lab_technician") {
-      router.push("/lab_technicianPanel");
+      window.location.href = "/lab_technicianPanel";
     } else if (role === "faculty") {
-      router.push("/facultyPanel");
+      window.location.href = "/facultyPanel";
     }else {
       router.push("/login");
     }

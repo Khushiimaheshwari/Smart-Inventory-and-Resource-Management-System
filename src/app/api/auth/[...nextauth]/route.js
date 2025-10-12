@@ -17,6 +17,14 @@ export const authOptions = {
       clientId: process.env.AZURE_AD_CLIENT_ID,
       clientSecret: process.env.AZURE_AD_CLIENT_SECRET,
       tenantId: process.env.AZURE_AD_TENANT_ID,
+      authorization: { params: { scope: "openid profile email User.Read" } },
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email || profile.preferred_username, 
+        };
+      },
     }),
   ],
   callbacks: {
@@ -46,7 +54,9 @@ export const authOptions = {
     },
     async jwt({ token, user }) {
         if (user) {
-            const dbUser = await User.findOne({ Email: user.email });
+            await connectDB();
+            const email = user.email || user.preferred_username;
+            const dbUser = await User.findOne({ Email: email });
 
             if (dbUser) {
             token.id = dbUser._id.toString();
@@ -70,12 +80,13 @@ export const authOptions = {
 
     async session({ session, token }) {
       session.user.id = token.id;
-      session.user.role = token.role;
       session.user.email = token.email;  
+      session.user.role = token.role;
       session.user.customJWT = token.customJWT;
+      console.log("Session" ,session);
       return session;
     },
-  },
+  },  
 
   events: {
     async signOut({ token }) {

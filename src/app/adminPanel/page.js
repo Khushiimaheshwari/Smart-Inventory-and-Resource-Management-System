@@ -10,7 +10,7 @@ export default function Dashboard() {
     inactiveAssets: 355,
     utilization: 71.5,
   });
-
+ 
   // Line Chart Data
   const lineChartData = [
     { month: 'Jan', assets: 950, active: 720, inactive: 230 },
@@ -92,7 +92,7 @@ export default function Dashboard() {
 
   const styles = {
     container: {
-      width: 'calc(100% - 288px)', // Use percentage instead of viewport width
+      width: 'calc(100% - 288px)', 
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
       padding: '1.5rem',

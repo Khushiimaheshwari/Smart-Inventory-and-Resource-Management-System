@@ -21,10 +21,12 @@ export async function POST(request) {
     console.log("User logged in:", user);
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role },
+      { userId: user._id, email: user.Email, role: user.Role },
       JWT_SECRET,
       { expiresIn: "7d" }
     );
+
+    console.log("Generated Token:", {userId: user._id, email: user.Email, role: user.Role});
 
     const response = NextResponse.json(
       { message: "User registered successfully", user },

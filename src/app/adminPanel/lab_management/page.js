@@ -64,7 +64,7 @@ export default function LabManagement() {
   }, []);
 
   const handleAddLab = async () => {
-    if (!newLab.name || !newLab.block || !newLab.capacity || !newLab.technician) {
+    if (!newLab.name || !newLab.block || !newLab.capacity) {
       alert("Please fill in all required fields!");
       return;
     }
@@ -539,7 +539,11 @@ export default function LabManagement() {
                         <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                       </svg>
                       <span style={styles.detailLabel}>Technician:</span>
-                      <span style={styles.detailValue}>{lab.LabTechnician[0]?.Name}</span>
+                      {lab.LabTechnician.length === 0 ? (
+                        <span style={{ ...styles.detailValue, fontStyle: 'italic', color: '#9ca3af' }}>Not Assigned</span>
+                      ) : (
+                      <span style={styles.detailValue}>{lab.LabTechnician[0]?.Name}</span> )
+                      }
                     </div>
                   </div>
 

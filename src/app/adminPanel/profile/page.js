@@ -15,7 +15,10 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     try {
       if (session) {
-        await signOut({ callbackUrl: "/login" });
+        // await signOut({ callbackUrl: "/login" });
+        await signOut({ redirect: false });
+        await fetch("/api/auth/logout", { method: "POST" });
+        router.push("/login");
       } else {
         await fetch("/api/auth/logout", { method: "POST" });
         router.push("/login");
