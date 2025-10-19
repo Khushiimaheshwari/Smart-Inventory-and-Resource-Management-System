@@ -100,6 +100,75 @@ const LabTimetablePage = () => {
     '12:40 - 13:30', '13:30 - 14:20', '14:20 - 15:10', '15:10 - 16:00'
   ];
 
+   const getWeekDates = () => {
+    const start = new Date(currentWeek);
+    start.setDate(start.getDate() - start.getDay() + 1);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 4);
+    return `${start.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+    })} – ${end.toLocaleDateString("en-US", { day: "numeric" })}, ${end.getFullYear()}`;
+  };
+
+  const formatTime = (time) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
+    return `${String(displayHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${period}`;
+  };
+
+  const timeToMinutes = (time) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
+  const getEventForSlot = (day, timeSlot) => {
+    const slotStart = timeSlot.split(' - ')[0];
+    const slotMinutes = timeToMinutes(slotStart);
+    
+    return timetableData.find((event) => {
+      if (event.day !== day) return false;
+      const startMinutes = timeToMinutes(event.startTime);
+      const endMinutes = timeToMinutes(event.endTime);
+      return slotMinutes >= startMinutes && slotMinutes < endMinutes;
+    });
+  };
+
+  const isEventStart = (event, timeSlot) => {
+    const slotStart = timeSlot.split(' - ')[0];
+    return timeToMinutes(event.startTime) === timeToMinutes(slotStart);
+  };
+
+  const calculateRowSpan = (event) => {
+    const startMinutes = timeToMinutes(event.startTime);
+    const endMinutes = timeToMinutes(event.endTime);
+    
+    let slotsSpanned = 0;
+    for (let i = 0; i < timeSlots.length; i++) {
+      const slotStart = timeSlots[i].split(' - ')[0];
+      const slotMinutes = timeToMinutes(slotStart);
+      if (slotMinutes >= startMinutes && slotMinutes < endMinutes) {
+        slotsSpanned++;
+      }
+    }
+    return slotsSpanned;
+  };
+
+  const previousWeek = () => {
+    const newDate = new Date(currentWeek);
+    newDate.setDate(newDate.getDate() - 7);
+    setCurrentWeek(newDate);
+  };
+
+  const nextWeek = () => {
+    const newDate = new Date(currentWeek);
+    newDate.setDate(newDate.getDate() + 7);
+    setCurrentWeek(newDate);
+  };
+
+  const renderedEvents = {};
+
   const styles = {
     container: {
       width: 'calc(100% - 220px)', 
@@ -115,7 +184,7 @@ const LabTimetablePage = () => {
       backdropFilter: 'blur(20px)',
       borderRadius: '16px',
       padding: '24px',
-      marginBottom: '30px',
+      marginBottom: '24px',
       boxShadow: '0 4px 20px rgba(0, 201, 123, 0.08)'
     },
     labHeader: {
@@ -160,6 +229,99 @@ const LabTimetablePage = () => {
       fontSize: '15px',
       color: '#2d3748',
       fontWeight: 500
+    },
+    subjectListCard: {
+      background: 'rgba(255, 255, 255, 0.95)',
+      backdropFilter: 'blur(20px)',
+      borderRadius: '16px',
+      padding: '24px',
+      marginBottom: '24px',
+      boxShadow: '0 4px 20px rgba(0, 201, 123, 0.08)'
+    },
+    subjectListHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '20px'
+    },
+    subjectListTitle: {
+      fontSize: '22px',
+      fontWeight: 700,
+      color: '#2d3748',
+      margin: 0
+    },
+    subjectGrid: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '12px'
+    },
+    subjectItem: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '16px',
+      padding: '16px',
+      background: '#f7fafc',
+      borderRadius: '10px',
+      border: '1px solid #e2e8f0',
+      transition: 'all 0.2s ease'
+    },
+    subjectNumber: {
+      width: '36px',
+      height: '36px',
+      borderRadius: '8px',
+      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
+      color: 'white',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontWeight: 700,
+      fontSize: '14px',
+      flexShrink: 0
+    },
+    subjectContent: {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '4px'
+    },
+    subjectName: {
+      fontSize: '15px',
+      fontWeight: 600,
+      color: '#2d3748'
+    },
+    subjectMeta: {
+      fontSize: '13px',
+      color: '#718096',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px'
+    },
+    subjectDivider: {
+      color: '#cbd5e0'
+    },
+    editButton: {
+      padding: '8px 16px',
+      background: '#e6fffa',
+      color: '#00b8d9',
+      border: '1px solid #81e6d9',
+      borderRadius: '8px',
+      fontSize: '13px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      flexShrink: 0
+    },
+    deleteButton: {
+      padding: '8px 16px',
+      background: '#fff5f5',
+      color: '#e53e3e',
+      border: '1px solid #feb2b2',
+      borderRadius: '8px',
+      fontSize: '13px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      flexShrink: 0
     },
     timetableCard: {
       background: 'rgba(255, 255, 255, 0.95)',
@@ -284,75 +446,6 @@ const LabTimetablePage = () => {
     }
   };
 
-   const getWeekDates = () => {
-    const start = new Date(currentWeek);
-    start.setDate(start.getDate() - start.getDay() + 1);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 4);
-    return `${start.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-    })} – ${end.toLocaleDateString("en-US", { day: "numeric" })}, ${end.getFullYear()}`;
-  };
-
-  const formatTime = (time) => {
-    const [hours, minutes] = time.split(':').map(Number);
-    const period = hours >= 12 ? 'PM' : 'AM';
-    const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
-    return `${String(displayHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${period}`;
-  };
-
-  const timeToMinutes = (time) => {
-    const [hours, minutes] = time.split(':').map(Number);
-    return hours * 60 + minutes;
-  };
-
-  const getEventForSlot = (day, timeSlot) => {
-    const slotStart = timeSlot.split(' - ')[0];
-    const slotMinutes = timeToMinutes(slotStart);
-    
-    return timetableData.find((event) => {
-      if (event.day !== day) return false;
-      const startMinutes = timeToMinutes(event.startTime);
-      const endMinutes = timeToMinutes(event.endTime);
-      return slotMinutes >= startMinutes && slotMinutes < endMinutes;
-    });
-  };
-
-  const isEventStart = (event, timeSlot) => {
-    const slotStart = timeSlot.split(' - ')[0];
-    return timeToMinutes(event.startTime) === timeToMinutes(slotStart);
-  };
-
-  const calculateRowSpan = (event) => {
-    const startMinutes = timeToMinutes(event.startTime);
-    const endMinutes = timeToMinutes(event.endTime);
-    
-    let slotsSpanned = 0;
-    for (let i = 0; i < timeSlots.length; i++) {
-      const slotStart = timeSlots[i].split(' - ')[0];
-      const slotMinutes = timeToMinutes(slotStart);
-      if (slotMinutes >= startMinutes && slotMinutes < endMinutes) {
-        slotsSpanned++;
-      }
-    }
-    return slotsSpanned;
-  };
-
-  const previousWeek = () => {
-    const newDate = new Date(currentWeek);
-    newDate.setDate(newDate.getDate() - 7);
-    setCurrentWeek(newDate);
-  };
-
-  const nextWeek = () => {
-    const newDate = new Date(currentWeek);
-    newDate.setDate(newDate.getDate() + 7);
-    setCurrentWeek(newDate);
-  };
-
-  const renderedEvents = {};
-
   return (
     <div style={styles.container}>
 
@@ -417,6 +510,39 @@ const LabTimetablePage = () => {
       ) : (
         <p>Loading...</p> 
       )}
+
+      {/* Subject List Card */}
+      <div style={styles.subjectListCard}>
+        <div style={styles.subjectListHeader}>
+          <h2 style={styles.subjectListTitle}>Subject List</h2>
+          <button style={styles.addButton}>
+            <Plus size={16} />
+            Add Subject
+          </button>
+        </div>
+        
+        <div style={styles.subjectGrid}>
+          {timetableData.map((item, index) => (
+            <div key={item.id} style={styles.subjectItem}>
+              <div style={styles.subjectNumber}>{index + 1}</div>
+              <div style={styles.subjectContent}>
+                <div style={styles.subjectName}>{item.subject}</div>
+                <div style={styles.subjectMeta}>
+                  <span>{item.course}</span>
+                  <span style={styles.subjectDivider}>•</span>
+                  <span>{item.faculty}</span>
+                </div>
+              </div>
+              <button style={styles.editButton}>
+                  Edit
+                </button>
+              <button style={styles.deleteButton}>
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
      
       {/* Timetable Card */}
       <div style={styles.timetableCard}>
