@@ -490,101 +490,105 @@ export default function LabManagement() {
         </div>
 
         {/* Card List */}
-        <div style={styles.cardContainer}>
-          {labs.map((lab) => (
-            <div key={lab.id} style={styles.card}>
-              <div style={styles.cardHeader}>
-                <div style={styles.cardLeft}>
-                  <div style={styles.labIcon}>
-                    <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
-                    </svg>
+        {labs ? (
+          <div style={styles.cardContainer}>
+            {labs.map((lab) => (
+              <div key={lab.id} style={styles.card}>
+                <div style={styles.cardHeader}>
+                  <div style={styles.cardLeft}>
+                    <div style={styles.labIcon}>
+                      <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                      </svg>
+                    </div>
+                    <div style={styles.cardInfo}>
+                      <div style={styles.cardIdRow}>
+                        <span style={styles.cardId}>#{lab.Lab_Name}</span>
+                        <span
+                          style={{
+                            ...styles.statusBadge,
+                            ...(lab.status === 'Active'
+                              ? styles.statusActive
+                              : styles.statusMaintenance),
+                          }}
+                        >
+                          {lab.Status}
+                        </span>
+                      </div>
+                      <h3 style={styles.cardName}>{lab.Lab_ID}</h3>
+                    </div>
                   </div>
-                  <div style={styles.cardInfo}>
-                    <div style={styles.cardIdRow}>
-                      <span style={styles.cardId}>#{lab.Lab_Name}</span>
-                      <span
-                        style={{
-                          ...styles.statusBadge,
-                          ...(lab.status === 'Active'
-                            ? styles.statusActive
-                            : styles.statusMaintenance),
+
+                  <div style={styles.cardRight}>
+                    <div style={styles.cardDetails}>
+                      <div style={styles.detailItem}>
+                        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
+                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
+                        </svg>
+                        <span style={styles.detailLabel}>Lab Room:</span>
+                        <span style={styles.detailValue}>{lab.Lab_Room}</span>
+                      </div>
+                      <div style={styles.detailItem}>
+                        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
+                          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                        </svg>
+                        <span style={styles.detailLabel}>Capacity:</span>
+                        <span style={styles.detailValue}>{lab.Total_Capacity}</span>
+                      </div>
+                      <div style={styles.detailItem}>
+                        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
+                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                        </svg>
+                        <span style={styles.detailLabel}>Technician:</span>
+                        {lab?.LabTechnician?.length === 0 ? (
+                          <span style={{ ...styles.detailValue, fontStyle: 'italic', color: '#9ca3af' }}>Not Assigned</span>
+                        ) : (
+                        <span style={styles.detailValue}>{lab.LabTechnician[0]?.Name}</span> )
+                        }
+                      </div>
+                    </div>
+
+                    <div style={styles.actionButtons}>
+                      <button
+                        style={{ ...styles.iconButton, ...styles.editButton }}
+                        onClick={() => handleEditLab(lab)}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                        </svg>
+                      </button>
+                      <button
+                        style={{ ...styles.iconButton, ...styles.deleteButton }}
+                        onClick={() => handleDeleteLab(lab.id)}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                          <path
+                            fillRule="evenodd"
+                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                      <button
+                        style={{ ...styles.iconButton, ...styles.viewButton }}
+                        onClick={() => {
+                          window.location.href = `/adminPanel/lab_management/lab/${lab._id}`;
                         }}
                       >
-                        {lab.Status}
-                      </span>
+                        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </button>
                     </div>
-                    <h3 style={styles.cardName}>{lab.Lab_ID}</h3>
-                  </div>
-                </div>
-
-                <div style={styles.cardRight}>
-                  <div style={styles.cardDetails}>
-                    <div style={styles.detailItem}>
-                      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
-                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
-                      </svg>
-                      <span style={styles.detailLabel}>Lab Room:</span>
-                      <span style={styles.detailValue}>{lab.Lab_Room}</span>
-                    </div>
-                    <div style={styles.detailItem}>
-                      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
-                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                      </svg>
-                      <span style={styles.detailLabel}>Capacity:</span>
-                      <span style={styles.detailValue}>{lab.Total_Capacity}</span>
-                    </div>
-                    <div style={styles.detailItem}>
-                      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
-                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                      </svg>
-                      <span style={styles.detailLabel}>Technician:</span>
-                      {lab.LabTechnician.length === 0 ? (
-                        <span style={{ ...styles.detailValue, fontStyle: 'italic', color: '#9ca3af' }}>Not Assigned</span>
-                      ) : (
-                      <span style={styles.detailValue}>{lab.LabTechnician[0]?.Name}</span> )
-                      }
-                    </div>
-                  </div>
-
-                  <div style={styles.actionButtons}>
-                    <button
-                      style={{ ...styles.iconButton, ...styles.editButton }}
-                      onClick={() => handleEditLab(lab)}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                      </svg>
-                    </button>
-                    <button
-                      style={{ ...styles.iconButton, ...styles.deleteButton }}
-                      onClick={() => handleDeleteLab(lab.id)}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                        <path
-                          fillRule="evenodd"
-                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                    <button
-                      style={{ ...styles.iconButton, ...styles.viewButton }}
-                      onClick={() => {
-                        window.location.href = `/adminPanel/lab_management/lab/${lab._id}`;
-                      }}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </button>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-
+            ))}
+          </div>
+        ) : (
+          <p>No labs available. Please add a new lab.</p>
+        )}
+        
         {/* Add/Edit Lab Modal */}
         {showAddModal && (
           <div style={styles.modal} onClick={() => {

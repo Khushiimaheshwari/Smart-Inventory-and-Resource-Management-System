@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Upload, ChevronDown, ChevronUp } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 const LabTimetablePage = () => {
@@ -9,6 +9,87 @@ const LabTimetablePage = () => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [view, setView] = useState('week');
   const [labData, setLabData] = useState([]);
+  const [expandedId, setExpandedId] = useState(null);
+  const [subjects, setSubjects] = useState([
+    {
+      id: 1,
+      title: "Data Structures and Algorithms",
+      courseCode: "CSE301",
+      experimentList: {
+        status: "uploaded",
+        fileName: "DSA_Experiments.pdf"
+      },
+      programs: [
+        {
+          id: 1,
+          programName: "B.Tech CSE AI ML",
+          section: "A",
+          semester: 7,
+          facultyName: "Dr. Amit Kumar",
+          hours: 4,
+          groupNumber: "G01"
+        },
+        {
+          id: 2,
+          programName: "B.Tech CSE",
+          section: "B",
+          semester: 5,
+          facultyName: "Prof. Priya Singh",
+          hours: 3,
+          groupNumber: "G02"
+        }
+      ]
+    },
+    {
+      id: 2,
+      title: "Machine Learning",
+      courseCode: "CSE402",
+      experimentList: {
+        status: "pending",
+        fileName: null
+      },
+      programs: [
+        {
+          id: 1,
+          programName: "B.Tech CSE AI ML",
+          section: "A",
+          semester: 8,
+          facultyName: "Dr. Rajesh Sharma",
+          hours: 5,
+          groupNumber: "G01"
+        }
+      ]
+    },
+    {
+      id: 3,
+      title: "Database Management Systems",
+      courseCode: "CSE303",
+      experimentList: {
+        status: "uploaded",
+        fileName: "DBMS_Lab_Manual.pdf"
+      },
+      programs: [
+        {
+          id: 1,
+          programName: "B.Tech CSE",
+          section: "C",
+          semester: 6,
+          facultyName: "Dr. Meena Patel",
+          hours: 4,
+          groupNumber: "G03"
+        },
+        {
+          id: 2,
+          programName: "B.Tech IT",
+          section: "A",
+          semester: 6,
+          facultyName: "Prof. Sunil Verma",
+          hours: 4,
+          groupNumber: "G01"
+        }
+      ]
+    }
+  ]);
 
   useEffect(() => {
       const fetchLab = async () => {
@@ -29,6 +110,15 @@ const LabTimetablePage = () => {
   
       fetchLab();
     }, []);
+
+  const toggleExpand = (id) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  const handleFileUpload = (subjectId) => {
+    // Simulate file upload
+    console.log(`Upload file for subject ${subjectId}`);
+  };
 
   // Timetable Data
   const timetableData = [
@@ -250,78 +340,210 @@ const LabTimetablePage = () => {
       color: '#2d3748',
       margin: 0
     },
-    subjectGrid: {
+    cardContainer: {
       display: 'flex',
       flexDirection: 'column',
-      gap: '12px'
+      gap: '16px'
     },
-    subjectItem: {
+    card: {
+      backgroundColor: 'white',
+      borderRadius: '12px',
+      border: '1px solid #e5e7eb',
+      overflow: 'hidden',
+      transition: 'box-shadow 0.2s'
+    },
+    cardHeader: {
+      padding: '20px 24px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      cursor: 'pointer',
+      transition: 'background-color 0.2s'
+    },
+    cardHeaderHover: {
+      backgroundColor: '#f9fafb'
+    },
+    cardLeft: {
       display: 'flex',
       alignItems: 'center',
       gap: '16px',
-      padding: '16px',
-      background: '#f7fafc',
-      borderRadius: '10px',
-      border: '1px solid #e2e8f0',
-      transition: 'all 0.2s ease'
+      flex: 1
     },
-    subjectNumber: {
-      width: '36px',
-      height: '36px',
-      borderRadius: '8px',
-      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
-      color: 'white',
+    avatar: {
+      width: '56px',
+      height: '56px',
+      borderRadius: '12px',
+      backgroundColor: '#f3f4f6',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontWeight: 700,
       fontSize: '14px',
-      flexShrink: 0
+      fontWeight: '600',
+      color: '#6b7280'
     },
-    subjectContent: {
-      flex: 1,
+    cardInfo: {
       display: 'flex',
       flexDirection: 'column',
       gap: '4px'
     },
-    subjectName: {
-      fontSize: '15px',
-      fontWeight: 600,
-      color: '#2d3748'
+    subjectTitle: {
+      fontSize: '18px',
+      fontWeight: '700',
+      color: '#111827',
+      margin: 0
     },
-    subjectMeta: {
-      fontSize: '13px',
-      color: '#718096',
+    courseCode: {
+      fontSize: '14px',
+      color: '#6b7280'
+    },
+    cardRight: {
       display: 'flex',
       alignItems: 'center',
-      gap: '8px'
+      gap: '12px'
     },
-    subjectDivider: {
-      color: '#cbd5e0'
+    uploadBadge: {
+      padding: '6px 12px',
+      borderRadius: '6px',
+      fontSize: '13px',
+      fontWeight: '600'
+    },
+    statusUploaded: {
+      backgroundColor: '#d1fae5',
+      color: '#065f46'
+    },
+    statusPending: {
+      backgroundColor: '#fef3c7',
+      color: '#92400e'
+    },
+    programCount: {
+      padding: '6px 12px',
+      borderRadius: '6px',
+      fontSize: '13px',
+      fontWeight: '600',
+      backgroundColor: '#e0e7ff',
+      color: '#3730a3'
+    },
+    actionButtons: {
+      display: "flex",
+      gap: "8px",
+    },
+    iconButton: {
+      width: "36px",
+      height: "36px",
+      background: "transparent",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      transition: "all 0.2s ease",
+    },
+    addSubjectButton: {
+      color: "#0ea5e9", 
     },
     editButton: {
-      padding: '8px 16px',
-      background: '#e6fffa',
-      color: '#00b8d9',
-      border: '1px solid #81e6d9',
-      borderRadius: '8px',
-      fontSize: '13px',
-      fontWeight: 600,
-      cursor: 'pointer',
-      transition: 'all 0.2s ease',
-      flexShrink: 0
+      color: "#10b981",
     },
     deleteButton: {
-      padding: '8px 16px',
-      background: '#fff5f5',
-      color: '#e53e3e',
-      border: '1px solid #feb2b2',
+      color: "#ef4444",
+    },
+    expandButton: {
+      background: "#f3f4f6",
+      color: "#4b5563",
+      transition: "all 0.2s ease",
+    },
+    expandedContent: {
+      borderTop: '1px solid #e5e7eb',
+      padding: '24px',
+      backgroundColor: '#f9fafb'
+    },
+    section: {
+      marginBottom: '24px'
+    },
+    sectionTitle: {
+      fontSize: '14px',
+      fontWeight: '700',
+      color: '#374151',
+      marginBottom: '12px',
+      textTransform: 'uppercase',
+      letterSpacing: '0.05em'
+    },
+    uploadSection: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '16px',
+      backgroundColor: 'white',
       borderRadius: '8px',
+      border: '2px dashed #d1d5db'
+    },
+    uploadButton: {
+      backgroundColor: '#3b82f6',
+      color: 'white',
+      border: 'none',
+      borderRadius: '6px',
+      padding: '8px 16px',
       fontSize: '13px',
-      fontWeight: 600,
+      fontWeight: '600',
       cursor: 'pointer',
-      transition: 'all 0.2s ease',
-      flexShrink: 0
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px'
+    },
+    fileName: {
+      fontSize: '14px',
+      color: '#374151',
+      fontWeight: '500'
+    },
+    programsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+      gap: '16px'
+    },
+    programCard: {
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      padding: '16px',
+      border: '1px solid #e5e7eb'
+    },
+    programHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: '12px'
+    },
+    programName: {
+      fontSize: '15px',
+      fontWeight: '700',
+      color: '#111827',
+      marginBottom: '4px'
+    },
+    programBadge: {
+      padding: '4px 8px',
+      borderRadius: '4px',
+      fontSize: '12px',
+      fontWeight: '600',
+      backgroundColor: '#dbeafe',
+      color: '#1e40af'
+    },
+    programDetails: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px'
+    },
+    detailRow: {
+      display: 'flex',
+      fontSize: '13px',
+      color: '#6b7280'
+    },
+    detailLabel: {
+      fontWeight: '600',
+      minWidth: '100px',
+      color: '#374151'
+    },
+    detailValue: {
+      color: '#6b7280'
     },
     timetableCard: {
       background: 'rgba(255, 255, 255, 0.95)',
@@ -443,7 +665,8 @@ const LabTimetablePage = () => {
     eventDetails: {
       fontSize: '11px',
       opacity: 0.9
-    }
+    },
+
   };
 
   return (
@@ -521,28 +744,125 @@ const LabTimetablePage = () => {
           </button>
         </div>
         
-        <div style={styles.subjectGrid}>
-          {timetableData.map((item, index) => (
-            <div key={item.id} style={styles.subjectItem}>
-              <div style={styles.subjectNumber}>{index + 1}</div>
-              <div style={styles.subjectContent}>
-                <div style={styles.subjectName}>{item.subject}</div>
-                <div style={styles.subjectMeta}>
-                  <span>{item.course}</span>
-                  <span style={styles.subjectDivider}>•</span>
-                  <span>{item.faculty}</span>
+        <div style={styles.cardContainer}>
+        {subjects.map((subject) => (
+          <div key={subject.id} style={styles.card}>
+            <div 
+              style={styles.cardHeader}
+              onClick={() => toggleExpand(subject.id)}
+            >
+              <div style={styles.cardLeft}>
+                <div style={styles.avatar}>S{subject.id}</div>
+                <div style={styles.cardInfo}>
+                  <h3 style={styles.subjectTitle}>{subject.title}</h3>
+                  <div style={styles.courseCode}>Code: {subject.courseCode}</div>
                 </div>
               </div>
-              <button style={styles.editButton}>
-                  Edit
-                </button>
-              <button style={styles.deleteButton}>
-                Delete
-              </button>
+
+              <div style={styles.cardRight}>
+                <span 
+                  style={{
+                    ...styles.uploadBadge,
+                    ...(subject.experimentList.status === 'uploaded'
+                      ? styles.statusUploaded
+                      : styles.statusPending)
+                  }}
+                >
+                  {subject.experimentList.status === 'uploaded' ? 'Uploaded' : 'Pending'}
+                </span>
+                <span style={styles.programCount}>
+                  {subject.programs.length} {subject.programs.length === 1 ? 'Program' : 'Programs'}
+                </span>
+                <div style={styles.actionButtons}>
+                  <button style={{ ...styles.iconButton, ...styles.addSubjectButton }}>
+                    <Plus size={28} />
+                  </button>
+                  <button style={{ ...styles.iconButton, ...styles.editButton }}>
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                  </button>
+                  <button style={{ ...styles.iconButton, ...styles.deleteButton }}>
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  <button style={{ ...styles.iconButton, ...styles.expandButton }}>
+                    {expandedId === subject.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </button>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
+
+            {expandedId === subject.id && (
+              <div style={styles.expandedContent}>
+                {/* Experiment List Section */}
+                <div style={styles.section}>
+                  <div style={styles.sectionTitle}>Experiment List</div>
+                  <div style={styles.uploadSection}>
+                    {subject.experimentList.fileName ? (
+                      <>
+                        <span style={styles.fileName}>📎 {subject.experimentList.fileName}</span>
+                        <button 
+                          style={styles.uploadButton}
+                          onClick={() => handleFileUpload(subject.id)}
+                        >
+                          <Upload size={14} />
+                          Replace
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ fontSize: '14px', color: '#9ca3af', fontStyle: 'italic' }}>
+                          No file uploaded
+                        </span>
+                        <button 
+                          style={styles.uploadButton}
+                          onClick={() => handleFileUpload(subject.id)}
+                        >
+                          <Upload size={14} />
+                          Upload PDF
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Programs Section */}
+                <div style={styles.section}>
+                  <div style={styles.sectionTitle}>Assigned Programs</div>
+                  <div style={styles.programsGrid}>
+                    {subject.programs.map((program) => (
+                      <div key={program.id} style={styles.programCard}>
+                        <div style={styles.programHeader}>
+                          <div>
+                            <div style={styles.programName}>{program.programName}</div>
+                            <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                              Section {program.section} • Semester {program.semester}
+                            </div>
+                          </div>
+                          <span style={styles.programBadge}>{program.groupNumber}</span>
+                        </div>
+                        <div style={styles.programDetails}>
+                          <div style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Faculty:</span>
+                            <span style={styles.detailValue}>{program.facultyName}</span>
+                          </div>
+                          <div style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Hours/Week:</span>
+                            <span style={styles.detailValue}>{program.hours}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
+    </div>
      
       {/* Timetable Card */}
       <div style={styles.timetableCard}>

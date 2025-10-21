@@ -1,10 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./onboarding.module.css";
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const [user, setUser] = useState([])
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -14,6 +15,33 @@ export default function OnboardingPage() {
   });
   const [avatarPreview, setAvatarPreview] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+      const fetchProfile = async () => {
+        try {
+          const res = await fetch("/api/auth/profile", {
+            method: "GET",
+            credentials: "include", 
+          });
+  
+          if (res.ok) {
+            const data = await res.json();
+            setUser(data.user);
+            console.log(data.user);
+            
+          } else {
+            console.error("Failed to fetch profile");
+            window.location.href = "/login";
+          }
+        } catch (err) {
+          console.error("Error fetching profile:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchProfile();
+    }, []);
 
   // Handle input change
   const handleChange = (e) => {
@@ -79,7 +107,7 @@ export default function OnboardingPage() {
             phone: formData.phone,
             location: formData.location,
             profileImage: formData.avatar,
-          }),
+          }), 
         });
       }
 
@@ -87,7 +115,19 @@ export default function OnboardingPage() {
       if (!res.ok) throw new Error(result.error || "Something went wrong");
 
       console.log("Profile Updated:", result);
-      router.push("/profile");
+
+      const role = user?.Role;
+
+      if (role === "admin") {
+        window.location.href = "/adminPanel";
+      } else if (role === "lab_technician") {
+        window.location.href = "/lab_technicianPanel";
+      } else if (role === "faculty") {
+        window.location.href = "/facultyPanel";
+      }else {
+        router.push("/login");
+      }
+
     } catch (err) {
       console.error(err.message);
       alert("Error: " + err.message);

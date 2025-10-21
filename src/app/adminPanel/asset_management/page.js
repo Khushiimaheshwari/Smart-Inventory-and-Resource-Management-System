@@ -451,7 +451,7 @@ export default function AssetManagement() {
               <div style={styles.assetsSection}>
                 <div style={styles.assetsLabel}>Assets</div>
                 <div style={styles.assetsCount}>
-                  {pc.Assets.length} item{pc.Assets.length !== 1 ? 's' : ''} assigned
+                  {pc?.Assets?.length} item{pc?.Assets?.length !== 1 ? 's' : ''} assigned
                 </div>
               </div>
               <div style={styles.actionButtons}>
