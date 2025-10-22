@@ -738,10 +738,7 @@ const LabTimetablePage = () => {
       <div style={styles.subjectListCard}>
         <div style={styles.subjectListHeader}>
           <h2 style={styles.subjectListTitle}>Subject List</h2>
-          <button style={styles.addButton}>
-            <Plus size={16} />
-            Add Subject
-          </button>
+          
         </div>
         
         <div style={styles.cardContainer}>
