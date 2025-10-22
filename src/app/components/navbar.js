@@ -15,12 +15,13 @@ export default function Navbar() {
       <div className={styles.logo}>
         <Link href="/">
           <Image
-            src="/logo.jpg"
-            alt="Asserta Logo"
-            width={120}
-            height={40}
-            priority
-          />
+      src="/logo.jpg"
+      alt="Asserta Logo"
+      width={120}
+      height={40}
+      priority
+      style={{ width: 'auto', height: '40px' }}
+    />
         </Link>
       </div>
 
