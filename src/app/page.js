@@ -81,11 +81,10 @@ export default function Home() {
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroLeft}>
-          <h1>Assetra</h1>
-          <h3>Your Assets, Always in Sight.</h3>
+          <h1>Lab360°</h1>
+          <h3>All-in-One Lab Management Platform.</h3>
           <p>
-            Transform the way you track, manage, and optimize your digital and
-            physical assets with intelligent automation and real-time insights.
+            Simplify laboratory scheduling, equipment tracking, and maintenance with AI-powered analytics and QR-based transparency.
           </p>
           <div className={styles.buttons}>
             <button className={styles.primaryBtn}>Get Started</button>
@@ -338,7 +337,7 @@ export default function Home() {
       </section>
 
       <footer className={styles.footer}>
-        <p>© 2025 Assetra. All rights reserved.</p>
+        <p>© 2025 Lab360. All rights reserved.</p>
       </footer>
     </div>
   );
