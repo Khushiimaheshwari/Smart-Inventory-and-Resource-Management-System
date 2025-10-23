@@ -799,7 +799,7 @@ const LabTimetablePage = () => {
                   <div style={styles.uploadSection}>
                     {subject.experimentList.fileName ? (
                       <>
-                        <span style={styles.fileName}>📎 {subject.experimentList.fileName}</span>
+                        <span style={styles.fileName}> {subject.experimentList.fileName}</span>
                         <button 
                           style={styles.uploadButton}
                           onClick={() => handleFileUpload(subject.id)}

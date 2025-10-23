@@ -15,8 +15,8 @@ export default function AdminNavbar() {
       <div className={styles.logo}>
         <Link href="/adminPanel">
           <Image
-            src="/logo.jpg"
-            alt="Asserta Logo"
+            src="/logo.png"
+            alt="Lab360 Logo"
             width={120}
             height={40}
             priority

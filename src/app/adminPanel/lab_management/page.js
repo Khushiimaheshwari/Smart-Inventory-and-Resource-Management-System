@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 
 export default function LabManagement() {
   const [labs, setLabs] = useState([]);
-
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingLab, setEditingLab] = useState(null);
   const [technicians, setTechnicians] = useState([]);
@@ -18,6 +17,7 @@ export default function LabManagement() {
     technician: '',
     incharge: '',
   });
+
 
   const totalLabs = labs.length;
   const activeLabs = labs.filter(lab => lab.Status === 'active').length;
