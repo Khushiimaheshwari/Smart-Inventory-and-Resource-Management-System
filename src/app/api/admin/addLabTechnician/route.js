@@ -15,7 +15,7 @@ export async function POST(req) {
     console.log(body);
     
 
-    if (!name || !email || !password || !labAccess) {
+    if (!name || !email || !password) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { X, ChevronDown } from 'lucide-react';
+import emailjs from "@emailjs/browser";
 
 export default function LabTechnicianManagement() {
   const [users, setUsers] = useState([]);
@@ -74,13 +75,10 @@ export default function LabTechnicianManagement() {
     };
 
     fetchLab();
-  }, []);
-
-  console.log("Labs", allLabs);
-  
+  }, []);  
 
   const handleAddUser = async () => {
-    if (!newUser.name || !newUser.email || !newUser.password || newUser.labAccess.length === 0) {
+    if (!newUser.name || !newUser.email || !newUser.password) {
       alert("Please fill all required fields");
       return;
     }
@@ -93,7 +91,6 @@ export default function LabTechnicianManagement() {
           name: newUser.name,
           email: newUser.email,
           password: newUser.password,
-          // labAccess: newUser.labAccess,
           labAccess: newUser.labAccess.map(lab => lab.Lab_id),
         }),
       });
@@ -104,6 +101,17 @@ export default function LabTechnicianManagement() {
         alert(data.error || "Something went wrong!");
         return;
       }
+
+      await emailjs.send(
+        "service_2xk0xdb",  
+        "template_mq4w3fc",    
+        {
+          to_name: newUser.name,
+          to_email: newUser.email,
+          password: newUser.password,
+        },
+        "JVeTTsN2NUeZ0UlPA"
+      );
 
       setUsers([
         ...users,
@@ -183,7 +191,15 @@ export default function LabTechnicianManagement() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  console.log("Selected Labs:", newUser.labAccess);
+  const generateRandomPassword = () => {
+    const length = 10; 
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$!";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return password;
+  };
 
   const styles = {
     container: {
@@ -855,7 +871,11 @@ export default function LabTechnicianManagement() {
                         Status
                       </span>
                       <span style={styles.infoValue}>
-                        {(user.status).charAt(0).toUpperCase() + user.status.slice(1)}
+                        { user.status ? (
+                          (user.status).charAt(0).toUpperCase() + user.status.slice(1)
+                        ) : (
+                          "Unknown"
+                        )}
                       </span>
                     </div>
                   </div>
@@ -896,7 +916,7 @@ export default function LabTechnicianManagement() {
             </div>
           ))
         ) : (
-          <p className={styles.noUsersMessage}>No users found.</p>
+          <p className={styles.noUsersMessage}>No Lab Technicians found.</p>
         )}
       </div>
 
@@ -914,7 +934,7 @@ export default function LabTechnicianManagement() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 style={styles.modalHeader}>
-              {editingUser ? "Edit User" : "Add New User"}
+              {editingUser ? "Edit Lab Technician" : "Add New Lab Technician"}
             </h2>
 
             <div style={styles.formGroup}>
@@ -957,7 +977,10 @@ export default function LabTechnicianManagement() {
                 />
                 <button
                   style={styles.generateButton}
-                >
+                  onClick={() => {
+                    const randomPass = generateRandomPassword();
+                    setNewUser({ ...newUser, password: randomPass });
+                  }}>
                   <svg
                     width="25"
                     height="25"
@@ -1035,32 +1058,6 @@ export default function LabTechnicianManagement() {
                       No Lab Access
                     </div>
 
-                    {/* {allLabs.map((labObj) => {
-                      const lab = labObj.Lab;
-                      const isSelected = newUser.labAccess.includes(lab);
-                      return (
-                        <div
-                          key={lab}
-                          style={{
-                            ...styles.dropdownItem,
-                            ...(isSelected ? styles.dropdownItemSelected : {}),
-                          }}
-                          onClick={() => handleLabSelect(lab)}
-                          onMouseEnter={(e) => {
-                            if (!isSelected) {
-                              e.currentTarget.style.backgroundColor = styles.dropdownItemHover.backgroundColor;
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isSelected) {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                            }
-                          }}
-                        >
-                          {lab} {isSelected && '✓'}
-                        </div>
-                      );
-                    })} */}
                     {allLabs.map((labObj) => {
                       const isSelected = newUser.labAccess.some(
                         (lab) => lab.Lab_id === labObj.Lab_id
@@ -1128,7 +1125,7 @@ export default function LabTechnicianManagement() {
                 style={styles.saveButton}
                 onClick={editingUser ? handleUpdateUser : handleAddUser}
               >
-                {editingUser ? "Update User" : "Add User"}
+                {editingUser ? "Update Lab Technician" : "Add Lab Technician"}
               </button>
             </div>
           </div>
