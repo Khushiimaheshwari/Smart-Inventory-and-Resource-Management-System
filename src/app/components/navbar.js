@@ -15,7 +15,7 @@ export default function Navbar() {
       <div className={styles.logo}>
         <Link href="/">
           <Image
-      src="/logo.jpg"
+      src="/logo.png"
       alt="Asserta Logo"
       width={120}
       height={40}
