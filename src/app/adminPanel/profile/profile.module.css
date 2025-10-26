@@ -1,13 +1,19 @@
 /* Container */
 .profileContainer {
-  background: linear-gradient(135deg, #e8f5f0, #e1f3f8); /* Much softer gradient */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
   min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
+  overflow-x: hidden;
+  width: calc(100% - 220px);
+  box-sizing: border-box;
+  margin-left: 255px;
 }
 
 /* Background decorations (optional subtle dots) */
