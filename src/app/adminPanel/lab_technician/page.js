@@ -19,35 +19,35 @@ export default function LabTechnicianManagement() {
     labAccess: [],
   });
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await fetch("/api/admin/getlabTechnicians");
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch("/api/admin/getlabTechnicians");
 
-        if(!res.ok) {
-          throw new Error("Failed to fetch users");
-        }
-
-        const data = await res.json();
-        setUsers(
-          data.technicians.map(t => ({
-            id: t._id,
-            name: t.Name,
-            email: t.Email,
-            phoneNumber: t.PhoneNumber,
-            profileImage: t.ProfileImage,
-            location: t.Location,
-            status: t.AccountStatus,
-            labAccess: t.Labs?.map(lab => lab.Lab_ID),
-          }))
-        );
-        console.log(data);
-        
-      }catch (err) {
-        console.error("Fetch Users Error:", err);
+      if(!res.ok) {
+        throw new Error("Failed to fetch users");
       }
-    };
 
+      const data = await res.json();
+      setUsers(
+        data.technicians.map(t => ({
+          id: t._id,
+          name: t.Name,
+          email: t.Email,
+          phoneNumber: t.PhoneNumber,
+          profileImage: t.ProfileImage,
+          location: t.Location,
+          status: t.AccountStatus,
+          labAccess: t.Labs?.map(lab => lab.Lab_ID),
+        }))
+      );
+      console.log(data);
+      
+    }catch (err) {
+      console.error("Fetch Users Error:", err);
+    }
+  };
+
+  useEffect(() => {
     fetchUsers();
   }, []);
 
@@ -76,6 +76,15 @@ export default function LabTechnicianManagement() {
 
     fetchLab();
   }, []);  
+
+  const resetForm = () => {
+    setNewUser({
+      name: "",
+      email: "",
+      phoneNumber: "",
+      labAccess: [],
+    });
+  };
 
   const handleAddUser = async () => {
     if (!newUser.name || !newUser.email || !newUser.password) {
@@ -130,19 +139,68 @@ export default function LabTechnicianManagement() {
         password: "",
         labAccess: [],
       });
+      await fetchUsers();
     } catch (err) {
-      console.error("Add Technician Error:", err);
-      alert("Something went wrong while adding user.");
+      console.error("Add Lab Technician Error:", err);
+      alert("Something went wrong while editing Lab Technician.");
     }
   };
 
   const handleEditUser = (user) => {
-    setEditingUser(user);
+    setEditingUser(user);    
     setShowAddModal(true);
     setNewUser(user);
   };
 
-  const handleUpdateUser = () => {
+  const handleUpdateUser = async () => {
+
+    if (!newUser.name || !newUser.email) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/editLabTechnician", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newUser.name,
+          email: newUser.email,
+          password: newUser.password,
+          labAccess: newUser.labAccess.map(lab => lab.Lab_id),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
+        return;
+      }
+
+      if (newUser.password && newUser.password.trim() !== "") {
+        await emailjs.send(
+          "service_2xk0xdb",  
+          "template_mq4w3fc",    
+          {
+            to_name: newUser.name,
+            to_email: newUser.email,
+            password: newUser.password,
+          },
+          "JVeTTsN2NUeZ0UlPA"
+        ); 
+      }
+
+      setUsers([
+        ...users,
+        {
+          id: users.length + 1,
+          name: newUser.name,
+          email: newUser.email,
+        },
+      ]);
+
+    alert("Lab Technician updated successfully!");
     setUsers(users.map((u) => (u.id === editingUser.id ? newUser : u)));
     setShowAddModal(false);
     setEditingUser(null);
@@ -152,7 +210,12 @@ export default function LabTechnicianManagement() {
       password: "",
       labAccess: [],
     });
-  };
+    await fetchUsers();
+  } catch (err) {
+    console.error("Edit Lab Technician Error:", err);
+    alert("Something went wrong while editing Lab Technician.");
+  }
+};
 
   const handleDeleteUser = (userId) => {
     setUsers(users.filter((u) => u.id !== userId));
@@ -649,7 +712,8 @@ export default function LabTechnicianManagement() {
       minHeight: '42px',
       padding: '2px 12px',
       borderRadius: '8px',
-      border: '2px solid #e2e8f0',
+      border: '2px solid',
+      borderColor: '#e2e8f0',
       backgroundColor: 'white',
       cursor: 'pointer',
       display: 'flex',
@@ -727,7 +791,13 @@ export default function LabTechnicianManagement() {
       {/* Header */}
       <header style={styles.header}>
         <h1 style={styles.headerTitle}>Lab Technician Management</h1>
-        <button style={styles.addButton} onClick={() => setShowAddModal(true)}>
+        <button 
+          style={styles.addButton} 
+          onClick={() => { 
+            setEditingUser(null); 
+            resetForm(); 
+            setShowAddModal(true); 
+          }}>
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
             <path
               fillRule="evenodd"
@@ -927,16 +997,13 @@ export default function LabTechnicianManagement() {
           onClick={() => {
             setShowAddModal(false);
             setEditingUser(null);
-          }}
-        >
+          }}>
           <div
             style={styles.modalContent}
-            onClick={(e) => e.stopPropagation()}
-          >
+            onClick={(e) => e.stopPropagation()}>
             <h2 style={styles.modalHeader}>
               {editingUser ? "Edit Lab Technician" : "Add New Lab Technician"}
             </h2>
-
             <div style={styles.formGroup}>
               <label style={styles.label}>Name</label>
               <input
@@ -969,7 +1036,7 @@ export default function LabTechnicianManagement() {
                 <input
                   type="text"
                   style={styles.input}
-                  value={newUser.password}
+                  value={newUser.password || ""}
                   onChange={(e) =>
                     setNewUser({ ...newUser, password: e.target.value })
                   }
@@ -996,7 +1063,7 @@ export default function LabTechnicianManagement() {
                     <path d="M15 5l2-2 1 1-2 2-1-1z" fill="currentColor" opacity="0.8"/>
                     <path d="M12 8l-2 2-1-1 2-2 1 1z" fill="currentColor" opacity="0.6"/>
 
-                    <circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-opacity="0.15" />
+                    <circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" strokeOpacity="0.15" />
                   </svg>
                 </button>
               </div>
@@ -1011,27 +1078,30 @@ export default function LabTechnicianManagement() {
                     ...styles.inputArea,
                     ...(isDropdownOpen ? styles.inputAreaFocused : {}),
                   }}
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                >
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
                   {newUser.labAccess.length === 0 ? (
                     <span style={styles.placeholder}>Select lab access</span>
                   ) : (
-                    newUser.labAccess.map((lab) => (
-                      <div key={lab.Lab_id} style={styles.chip}>
-                        <span>{lab.Lab}</span>
-                        <button
-                          style={styles.removeButton}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveLab(lab.Lab_id);
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                          onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))
+                    newUser.labAccess.map((lab, index) => {
+                      const labName = typeof lab === "object" ? lab.Lab : lab;     
+                      const labId = typeof lab === "object" ? lab.Lab_id : index;
+
+                      return (
+                        <div key={labId} style={styles.chip}>  
+                          <span>{labName}</span>                   
+                          <button
+                            style={styles.removeButton}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveLab(labId);
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                            onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                    )})
                   )}
                 </div>
 
@@ -1083,7 +1153,6 @@ export default function LabTechnicianManagement() {
                             }
                           }}
                         >
-                          {console.log(labObj.Lab)}
                           {labObj.Lab} {isSelected && "✓"}
                         </div>
                       );
@@ -1101,12 +1170,16 @@ export default function LabTechnicianManagement() {
                 }}>
                 <strong>Selected Labs:</strong>{" "}
                 {newUser.labAccess.length > 0
-                  ? newUser.labAccess.map((lab, index) => (
-                      <span key={lab.Lab_id}>
-                        {lab.Lab}
+                  ? newUser.labAccess.map((lab, index) => {
+                    const labName = typeof lab === "object" ? lab.Lab : lab;
+                    const labId = typeof lab === "object" ? lab.Lab_id : index;
+
+                    return (
+                      <span key={labId}>
+                        {labName}
                         {index < newUser.labAccess.length - 1 ? ", " : ""}
                       </span>
-                    ))
+                  )})
                   : "None"}
               </div>
             </div>
