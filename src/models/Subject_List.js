@@ -8,7 +8,6 @@ const SubjectListSchema = new mongoose.Schema({
   Experiment_List: { type: String, default: "" },
   Status: {type: String, enum: ["uploaded", "pending"], default: "pending"},
   Programs: { type: mongoose.Schema.Types.ObjectId, ref: "Programs" },
-  Lab_Name: { type: mongoose.Schema.Types.ObjectId, ref: "Lab" },
 }, { timestamps: true });
 
 const SubjectList = mongoose.models.SubjectList || mongoose.model("SubjectList", SubjectListSchema);
