@@ -491,19 +491,25 @@ export default function SubjectListPage() {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "flex-start",
-      marginBottom: "12px",
     },
 
     programName: {
-      fontSize: "15px",
+      fontSize: "16px",
       fontWeight: "700",
       color: "#111827",
+      marginBottom: "8px",
+    },
+
+    programMeta1: {
+      fontSize: "14px",
+      color: "#6b7280",
       marginBottom: "4px",
     },
 
-    programMeta: {
-      fontSize: "12px",
+    programMeta2: {
+      fontSize: "13px",
       color: "#6b7280",
+      marginBottom: "4px",
     },
 
     programBadgeAlt: {
@@ -838,7 +844,7 @@ return (
       { subjects ? (
         <div style={styles.subjectsList}>
           {sortedSubjects.map((subject, index) => (
-            <div key={subject.id} style={styles.subjectCard}>
+            <div key={subject._id} style={styles.subjectCard}>
               <div style={styles.subjectCardContent}>
                 <div style={styles.subjectInfoSection}>
                   <div style={styles.subjectAvatar}>
@@ -865,7 +871,11 @@ return (
                   </span>
 
                   <span style={styles.programBadge}>
-                    {subject.programCount} {subject.programCount === 1 ? 'Program' : 'Programs'}
+                    {subject.Programs ? (
+                      <>{subject.Programs.length} {subject.Programs.length === 1 ? 'Program' : 'Programs'}</>
+                    ) : (
+                      '0 Programs'
+                    )}
                   </span>
 
                   <button 
@@ -932,29 +942,24 @@ return (
                 <div style={styles.expandedSection}>
                   <h3 style={styles.sectionTitle}>Assigned Programs</h3>
                   <div style={styles.programsGrid}>
-                    {subject.programs?.map((program) => (
-                      <div key={program.id} style={styles.programCard}>
+                    {subject.Programs ? (
+                      <div style={styles.programCard}>
                         <div style={styles.programHeader}>
                           <div>
-                            <div style={styles.programName}>{program.programName}</div>
-                            <div style={styles.programMeta}>
-                              Section {program.section} • Semester {program.semester}
-                            </div>
+                            <div style={styles.programName}>{subject.Programs.Program_Name}</div>
+                              <div style={styles.programMeta1}>
+                                  Batch: {subject.Programs.Program_Batch}
+                              </div>
+                              <div style={styles.programMeta2}>
+                                Section {subject.Programs.Program_Section} • Semester {subject.Programs.Program_Semester}
+                              </div>
                           </div>
-                          <span style={styles.programBadge}>{program.groupNumber}</span>
-                        </div>
-                        <div style={styles.programDetails}>
-                          <div style={styles.detailRow}>
-                            <span style={styles.detailLabel}>Faculty:</span>
-                            <span style={styles.detailValue}>{program.facultyName}</span>
-                          </div>
-                          <div style={styles.detailRow}>
-                            <span style={styles.detailLabel}>Hours/Week:</span>
-                            <span style={styles.detailValue}>{program.hours}</span>
-                          </div>
+                          <span style={styles.programBadge}>{subject.Programs.Program_Group}</span>
                         </div>
                       </div>
-                    ))}
+                    ) : (
+                      <p>No programs assigned to this subject.</p>
+                    )}
                   </div>
                 </div>
               </div>

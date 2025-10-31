@@ -8,7 +8,6 @@ export async function GET() {
     await connectDB();
 
     const subjects = await SubjectList.find({}, "_id Course_Name Course_Code Course_Department Experiment_List Status").populate("Programs"); 
-    // const subjects = await SubjectList.find({}, "_id Course_Name Course_Code Course_Department Experiment_List").populate("Programs").populate("Labs"); 
 
     return NextResponse.json({ subjects });
   } catch (error) {
@@ -16,3 +15,4 @@ export async function GET() {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+ 
