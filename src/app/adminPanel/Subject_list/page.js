@@ -29,24 +29,24 @@ export default function SubjectListPage() {
     labAllocated: ''
   });
 
-  useEffect(() => {
-    const fetchLab = async () => {
-      try {
-        const res = await fetch("/api/admin/getSubjects");
-        const data = await res.json();
-        if (res.ok) {
-          setSubjects(data.subjects);
-          console.log(data);
-          
-        } else {
-          console.error("Failed to fetch subject:", data.error);
-        }
-      } catch (err) {
-        console.error("Error fetching subject:", err);
+  const fetchSubject = async () => {
+    try {
+      const res = await fetch("/api/admin/getSubjects");
+      const data = await res.json();
+      if (res.ok) {
+        setSubjects(data.subjects);
+        console.log(data);
+        
+      } else {
+        console.error("Failed to fetch subject:", data.error);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching subject:", err);
+    }
+  };
 
-    fetchLab();
+  useEffect(() => {
+    fetchSubject();
   }, []);
 
   const faculties = [
@@ -86,6 +86,7 @@ export default function SubjectListPage() {
         alert("Subject added successfully!");
         setShowAddModal(false);
         setNewSubject({ courseName: '', courseCode: '', courseDepartment: '' });
+        fetchSubject();
       } else {
         alert(data.error || "Failed to add subject");
       }
@@ -118,28 +119,62 @@ export default function SubjectListPage() {
 
   const filteredSubjects = subjects.filter(subject => {
     const matchesSearch = subject.Course_Name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         subject.courseCode.toLowerCase().includes(searchQuery.toLowerCase());
+                         subject.Course_Code.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || subject.experimentList.status === statusFilter;
     const matchesDepartment = departmentFilter === 'all' || subject.department === departmentFilter;
     return matchesSearch && matchesStatus && matchesDepartment;
   });
 
     const sortedSubjects = [...filteredSubjects].sort((a, b) => {
-      if (sortBy === 'courseCode') return a.courseCode.localeCompare(b.courseCode);
+      if (sortBy === 'courseCode') return a.Course_Code.localeCompare(b.Course_Code);
       if (sortBy === 'Course_Name') return a.Course_Name.localeCompare(b.Course_Name);
       return 0; 
     });
   
   const handleFileUpload = (subjectId) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.pdf';
-    input.onchange = (e) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".pdf, .docx";
+
+    input.onchange = async (e) => {
       const file = e.target.files[0];
-      if (file) {
-        console.log('Uploading file for subject:', subjectId, file);
+      if (!file) return;
+
+      const allowedTypes = [
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        alert("Only PDF or DOCX files are allowed!");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/api/admin/uploadListOfExperiment", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "subject-id": subjectId, 
+          },
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert("File uploaded successfully ");
+          window.location.reload(); 
+        } else {
+          alert("Upload failed: " + data.error);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error uploading file.");
       }
     };
+
     input.click();
   };
 
@@ -460,6 +495,27 @@ export default function SubjectListPage() {
 
     uploadButtonHover: {
       backgroundColor: "#2563eb",
+    },
+
+    viewButton: {
+      backgroundColor: "#10b981",     
+      color: "#fff",
+      border: "none",
+      borderRadius: "8px",
+      padding: "8px 14px",
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      cursor: "pointer",
+      fontSize: "14px",
+      fontWeight: 500,
+      transition: "all 0.25s ease",
+      boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+    },
+
+    viewButtonHover: {
+      backgroundColor: "#10a981",     
+      transform: "translateY(-1px)",
     },
 
     fileName: {
@@ -852,7 +908,7 @@ return (
                   </div>
 
                   <div style={styles.subjectDetails}>
-                    <h3 style={styles.subjectName}>{subject.Course_Name}</h3>
+                    <h3 style={styles.subjectName}>{(subject.Course_Name).toUpperCase()}</h3>
                     <p style={styles.subjectCode}>Code: {subject.Course_Code}</p>
                   </div>
                 </div>
@@ -893,45 +949,46 @@ return (
                   </button>
 
                   <button 
-                    onClick={() => setExpandedSubject(expandedSubject === subject.id ? null : subject.id)}
+                    onClick={() => setExpandedSubject(expandedSubject === subject._id ? null : subject._id)}
                     style={{...styles.iconBtn, ...styles.iconBtnExpandIcon}}
                   >
                     <ChevronDown 
                       size={20} 
-                      style={expandedSubject === subject.id ? styles.rotated : {}}
+                      style={expandedSubject === subject._id ? styles.rotated : {}}
                     />
                   </button>
                 </div>
               </div>
 
-              {expandedSubject === subject.id && (
+              {expandedSubject === subject._id && (
               <div style={styles.expandedContent}>
                 {/* Experiment List Section */}
                 <div style={styles.expandedSection}>
                   <h3 style={styles.sectionTitle}>Experiment List</h3>
                   <div style={styles.uploadSection}>
-                    {subject.experimentList?.fileName ? (
+                    {subject.Experiment_List ? (
                       <>
-                        <span style={styles.fileName}> {subject.experimentList.fileName}</span>
-                        <button 
-                          style={styles.uploadButton}
-                          onClick={() => handleFileUpload(subject.id)}
-                        >
-                          <Upload size={14} />
-                          Replace
-                        </button>
+                        <span style={styles.fileName}>{subject.Experiment_List}</span>
+                        <div style={{ display: "flex", gap: "10px" }}>
+                          <button style={styles.uploadButton} onClick={() => handleFileUpload(subject._id)}>
+                            <Upload size={14} /> Replace
+                          </button>
+
+                          <button
+                            style={styles.viewButton}
+                            onMouseEnter={(e) => Object.assign(e.target.style, styles.viewButtonHover)}
+                            onMouseLeave={(e) => Object.assign(e.target.style, styles.viewButton)}
+                            onClick={() => window.open(`/ListOfExperiment_uploads/${subject.Experiment_List}`, "_blank")}
+                          >
+                            View PDF
+                          </button>
+                        </div>
                       </>
                     ) : (
                       <>
-                        <span style={styles.noFileText}>
-                          No file uploaded
-                        </span>
-                        <button 
-                          style={styles.uploadButton}
-                          onClick={() => handleFileUpload(subject.id)}
-                        >
-                          <Upload size={14} />
-                          Upload PDF
+                        <span style={styles.noFileText}>No file uploaded</span>
+                        <button style={styles.uploadButton} onClick={() => handleFileUpload(subject._id)}>
+                          <Upload size={14} /> Upload PDF
                         </button>
                       </>
                     )}
@@ -942,24 +999,22 @@ return (
                 <div style={styles.expandedSection}>
                   <h3 style={styles.sectionTitle}>Assigned Programs</h3>
                   <div style={styles.programsGrid}>
-                    {subject.Programs ? (
+                    {subject.Programs.map((program) => (
                       <div style={styles.programCard}>
                         <div style={styles.programHeader}>
                           <div>
-                            <div style={styles.programName}>{subject.Programs.Program_Name}</div>
+                            <div style={styles.programName}>{program.Program_Name}</div>
                               <div style={styles.programMeta1}>
-                                  Batch: {subject.Programs.Program_Batch}
+                                  Batch: {program.Program_Batch}
                               </div>
                               <div style={styles.programMeta2}>
-                                Section {subject.Programs.Program_Section} • Semester {subject.Programs.Program_Semester}
+                                Section {program.Program_Section} • Semester {program.Program_Semester}
                               </div>
                           </div>
-                          <span style={styles.programBadge}>{subject.Programs.Program_Group}</span>
+                          <span style={styles.programBadge}>{program.Program_Group}</span>
                         </div>
                       </div>
-                    ) : (
-                      <p>No programs assigned to this subject.</p>
-                    )}
+                    ))}
                   </div>
                 </div>
               </div>

@@ -43,23 +43,23 @@ export default function LabManagement() {
     fetchTechnicians();
   }, []);
 
-  useEffect(() => {
-    const fetchLab = async () => {
-      try {
-        const res = await fetch("/api/admin/getLabs");
-        const data = await res.json();
-        if (res.ok) {
-          setLabs(data.labs);
-          console.log(data);
-          
-        } else {
-          console.error("Failed to fetch lab:", data.error);
-        }
-      } catch (err) {
-        console.error("Error fetching lab:", err);
+  const fetchLab = async () => {
+    try {
+      const res = await fetch("/api/admin/getLabs");
+      const data = await res.json();
+      if (res.ok) {
+        setLabs(data.labs);
+        console.log(data);
+        
+      } else {
+        console.error("Failed to fetch lab:", data.error);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching lab:", err);
+    }
+  };
 
+  useEffect(() => {
     fetchLab();
   }, []);
 
@@ -94,6 +94,7 @@ export default function LabManagement() {
         setLabs([...labs, { ...newLab, id: newLab._id }]);
         setShowAddModal(false);
         resetForm();
+        fetchLab();
       } else {
         alert(data.error || "Failed to add lab");
       }
@@ -543,7 +544,12 @@ export default function LabManagement() {
                         {lab?.LabTechnician?.length === 0 ? (
                           <span style={{ ...styles.detailValue, fontStyle: 'italic', color: '#9ca3af' }}>Not Assigned</span>
                         ) : (
-                        <span style={styles.detailValue}>{lab.LabTechnician[0]?.Name}</span> )
+                          lab.LabTechnician ? (                            
+                            <span style={styles.detailValue}>{lab?.LabTechnician[0]?.Name}</span>
+                            ) : (
+                            <span style={{ ...styles.detailValue, fontStyle: 'italic', color: '#9ca3af' }}>Not Assigned</span>
+                            )
+                          )
                         }
                       </div>
                     </div>
