@@ -10,86 +10,7 @@ const LabTimetablePage = () => {
   const [view, setView] = useState('week');
   const [labData, setLabData] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
-  const [subjects, setSubjects] = useState([
-    {
-      id: 1,
-      title: "Data Structures and Algorithms",
-      courseCode: "CSE301",
-      experimentList: {
-        status: "uploaded",
-        fileName: "DSA_Experiments.pdf"
-      },
-      programs: [
-        {
-          id: 1,
-          programName: "B.Tech CSE AI ML",
-          section: "A",
-          semester: 7,
-          facultyName: "Dr. Amit Kumar",
-          hours: 4,
-          groupNumber: "G01"
-        },
-        {
-          id: 2,
-          programName: "B.Tech CSE",
-          section: "B",
-          semester: 5,
-          facultyName: "Prof. Priya Singh",
-          hours: 3,
-          groupNumber: "G02"
-        }
-      ]
-    },
-    {
-      id: 2,
-      title: "Machine Learning",
-      courseCode: "CSE402",
-      experimentList: {
-        status: "pending",
-        fileName: null
-      },
-      programs: [
-        {
-          id: 1,
-          programName: "B.Tech CSE AI ML",
-          section: "A",
-          semester: 8,
-          facultyName: "Dr. Rajesh Sharma",
-          hours: 5,
-          groupNumber: "G01"
-        }
-      ]
-    },
-    {
-      id: 3,
-      title: "Database Management Systems",
-      courseCode: "CSE303",
-      experimentList: {
-        status: "uploaded",
-        fileName: "DBMS_Lab_Manual.pdf"
-      },
-      programs: [
-        {
-          id: 1,
-          programName: "B.Tech CSE",
-          section: "C",
-          semester: 6,
-          facultyName: "Dr. Meena Patel",
-          hours: 4,
-          groupNumber: "G03"
-        },
-        {
-          id: 2,
-          programName: "B.Tech IT",
-          section: "A",
-          semester: 6,
-          facultyName: "Prof. Sunil Verma",
-          hours: 4,
-          groupNumber: "G01"
-        }
-      ]
-    }
-  ]);
+  const [subjects, setSubjects] = useState([]);
 
   useEffect(() => {
       const fetchLab = async () => {
@@ -110,6 +31,26 @@ const LabTimetablePage = () => {
   
       fetchLab();
     }, []);
+
+  useEffect(() => {
+    const fetchLab = async () => {
+      try {
+        const res = await fetch("/api/admin/getSubjects");
+        const data = await res.json();
+        if (res.ok) {
+          setSubjects(data.subjects);
+          console.log(data);
+          
+        } else {
+          console.error("Failed to fetch subject:", data.error);
+        }
+      } catch (err) {
+        console.error("Error fetching subject:", err);
+      }
+    };
+
+    fetchLab();
+  }, []);
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
@@ -742,17 +683,17 @@ const LabTimetablePage = () => {
         </div>
         
         <div style={styles.cardContainer}>
-        {subjects.map((subject) => (
-          <div key={subject.id} style={styles.card}>
+        {subjects.map((subject, index) => (
+          <div key={subject._id} style={styles.card}>
             <div 
               style={styles.cardHeader}
-              onClick={() => toggleExpand(subject.id)}
+              onClick={() => toggleExpand(subject._id)}
             >
               <div style={styles.cardLeft}>
-                <div style={styles.avatar}>S{subject.id}</div>
+                <div style={styles.avatar}>S{index + 1}</div>
                 <div style={styles.cardInfo}>
-                  <h3 style={styles.subjectTitle}>{subject.title}</h3>
-                  <div style={styles.courseCode}>Code: {subject.courseCode}</div>
+                  <h3 style={styles.subjectTitle}>{subject.Course_Name}</h3>
+                  <div style={styles.courseCode}>Code: {subject.Course_Code}</div>
                 </div>
               </div>
 
@@ -760,20 +701,21 @@ const LabTimetablePage = () => {
                 <span 
                   style={{
                     ...styles.uploadBadge,
-                    ...(subject.experimentList.status === 'uploaded'
+                    ...(subject.Status === 'uploaded'
                       ? styles.statusUploaded
                       : styles.statusPending)
                   }}
                 >
-                  {subject.experimentList.status === 'uploaded' ? 'Uploaded' : 'Pending'}
+                  {subject.Status === 'uploaded' ? 'Uploaded' : 'Pending'}
                 </span>
                 <span style={styles.programCount}>
-                  {subject.programs.length} {subject.programs.length === 1 ? 'Program' : 'Programs'}
+                  {subject.Programs ? (
+                    <>{subject.Programs.length} {subject.Programs.length === 1 ? 'Program' : 'Programs'}</>
+                  ) : (
+                    '0 Programs'
+                  )}
                 </span>
                 <div style={styles.actionButtons}>
-                  <button style={{ ...styles.iconButton, ...styles.addSubjectButton }}>
-                    <Plus size={28} />
-                  </button>
                   <button style={{ ...styles.iconButton, ...styles.editButton }}>
                     <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -785,21 +727,21 @@ const LabTimetablePage = () => {
                     </svg>
                   </button>
                   <button style={{ ...styles.iconButton, ...styles.expandButton }}>
-                    {expandedId === subject.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                    {expandedId === subject._id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                   </button>
                 </div>
               </div>
             </div>
 
-            {expandedId === subject.id && (
+            {expandedId === subject._id && (
               <div style={styles.expandedContent}>
                 {/* Experiment List Section */}
                 <div style={styles.section}>
                   <div style={styles.sectionTitle}>Experiment List</div>
                   <div style={styles.uploadSection}>
-                    {subject.experimentList.fileName ? (
+                    {subject.Experiment_List ? (
                       <>
-                        <span style={styles.fileName}> {subject.experimentList.fileName}</span>
+                        <span style={styles.fileName}> {subject.Experiment_List}</span>
                         <button 
                           style={styles.uploadButton}
                           onClick={() => handleFileUpload(subject.id)}
@@ -829,29 +771,31 @@ const LabTimetablePage = () => {
                 <div style={styles.section}>
                   <div style={styles.sectionTitle}>Assigned Programs</div>
                   <div style={styles.programsGrid}>
-                    {subject.programs.map((program) => (
-                      <div key={program.id} style={styles.programCard}>
+                    {subject.Programs ? (
+                      <div key={subject.Programs[0]._id} style={styles.programCard}>
                         <div style={styles.programHeader}>
                           <div>
-                            <div style={styles.programName}>{program.programName}</div>
+                            <div style={styles.programName}>{subject.Programs[0].Program_Name}</div>
                             <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                              Section {program.section} • Semester {program.semester}
+                              Section {subject.Programs[0].Program_Section} • Semester {subject.Programs[0].Program_Semester}
                             </div>
                           </div>
-                          <span style={styles.programBadge}>{program.groupNumber}</span>
+                          <span style={styles.programBadge}>{subject.Programs[0].Program_Group}</span>
                         </div>
                         <div style={styles.programDetails}>
                           <div style={styles.detailRow}>
                             <span style={styles.detailLabel}>Faculty:</span>
-                            <span style={styles.detailValue}>{program.facultyName}</span>
+                            <span style={styles.detailValue}>{subject.Programs[0].Subject[0].Faculty_Assigned || "Not Assigned"}</span>
                           </div>
                           <div style={styles.detailRow}>
                             <span style={styles.detailLabel}>Hours/Week:</span>
-                            <span style={styles.detailValue}>{program.hours}</span>
+                            <span style={styles.detailValue}>{subject.Programs[0].Subject[0].Number_Of_Hours || "N/A"}</span>
                           </div>
                         </div>
                       </div>
-                    ))}
+                    ) : (
+                      <div>No programs assigned.</div>
+                    )}
                   </div>
                 </div>
               </div>

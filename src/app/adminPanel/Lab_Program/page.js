@@ -198,18 +198,31 @@ const styles = {
     color: '#1e40af',
   },
   labsList: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+    display: 'flex',
     gap: '12px',
   },
-  labChip: {
-    padding: '12px',
-    backgroundColor: 'white',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    fontSize: '14px',
-    color: '#374151',
-    fontWeight: '500',
+  subjectCard: {
+    display: "flex",
+    flexDirection: "column",
+    width: 'calc(100%)',
+    border: "1px solid #e5e7eb",
+    borderRadius: "8px",
+    padding: "10px",
+    backgroundColor: "#fafafa",
+  },
+  subjectsHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: "16px",
+    fontWeight: "600",
+    marginLeft: "10px",
+    marginTop: "6px",
+  },
+  subjectDetails: {
+    fontSize: "14px",
+    color: "#444",
+    lineHeight: "1.6",
+    marginLeft: "10px",
   },
   modal: {
     position: 'fixed',
@@ -388,7 +401,7 @@ const dummyPrograms = [
 
 export default function LabProgramsPage() {
   const [showForm, setShowForm] = useState(false);
-  const [programs, setPrograms] = useState(dummyPrograms);
+  const [programs, setPrograms] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [subjectList, setSubjectList] = useState([]);
   const [facultyList, setFacultyList] = useState([]);
@@ -461,6 +474,27 @@ export default function LabProgramsPage() {
     };
 
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const res = await fetch("/api/admin/getProgram");
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch programs")
+        };
+
+        const data = await res.json();
+        console.log("Fetched Programs:", data.programs);
+
+        setPrograms(data.programs);
+      } catch (err) {
+        console.error("Error fetching programs:", err);
+      }
+    };
+
+    fetchPrograms();
   }, []);
 
   const handleSubjectChange = (e, index) => {
@@ -606,18 +640,17 @@ export default function LabProgramsPage() {
                   </div>
 
                   <div style={styles.programDetails}>
-                    <h3 style={styles.programName}>{program.programName}</h3>
+                    <h3 style={styles.programName}>{program.Program_Name}</h3>
                     <p style={styles.programMeta}>
-                      Batch: {program.batch}
+                      Batch: {program.Program_Batch}
                     </p>
                   </div>
                 </div>
 
                 <div style={styles.programActions}>
-                  <span style={styles.statusBadge}>Active</span>
 
                   <span style={styles.labBadge}>
-                    {program.labs.length} {program.labs.length === 1 ? 'Lab' : 'Labs'}
+                    {program.Subject.length} {program.Subject.length === 1 ? 'Subject' : 'Subjects'}
                   </span>
 
                   <button
@@ -654,43 +687,68 @@ export default function LabProgramsPage() {
 
               {expandedId === program.id && (
                 <div style={styles.expandedContent}>
-                <div style={styles.detailsGrid}>
-                  <div style={styles.detailCard}>
-                    <div style={styles.detailLabel}>
-                      SECTION
+                  <div style={styles.detailsGrid}>
+                    <div style={styles.detailCard}>
+                      <div style={styles.detailLabel}>
+                        SECTION
+                      </div>
+                      <div style={styles.detailValue}>Section {program.Program_Section}</div>
                     </div>
-                    <div style={styles.detailValue}>Section {program.section}</div>
+                    <div style={styles.detailCard}>
+                      <div style={styles.detailLabel}>
+                        SEMESTER
+                      </div>
+                      <div style={styles.detailValue}>Semester {program.Program_Semester}</div>
+                    </div>
+                    <div style={styles.detailCard}>
+                      <div style={styles.detailLabel}>
+                        GROUP
+                      </div>
+                      <div style={styles.detailValue}>{program.Program_Group}</div>
+                    </div>
+                    <div style={styles.detailCard}>
+                      <div style={styles.detailLabel}>
+                        BATCH
+                      </div>
+                      <div style={styles.detailValue}>{program.Program_Batch}</div>
+                    </div>
                   </div>
-                  <div style={styles.detailCard}>
-                    <div style={styles.detailLabel}>
-                      SEMESTER
+                  <div style={styles.subjectSection}>
+                    <div style={styles.subjectHeader}>
+                      <h4 style={styles.subjectTitle}>Subjects</h4>
                     </div>
-                    <div style={styles.detailValue}>Semester {program.semester}</div>
-                  </div>
-                  <div style={styles.detailCard}>
-                    <div style={styles.detailLabel}>
-                      GROUP
+                    <div style={styles.labsList}>
+                      {program.Subject?.length > 0 ? (
+                        program.Subject.map((subj, idx) => (
+                          <div key={idx} style={styles.subjectCard}>
+                            <div style={styles.subjectsHeader}>
+                              {subj.Subject_ID ? (
+                                <>
+                                  <strong>{subj.Subject_ID.Course_Name}</strong>{" "}
+                                  <span style={{ color: "#666", marginRight: "10px" }}>({subj.Subject_ID.Course_Code})</span>
+                                </>
+                              ) : (
+                                <span>N/A</span>
+                              )}
+                            </div>
+
+                            <div style={styles.subjectDetails}>
+                              <p><strong>Faculty:</strong> {subj.Faculty_Assigned?.name || "Not Assigned"}</p>
+                              <p><strong>Lab:</strong> {subj.Lab_Allocated?.Lab_ID || "Not Assigned"}</p>
+                              <p><strong>Hours:</strong> {subj.Number_Of_Hours || "N/A"}</p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p style={{ color: "#666" }}>No subjects assigned</p>
+                      )}
                     </div>
-                    <div style={styles.detailValue}>{program.group}</div>
-                  </div>
-                  <div style={styles.detailCard}>
-                    <div style={styles.detailLabel}>
-                      BATCH
-                    </div>
-                    <div style={styles.detailValue}>{program.batch}</div>
-                  </div>
-                  <div style={styles.detailCard}>
-                    <div style={styles.detailLabel}>
-                      STATUS
-                    </div>
-                    <div style={styles.detailValue}>Active</div>
                   </div>
                 </div>
+                )}
               </div>
-              )}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
         {showForm && (
           <div style={styles.modal} onClick={handleCloseForm}>
