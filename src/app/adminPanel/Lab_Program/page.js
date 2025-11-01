@@ -319,6 +319,7 @@ const styles = {
     transition: 'border-color 0.2s',
     boxSizing: 'border-box',
     backgroundColor: 'white',
+    // ...(isEditMode && { backgroundColor: "#f9fafb", cursor: "not-allowed" }),
   },
   switchButton: {
     backgroundColor: "white",
@@ -419,6 +420,7 @@ export default function LabProgramsPage() {
     ],
   });
 
+  const isEditMode = !!formData._id;
 
   const specializationOptions = {
     "B.Tech": [
@@ -476,24 +478,24 @@ export default function LabProgramsPage() {
     fetchData();
   }, []);
 
+  const fetchPrograms = async () => {
+    try {
+      const res = await fetch("/api/admin/getProgram");
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch programs")
+      };
+
+      const data = await res.json();
+      console.log("Fetched Programs:", data.programs);
+
+      setPrograms(data.programs);
+    } catch (err) {
+      console.error("Error fetching programs:", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchPrograms = async () => {
-      try {
-        const res = await fetch("/api/admin/getProgram");
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch programs")
-        };
-
-        const data = await res.json();
-        console.log("Fetched Programs:", data.programs);
-
-        setPrograms(data.programs);
-      } catch (err) {
-        console.error("Error fetching programs:", err);
-      }
-    };
-
     fetchPrograms();
   }, []);
 
@@ -543,7 +545,7 @@ export default function LabProgramsPage() {
     });
   };
 
-  const handleSubmit = async () => {
+  const handleAddProgramSubmit = async () => {
     if (!formData.programName || !formData.section || !formData.semester || !formData.batchStart || !formData.batchEnd) {
       alert('Please fill all fields');
       return;
@@ -586,6 +588,7 @@ export default function LabProgramsPage() {
 
       setPrograms((prev) => [...prev, data.program || payload]);
       handleCloseForm();
+      fetchPrograms();
     } catch (err) {
       console.error("Error adding program:", err);
       alert("Something went wrong while adding the program.");
@@ -596,18 +599,69 @@ export default function LabProgramsPage() {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  const handleEdit = (program, e) => {
+  const handleEditProgram = (program, e) => {
     e.stopPropagation();
     setFormData({
-      programName: program.programName,
-      specialization: program.specialization || "",
-      section: program.section,
-      semester: program.semester,
-      group: program.group,
-      batch: program.batch,
+      _id: program._id, 
+      programName: program.Program_Name || "",
+      specialization: program.Specialization || "",
+      section: program.Program_Section,
+      semester: program.Program_Semester,
+      group: program.Program_Group,
+      batch: program.Program_Batch,
+      subjects: program.Subject.map(sub => ({
+        Subject_ID: sub.Subject_ID?._id || sub.Subject_ID || "",
+        Number_Of_Hours: sub.Number_Of_Hours || "",
+        Faculty_Assigned: sub.Faculty_Assigned?._id || sub.Faculty_Assigned || "",
+        Lab_Allocated: sub.Lab_Allocated?._id || sub.Lab_Allocated || "",
+      })),
     });
     setShowForm(true);
   };
+
+  const handleEditProgramSubmit = async () => {
+  if (!formData._id) {
+    alert("Missing Program ID for edit!");
+    return;
+  }
+
+  try {
+    const payload = {
+      section: formData.section,
+      semester: formData.semester,
+      group: formData.group,
+      subjects:
+        formData.subjects && formData.subjects.length > 0
+          ? formData.subjects.map((subj) => ({
+              Subject_ID: subj.Subject_ID || "",
+              Number_Of_Hours: subj.Number_Of_Hours || "",
+              Faculty_Assigned: subj.Faculty_Assigned || null,
+              Lab_Allocated: subj.Lab_Allocated || "",
+            }))
+          : [],
+    };
+
+    const res = await fetch(`/api/admin/updateProgram/${formData._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || "Failed to edit program");
+
+    alert("Program updated successfully!");
+    setPrograms((prev) =>
+      prev.map((p) => (p._id === formData._id ? { ...p, ...data.updatedProgram } : p))
+    );
+    handleCloseForm();
+    fetchPrograms();
+  } catch (err) {
+    console.error("Edit Program Error:", err);
+    alert("Something went wrong while updating the program.");
+  }
+};
 
   const handleDelete = (id, e) => {
     e.stopPropagation();
@@ -632,7 +686,7 @@ export default function LabProgramsPage() {
 
         <div style={styles.programsList}>
           {programs.map((program, index) => (
-            <div key={program.id} style={styles.programCard}>
+            <div key={program._id} style={styles.programCard}>
               <div style={styles.programCardContent}>
                 <div style={styles.programInfoSection}>
                   <div style={styles.programAvatar}>
@@ -655,7 +709,7 @@ export default function LabProgramsPage() {
 
                   <button
                     style={{...styles.iconBtn, ...styles.iconBtnEdit}}
-                    onClick={(e) => handleEdit(program, e)}
+                    onClick={(e) => handleEditProgram(program, e)}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
@@ -664,7 +718,7 @@ export default function LabProgramsPage() {
 
                   <button
                     style={{...styles.iconBtn, ...styles.iconBtnDelete}}
-                    onClick={(e) => handleDelete(program.id, e)}
+                    onClick={(e) => handleDelete(program._id, e)}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
@@ -672,20 +726,20 @@ export default function LabProgramsPage() {
                   </button>
 
                   <button
-                    onClick={() => toggleExpand(program.id)}
+                    onClick={() => toggleExpand(program._id)}
                     style={{...styles.iconBtn, ...styles.iconBtnExpand}}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <ChevronDown 
                       size={20} 
-                      style={expandedId === program.id ? styles.rotated : {}}
+                      style={expandedId === program._id ? styles.rotated : {}}
                     />
                   </button>
                 </div>
               </div>
 
-              {expandedId === program.id && (
+              {expandedId === program._id && (
                 <div style={styles.expandedContent}>
                   <div style={styles.detailsGrid}>
                     <div style={styles.detailCard}>
@@ -719,12 +773,12 @@ export default function LabProgramsPage() {
                     </div>
                     <div style={styles.labsList}>
                       {program.Subject?.length > 0 ? (
-                        program.Subject.map((subj, idx) => (
-                          <div key={idx} style={styles.subjectCard}>
+                        program.Subject.map((subj) => (
+                          <div key={subj._id} style={styles.subjectCard}>
                             <div style={styles.subjectsHeader}>
                               {subj.Subject_ID ? (
                                 <>
-                                  <strong>{subj.Subject_ID.Course_Name}</strong>{" "}
+                                  <strong>{(subj.Subject_ID.Course_Name).toUpperCase()}</strong>{" "}
                                   <span style={{ color: "#666", marginRight: "10px" }}>({subj.Subject_ID.Course_Code})</span>
                                 </>
                               ) : (
@@ -753,7 +807,9 @@ export default function LabProgramsPage() {
         {showForm && (
           <div style={styles.modal} onClick={handleCloseForm}>
             <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-              <h2 style={styles.modalHeader}>Add New Program</h2>
+              <h2 style={styles.modalHeader}>
+                {isEditMode ? 'Update Program' : 'Add New Program'}
+              </h2>
 
               <div style={styles.formGroup}>
                 <label style={styles.label}>Program Name</label>
@@ -762,7 +818,7 @@ export default function LabProgramsPage() {
                   value={formData.programName}
                   onChange={handleChange}
                   style={styles.select}
-                >
+                  disabled={isEditMode}>
                   <option value="">Select program name</option>
                   <option value="B.Tech">B.Tech CSE</option>
                   <option value="BCA">BCA (H)</option>
@@ -783,11 +839,13 @@ export default function LabProgramsPage() {
                       onChange={handleChange}
                       placeholder="Enter specialization"
                       style={{ ...styles.input, flex: 1 }}
+                      disabled={isEditMode}
                     />
                     <button
                       type="button"
                       onClick={() => setShowCustomSpecialization(false)}
                       style={styles.switchButton}
+                      disabled={isEditMode}
                     >
                       Cancel
                     </button>
@@ -799,7 +857,7 @@ export default function LabProgramsPage() {
                       value={formData.specialization}
                       onChange={handleChange}
                       style={{ ...styles.select, flex: 1 }}
-                      disabled={!formData.programName}
+                      disabled={ isEditMode || !formData.programName}
                     >
                       <option value="">
                         {formData.programName
@@ -822,6 +880,7 @@ export default function LabProgramsPage() {
                         setShowCustomSpecialization(true);
                       }}
                       style={styles.switchButton}
+                      disabled={isEditMode}
                     >
                       + Add New
                     </button>
@@ -889,6 +948,7 @@ export default function LabProgramsPage() {
                       value={formData.batchStart}
                       onChange={handleChange}
                       style={{ ...styles.select, flex: 1 }}
+                      disabled={isEditMode}
                     >
                       <option value="">Start Year</option>
                       {[2022, 2023, 2024, 2025, 2026].map((year) => (
@@ -904,6 +964,7 @@ export default function LabProgramsPage() {
                       value={formData.batchEnd}
                       onChange={handleChange}
                       style={{ ...styles.select, flex: 1 }}
+                      disabled={isEditMode}
                     >
                       <option value="">End Year</option>
                       {[2026, 2027, 2028, 2029, 2030].map((year) => (
@@ -1015,9 +1076,8 @@ export default function LabProgramsPage() {
                 </button>
                 <button
                   style={styles.saveButton}
-                  onClick={handleSubmit}
-                >
-                  Add Program
+                  onClick={isEditMode ? handleEditProgramSubmit : handleAddProgramSubmit}>
+                  {isEditMode ? 'Update Program' : 'Add Program'}
                 </button>
               </div>
             </div>
