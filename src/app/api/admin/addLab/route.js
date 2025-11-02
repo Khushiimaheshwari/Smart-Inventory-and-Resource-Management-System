@@ -29,7 +29,7 @@ export async function POST(req) {
       Lab_Room: labRoom || "",
       Total_Capacity: capacity || 0,
       Status: status?.toLowerCase() === "active" ? "active" : "inactive",
-      // LabTechnician: [new mongoose.Types.ObjectId(technician)], 
+      LabTechnician: [new mongoose.Types.ObjectId(technician)], 
       // Lab_Incharge: incharge, 
       Remarks: "",
       PCs: [],
@@ -37,9 +37,9 @@ export async function POST(req) {
       Software_Specifications: "",
     });
 
-    // await LabTechnician.findByIdAndUpdate(technician, {
-    //   $push: { Labs: newLab._id },
-    // });
+    await LabTechnician.findByIdAndUpdate(technician, {
+      $push: { Labs: newLab._id },
+    });
 
     return NextResponse.json({
       message: "Lab added successfully",

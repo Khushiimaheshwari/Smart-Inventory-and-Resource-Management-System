@@ -35,7 +35,8 @@ const LabTimetablePage = () => {
   useEffect(() => {
     const fetchLab = async () => {
       try {
-        const res = await fetch("/api/admin/getSubjects");
+        const labID = id;
+        const res = await fetch(`/api/admin/getLabSubject?labId=${labID}`);
         const data = await res.json();
         if (res.ok) {
           setSubjects(data.subjects);
@@ -57,8 +58,50 @@ const LabTimetablePage = () => {
   };
 
   const handleFileUpload = (subjectId) => {
-    // Simulate file upload
-    console.log(`Upload file for subject ${subjectId}`);
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".pdf, .docx";
+
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const allowedTypes = [
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ];
+      
+      if (!allowedTypes.includes(file.type)) {
+        alert("Only PDF or DOCX files are allowed!");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/api/admin/uploadListOfExperiment", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "subject-id": subjectId, 
+          },
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert("File uploaded successfully ");
+          window.location.reload(); 
+        } else {
+          alert("Upload failed: " + data.error);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error uploading file.");
+      }
+    };
+
+    input.click();
   };
 
   // Timetable Data
@@ -432,6 +475,25 @@ const LabTimetablePage = () => {
       alignItems: 'center',
       gap: '6px'
     },
+    viewButton: {
+      backgroundColor: "#10b981",     
+      color: "#fff",
+      border: "none",
+      borderRadius: "8px",
+      padding: "8px 14px",
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      cursor: "pointer",
+      fontSize: "14px",
+      fontWeight: 500,
+      transition: "all 0.25s ease",
+      boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+    },
+    viewButtonHover: {
+      backgroundColor: "#10a981",     
+      transform: "translateY(-1px)",
+    },
     fileName: {
       fontSize: '14px',
       color: '#374151',
@@ -683,125 +745,132 @@ const LabTimetablePage = () => {
         </div>
         
         <div style={styles.cardContainer}>
-        {subjects.map((subject, index) => (
-          <div key={subject._id} style={styles.card}>
-            <div 
-              style={styles.cardHeader}
-              onClick={() => toggleExpand(subject._id)}
-            >
-              <div style={styles.cardLeft}>
-                <div style={styles.avatar}>S{index + 1}</div>
-                <div style={styles.cardInfo}>
-                  <h3 style={styles.subjectTitle}>{subject.Course_Name}</h3>
-                  <div style={styles.courseCode}>Code: {subject.Course_Code}</div>
-                </div>
-              </div>
-
-              <div style={styles.cardRight}>
-                <span 
-                  style={{
-                    ...styles.uploadBadge,
-                    ...(subject.Status === 'uploaded'
-                      ? styles.statusUploaded
-                      : styles.statusPending)
-                  }}
-                >
-                  {subject.Status === 'uploaded' ? 'Uploaded' : 'Pending'}
-                </span>
-                <span style={styles.programCount}>
-                  {subject.Programs ? (
-                    <>{subject.Programs.length} {subject.Programs.length === 1 ? 'Program' : 'Programs'}</>
-                  ) : (
-                    '0 Programs'
-                  )}
-                </span>
-                <div style={styles.actionButtons}>
-                  <button style={{ ...styles.iconButton, ...styles.editButton }}>
-                    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                    </svg>
-                  </button>
-                  <button style={{ ...styles.iconButton, ...styles.deleteButton }}>
-                    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  <button style={{ ...styles.iconButton, ...styles.expandButton }}>
-                    {expandedId === subject._id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {expandedId === subject._id && (
-              <div style={styles.expandedContent}>
-                {/* Experiment List Section */}
-                <div style={styles.section}>
-                  <div style={styles.sectionTitle}>Experiment List</div>
-                  <div style={styles.uploadSection}>
-                    {subject.Experiment_List ? (
-                      <>
-                        <span style={styles.fileName}> {subject.Experiment_List}</span>
-                        <button 
-                          style={styles.uploadButton}
-                          onClick={() => handleFileUpload(subject.id)}
-                        >
-                          <Upload size={14} />
-                          Replace
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <span style={{ fontSize: '14px', color: '#9ca3af', fontStyle: 'italic' }}>
-                          No file uploaded
-                        </span>
-                        <button 
-                          style={styles.uploadButton}
-                          onClick={() => handleFileUpload(subject.id)}
-                        >
-                          <Upload size={14} />
-                          Upload PDF
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* Programs Section */}
-                <div style={styles.section}>
-                  <div style={styles.sectionTitle}>Assigned Programs</div>
-                  <div style={styles.programsGrid}>
-                    {subject.Programs ? (
-                      <div key={subject.Programs[0]._id} style={styles.programCard}>
-                        <div style={styles.programHeader}>
-                          <div>
-                            <div style={styles.programName}>{subject.Programs[0].Program_Name}</div>
-                            <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                              Section {subject.Programs[0].Program_Section} • Semester {subject.Programs[0].Program_Semester}
-                            </div>
-                          </div>
-                          <span style={styles.programBadge}>{subject.Programs[0].Program_Group}</span>
+          {subjects.length === 0 ? (
+            <p style={{ display: "flex", justifyContent: "center" }} >No subjects found for this lab.</p>
+            ) : (
+              <>
+                {subjects.map((subject, index) => (
+                  <div key={subject._id} style={styles.card}>
+                    <div 
+                      style={styles.cardHeader}
+                      onClick={() => toggleExpand(subject._id)}
+                    >
+                      <div style={styles.cardLeft}>
+                        <div style={styles.avatar}>S{index + 1}</div>
+                        <div style={styles.cardInfo}>
+                          <h3 style={styles.subjectTitle}>{(subject.Course_Name).toUpperCase()}</h3>
+                          <div style={styles.courseCode}>Code: {subject.Course_Code}</div>
                         </div>
-                        <div style={styles.programDetails}>
-                          <div style={styles.detailRow}>
-                            <span style={styles.detailLabel}>Faculty:</span>
-                            <span style={styles.detailValue}>{subject.Programs[0].Subject[0].Faculty_Assigned || "Not Assigned"}</span>
+                      </div>
+
+                      <div style={styles.cardRight}>
+                        <span 
+                          style={{
+                            ...styles.uploadBadge,
+                            ...(subject.Status === 'uploaded'
+                              ? styles.statusUploaded
+                              : styles.statusPending)
+                          }}
+                        >
+                          {subject.Status === 'uploaded' ? 'Uploaded' : 'Pending'}
+                        </span>
+                        <span style={styles.programCount}>
+                          {subject.Programs ? (
+                            <>{subject.Programs.length} {subject.Programs.length === 1 ? 'Program' : 'Programs'}</>
+                          ) : (
+                            '0 Programs'
+                          )}
+                        </span>
+                        <div style={styles.actionButtons}>
+                          <button style={{ ...styles.iconButton, ...styles.editButton }}>
+                            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                          </button>
+                          <button style={{ ...styles.iconButton, ...styles.deleteButton }}>
+                            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                          <button style={{ ...styles.iconButton, ...styles.expandButton }}>
+                            {expandedId === subject._id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {expandedId === subject._id && (
+                      <div style={styles.expandedContent}>
+                        {/* Experiment List Section */}
+                        <div style={styles.section}>
+                          <div style={styles.sectionTitle}>Experiment List</div>
+                          <div style={styles.uploadSection}>
+                            {subject.Experiment_List ? (
+                              <>
+                                <span style={styles.fileName}>{subject.Experiment_List}</span>
+                                <div style={{ display: "flex", gap: "10px" }}>
+                                  <button style={styles.uploadButton} onClick={() => handleFileUpload(subject._id)}>
+                                    <Upload size={14} /> Replace
+                                  </button>
+        
+                                  <button
+                                    style={styles.viewButton}
+                                    onMouseEnter={(e) => Object.assign(e.target.style, styles.viewButtonHover)}
+                                    onMouseLeave={(e) => Object.assign(e.target.style, styles.viewButton)}
+                                    onClick={() => window.open(`/ListOfExperiment_uploads/${subject.Experiment_List}`, "_blank")}
+                                  >
+                                    View PDF
+                                  </button>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <span style={styles.noFileText}>No file uploaded</span>
+                                <button style={styles.uploadButton} onClick={() => handleFileUpload(subject._id)}>
+                                  <Upload size={14} /> Upload PDF
+                                </button>
+                              </>
+                            )}
                           </div>
-                          <div style={styles.detailRow}>
-                            <span style={styles.detailLabel}>Hours/Week:</span>
-                            <span style={styles.detailValue}>{subject.Programs[0].Subject[0].Number_Of_Hours || "N/A"}</span>
+                        </div>
+
+                        {/* Programs Section */}
+                        <div style={styles.section}>
+                          <div style={styles.sectionTitle}>Assigned Programs</div>
+                          <div style={styles.programsGrid}>
+                            {subject.Programs ? (
+                              <div key={subject.Programs[0]._id} style={styles.programCard}>
+                                <div style={styles.programHeader}>
+                                  <div>
+                                    <div style={styles.programName}>{subject.Programs[0].Program_Name}</div>
+                                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                                      Section {subject.Programs[0].Program_Section} • Semester {subject.Programs[0].Program_Semester}
+                                    </div>
+                                  </div>
+                                  <span style={styles.programBadge}>{subject.Programs[0].Program_Group}</span>
+                                </div>
+                                <div style={styles.programDetails}>
+                                  <div style={styles.detailRow}>
+                                    <span style={styles.detailLabel}>Faculty:</span>
+                                    <span style={styles.detailValue}>{subject.Programs[0].Subject[0].Faculty_Assigned || "Not Assigned"}</span>
+                                  </div>
+                                  <div style={styles.detailRow}>
+                                    <span style={styles.detailLabel}>Hours/Week:</span>
+                                    <span style={styles.detailValue}>{subject.Programs[0].Subject[0].Number_Of_Hours || "N/A"}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div>No programs assigned.</div>
+                            )}
                           </div>
                         </div>
                       </div>
-                    ) : (
-                      <div>No programs assigned.</div>
                     )}
                   </div>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
+                ))}
+              </>
+          )}
       </div>
     </div>
      

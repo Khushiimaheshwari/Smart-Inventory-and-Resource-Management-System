@@ -12,7 +12,6 @@ export async function POST(req) {
   try {
     let userId;
 
-    // Verify token
     const token = req.cookies.get("token")?.value;
     if (token) {
       const decoded = jwt.verify(token, JWT_SECRET);
@@ -29,10 +28,10 @@ export async function POST(req) {
 
     let profileImage;
 
-    // ✅ Check if it's multipart upload
+    // Check if it's multipart upload
     if (req.headers.get("content-type")?.includes("multipart/form-data")) {
       const formData = await req.formData();
-      const file = formData.get("profileImage"); // <-- get file from formData
+      const file = formData.get("profileImage"); 
       const fullName = formData.get("fullName");
       const phone = formData.get("phone");
       const location = formData.get("location");
@@ -58,7 +57,7 @@ export async function POST(req) {
 
       return NextResponse.json({ message: "Profile updated", user: updated });
     } else {
-      // ✅ Handle JSON body (dicebear / external URL)
+      // Handle JSON body (dicebear URL)
       const body = await req.json();
       const { fullName, phone, location, profileImage: avatarUrl } = body;
 

@@ -12,4 +12,4 @@ const SubjectListSchema = new mongoose.Schema({
 
 const SubjectList = mongoose.models.SubjectList || mongoose.model("SubjectList", SubjectListSchema);
 
-export default SubjectList;
+export default SubjectList; 

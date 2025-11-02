@@ -111,16 +111,16 @@ export default function LabTechnicianManagement() {
         return;
       }
 
-      await emailjs.send(
-        "service_2xk0xdb",  
-        "template_mq4w3fc",    
-        {
-          to_name: newUser.name,
-          to_email: newUser.email,
-          password: newUser.password,
-        },
-        "JVeTTsN2NUeZ0UlPA"
-      );
+      // await emailjs.send(
+      //   "service_2xk0xdb",  
+      //   "template_mq4w3fc",    
+      //   {
+      //     to_name: newUser.name,
+      //     to_email: newUser.email,
+      //     password: newUser.password,
+      //   },
+      //   "JVeTTsN2NUeZ0UlPA"
+      // );
 
       setUsers([
         ...users,
