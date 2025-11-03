@@ -1,0 +1,762 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { X, ChevronDown } from 'lucide-react';
+
+export default function FacultyManagement() {
+  const [faculty, setFaculty] = useState([]);
+  const [allDepartments, setAllDepartments] = useState([]);
+  const [allSubjects, setAllSubjects] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingFaculty, setEditingFaculty] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [expandedCard, setExpandedCard] = useState(null);
+  const dropdownRef = useRef(null);
+  const [newFaculty, setNewFaculty] = useState({
+    name: "",
+    email: "",
+    phoneNumber: "",
+    department: "",
+    designation: "",
+    subjects: [],
+  });
+
+  useEffect(() => {
+    const fetchFaculty = async () => {
+      try {
+        const res = await fetch("/api/admin/getFaculty");
+        if(!res.ok) throw new Error("Failed to fetch faculty");
+        const data = await res.json();
+        setFaculty(
+          data.faculty.map(f => ({
+            id: f._id,
+            name: f.Name,
+            email: f.Email,
+            phoneNumber: f.PhoneNumber,
+            profileImage: f.ProfileImage,
+            department: f.Department,
+            designation: f.Designation,
+            location: f.Location,
+            status: f.AccountStatus,
+            subjects: f.Subjects?.map(sub => sub.Subject_ID),
+          }))
+        );
+      }catch (err) {
+        console.error("Fetch Faculty Error:", err);
+      }
+    };
+    fetchFaculty();
+  }, []);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await fetch("/api/admin/getDepartments");
+        if(!res.ok) throw new Error("Failed to fetch Departments");
+        const data = await res.json();
+        setAllDepartments(
+          data.departments.map(d => ({
+           Department: d.Department_Name,
+           Department_id: d._id,
+          }))
+        );
+      }catch (err) {
+        console.error("Fetch Departments Error:", err);
+      }
+    };
+    fetchDepartments();
+  }, []);  
+
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const res = await fetch("/api/admin/getSubjects");
+        if(!res.ok) throw new Error("Failed to fetch Subjects");
+        const data = await res.json();
+        setAllSubjects(
+          data.subjects.map(s => ({
+           Subject: s.Subject_Name,
+           Subject_id: s._id,
+          }))
+        );
+      }catch (err) {
+        console.error("Fetch Subjects Error:", err);
+      }
+    };
+    fetchSubjects();
+  }, []);
+
+  const resetForm = () => {
+    setNewFaculty({
+      name: "",
+      email: "",
+      phoneNumber: "",
+      department: "",
+      designation: "",
+      subjects: [],
+    });
+  };
+
+  const handleSubjectSelect = (selectedSubject) => {
+    setNewFaculty((prev) => {
+      const alreadySelected = prev.subjects.some(
+        (sub) => sub.Subject_id === selectedSubject.Subject_id
+      );
+      return {
+        ...prev,
+        subjects: alreadySelected
+          ? prev.subjects.filter((sub) => sub.Subject_id !== selectedSubject.Subject_id)
+          : [...prev.subjects, selectedSubject],
+      };
+    });
+  };
+
+  const handleRemoveSubject = (subjectIdToRemove) => {
+    setNewFaculty((prev) => ({
+      ...prev,
+      subjects: prev.subjects.filter((sub) => sub.Subject_id !== subjectIdToRemove),
+    }));
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const generateRandomPassword = () => {
+    const length = 10; 
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$!";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return password;
+  };
+
+  const styles = {
+    container: {
+      width: 'calc(100% - 220px)', 
+      minHeight: '100vh',
+      backgroundColor: '#f9fafb',
+      padding: '2rem',
+      boxSizing: 'border-box',
+      marginLeft: '245px',
+      overflowX: 'hidden',
+    },
+    header: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "2rem",
+      flexWrap: "wrap",
+      gap: "1rem",
+    },
+    headerTitle: {
+      fontSize: "32px",
+      fontWeight: 700,
+      color: "#2d3748",
+      margin: 0,
+    },
+    addButton: {
+      padding: "10px 24px",
+      background: "#10b981",
+      color: "white",
+      border: "none",
+      borderRadius: "8px",
+      fontWeight: 600,
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      fontSize: "14px",
+      transition: "all 0.2s ease",
+    },
+    cardContainer: {
+      width: "100%",
+      display: "flex",
+      flexDirection: "column",
+      gap: "1rem",     
+    },
+    card: {
+      background: "white",
+      borderRadius: "8px",
+      padding: "1.5rem",
+      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    },
+    cardHeader: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: "1rem",
+      flexWrap: "wrap",
+    },
+    cardLeft: {
+      display: "flex",
+      alignItems: "center",
+      gap: "1rem",
+      flex: "1",
+      minWidth: "250px",
+    },
+    profileImage: {
+      width: "48px",
+      height: "48px",
+      borderRadius: "8px",
+      objectFit: "cover",
+      background: "#e5e7eb",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "12px",
+      color: "#6b7280",
+    },
+    cardInfo: {
+      flex: "1",
+    },
+    cardName: {
+      fontSize: "16px",
+      fontWeight: 600,
+      color: "#1f2937",
+      margin: "0 0 4px 0",
+    },
+    cardEmail: {
+      fontSize: "14px",
+      color: "#6b7280",
+      margin: 0,
+    },
+    cardRight: {
+      display: "flex",
+      alignItems: "center",
+      gap: "1.5rem",
+      flexWrap: "wrap",
+    },
+    cardDesignation: {
+      fontSize: "14px",
+      fontWeight: 600,
+      color: "#1f2937",
+      margin: 0,
+    },
+    cardDepartment: {
+      fontSize: "13px",
+      color: "#6b7280",
+      margin: 0,
+    },
+    statusBadge: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "6px",
+      padding: "6px 12px",
+      borderRadius: "6px",
+      fontSize: "13px",
+      fontWeight: 600,
+    },
+    statusApproved: {
+      background: "#d1fae5",
+      color: "#065f46",
+    },
+    statusRejected: {
+      background: "#fee2e2",
+      color: "#991b1b",
+    },
+    actionButtons: {
+      display: "flex",
+      gap: "8px",
+    },
+    iconButton: {
+      width: "36px",
+      height: "36px",
+      background: "transparent",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    editButton: {
+      color: "#10b981",
+    },
+    deleteButton: {
+      color: "#ef4444",
+    },
+    expandButton: {
+      background: "#f3f4f6",
+      color: "#4b5563",
+    },
+    expandedContent: {
+      marginTop: "1.5rem",
+      paddingTop: "1.5rem",
+      borderTop: "1px solid #e5e7eb",
+    },
+    detailsGrid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+      gap: "1.25rem",
+      marginBottom: "1.5rem",
+    },
+    infoBlock: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "8px",
+      padding: "1rem",
+      background: "#f9fafb",
+      borderRadius: "8px",
+      border: "1px solid #e5e7eb",
+    },
+    infoLabel: {
+      fontSize: "12px",
+      color: "#6b7280",
+      textTransform: "uppercase",
+      fontWeight: 600,
+      letterSpacing: "0.5px",
+      display: "flex",
+      alignItems: "center",
+    },
+    infoValue: {
+      fontSize: "15px",
+      color: "#1f2937",
+      fontWeight: 600,
+      marginTop: "2px",
+    },
+    subjectsSection: {
+      padding: "1.25rem",
+      background: "#f0fdf4",
+      borderRadius: "8px",
+      border: "1px solid #d1fae5",
+    },
+    subjectsLabel: {
+      fontSize: "13px",
+      color: "#065f46",
+      textTransform: "uppercase",
+      fontWeight: 600,
+      letterSpacing: "0.5px",
+      display: "flex",
+      alignItems: "center",
+      marginBottom: "12px",
+    },
+    subjectCount: {
+      marginLeft: "auto",
+      fontSize: "12px",
+      padding: "2px 10px",
+      background: "#10b981",
+      color: "white",
+      borderRadius: "12px",
+      fontWeight: 700,
+    },
+    subjectChipsContainer: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "8px",
+    },
+    subjectChip: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "6px",
+      padding: "8px 14px",
+      background: "white",
+      color: "#059669",
+      border: "1.5px solid #10b981",
+      borderRadius: "6px",
+      fontSize: "13px",
+      fontWeight: 600,
+    },
+    noSubjectChip: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "6px",
+      padding: "8px 14px",
+      background: "#fef2f2",
+      color: "#dc2626",
+      border: "1.5px solid #fecaca",
+      borderRadius: "6px",
+      fontSize: "13px",
+      fontWeight: 600,
+    },
+    modal: {
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: "rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000,
+    },
+    modalContent: {
+      background: "white",
+      borderRadius: "12px",
+      padding: "30px",
+      width: "90%",
+      maxWidth: "600px",
+      maxHeight: "90vh",
+      overflowY: "auto",
+    },
+    modalHeader: {
+      fontSize: "24px",
+      fontWeight: 700,
+      color: "#2d3748",
+      marginBottom: "20px",
+    },
+    formGroup: {
+      marginBottom: "20px",
+    },
+    label: {
+      display: "block",
+      fontSize: "14px",
+      fontWeight: 600,
+      color: "#2d3748",
+      marginBottom: "8px",
+    },
+    input: {
+      width: "100%",
+      padding: "12px",
+      border: "2px solid #e2e8f0",
+      borderRadius: "8px",
+      fontSize: "14px",
+      boxSizing: "border-box",
+    },
+    modalActions: {
+      display: "flex",
+      gap: "12px",
+      marginTop: "24px",
+    },
+    cancelButton: {
+      flex: 1,
+      padding: "12px",
+      background: "white",
+      color: "#718096",
+      border: "2px solid #e2e8f0",
+      borderRadius: "8px",
+      fontWeight: 600,
+      cursor: "pointer",
+      fontSize: "14px",
+    },
+    saveButton: {
+      flex: 1,
+      padding: "12px",
+      background: "#10b981",
+      color: "white",
+      border: "none",
+      borderRadius: "8px",
+      fontWeight: 600,
+      cursor: "pointer",
+      fontSize: "14px",
+    },
+    generateButton: {
+      padding: "8px",
+      background: "transparent",
+      border: "2px solid #e2e8f0",
+      borderRadius: "8px",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    passwordFormGroup: {
+      display: "flex",
+      alignItems: "center", 
+      gap: "10px",
+    },
+    select: {
+      width: "100%",
+      padding: "12px",
+      border: "2px solid #e2e8f0",
+      borderRadius: "8px",
+      fontSize: "14px",
+      boxSizing: "border-box",
+      background: "white",
+    },
+    accessSection: {
+      marginTop: '1rem',
+      position: 'relative',
+    },
+    accessTitle: {
+      fontWeight: '600',
+      marginBottom: '8px',
+      fontSize: '14px',
+      color: '#333',
+    },
+    selectorContainer: {
+      position: 'relative',
+      width: '100%',
+    },
+    inputArea: {
+      width: '96%',
+      minHeight: '42px',
+      padding: '2px 12px',
+      borderRadius: '8px',
+      border: '2px solid',
+      borderColor: '#e2e8f0',
+      backgroundColor: 'white',
+      cursor: 'pointer',
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '6px',
+      alignItems: 'center',
+    },
+    inputAreaFocused: {
+      borderColor: '#14b8a6',
+      outline: 'none',
+      boxShadow: '0 0 0 2px rgba(20, 184, 166, 0.1)',
+    },
+    placeholder: {
+      color: '#999',
+      fontSize: '14px',
+    },
+    chip: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+      backgroundColor: '#14b8a6',
+      color: 'white',
+      padding: '4px 8px',
+      borderRadius: '4px',
+      fontSize: '13px',
+      fontWeight: '500',
+    },
+    removeButton: {
+      background: 'none',
+      border: 'none',
+      color: 'white',
+      cursor: 'pointer',
+      padding: '0',
+      display: 'flex',
+      alignItems: 'center',
+      opacity: '0.8',
+    },
+    dropdown: {
+      position: 'absolute',
+      top: '100%',
+      left: '0',
+      right: '0',
+      marginTop: '4px',
+      backgroundColor: 'white',
+      border: '1px solid #ddd',
+      borderRadius: '6px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      maxHeight: '200px',
+      overflowY: 'auto',
+      zIndex: 1000,
+    },
+    dropdownItem: {
+      padding: '10px 12px',
+      cursor: 'pointer',
+      fontSize: '14px',
+      color: '#333',
+    },
+    dropdownItemSelected: {
+      backgroundColor: '#e6f7f5',
+      color: '#14b8a6',
+      fontWeight: '500',
+    },
+  };
+
+  return (
+    <div style={styles.container}>
+      <header style={styles.header}>
+        <h1 style={styles.headerTitle}>Faculty Management</h1>
+        <button style={styles.addButton} onClick={() => { setEditingFaculty(null); resetForm(); setShowAddModal(true); }}>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+          </svg>
+          Add New
+        </button>
+      </header>
+
+      <div style={styles.cardContainer}>
+        {faculty && faculty.length > 0 ? (
+          faculty.map((member) => (
+            <div key={member.id} style={styles.card}>
+              <div style={styles.cardHeader}>
+                <div style={styles.cardLeft}>
+                  <div style={styles.profileImage}>
+                    {member.profileImage ? (
+                      <img src={member.profileImage} alt="Profile" style={{ width: "48px", height: "48px", borderRadius: "8px", objectFit: "cover" }} />
+                    ) : "N/A"}
+                  </div>
+                  <div style={styles.cardInfo}>
+                    <h3 style={styles.cardName}>{member.name}</h3>
+                    <p style={styles.cardEmail}>by {member.email}</p>
+                  </div>
+                </div>
+
+                <div style={styles.cardRight}>
+                  <div style={{ textAlign: "right" }}>
+                    <p style={styles.cardDesignation}>{member.designation || "N/A"}</p>
+                    <p style={styles.cardDepartment}>{member.department || "No Department"}</p>
+                  </div>
+
+                  <span style={{ ...styles.statusBadge, ...(member.status === "active" ? styles.statusApproved : styles.statusRejected) }}>
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                      {member.status === "active" ? (
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      ) : (
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      )}
+                    </svg>
+                    {(member?.status || "").charAt(0).toUpperCase() + (member?.status || "").slice(1)}
+                  </span>
+
+                  <div style={styles.actionButtons}>
+                    <button style={{ ...styles.iconButton, ...styles.editButton }} onClick={() => handleEditFaculty(member)}>
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                      </svg>
+                    </button>
+                    <button style={{ ...styles.iconButton, ...styles.deleteButton }}>
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    <button style={{ ...styles.iconButton, ...styles.expandButton, transform: expandedCard === member.id ? "rotate(180deg)" : "rotate(0deg)" }} onClick={() => setExpandedCard(expandedCard === member.id ? null : member.id)}>
+                      <ChevronDown size={18} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {expandedCard === member.id && (
+                <div style={styles.expandedContent}>
+                  <div style={styles.detailsGrid}>
+                    <div style={styles.infoBlock}>
+                      <span style={styles.infoLabel}>Phone</span>
+                      <span style={styles.infoValue}>{member.phoneNumber || "Not provided"}</span>
+                    </div>
+                    <div style={styles.infoBlock}>
+                      <span style={styles.infoLabel}>Location</span>
+                      <span style={styles.infoValue}>{member.location || "Not specified"}</span>
+                    </div>
+                    <div style={styles.infoBlock}>
+                      <span style={styles.infoLabel}>Status</span>
+                      <span style={styles.infoValue}>{member.status ? (member.status).charAt(0).toUpperCase() + member.status.slice(1) : "Unknown"}</span>
+                    </div>
+                  </div>
+
+                  <div style={styles.subjectsSection}>
+                    <span style={styles.subjectsLabel}>
+                      Subjects Taught
+                      <span style={styles.subjectCount}>
+                        {member.subjects && member.subjects.length > 0 ? member.subjects.length : 0}
+                      </span>
+                    </span>
+                    <div style={styles.subjectChipsContainer}>
+                      {member.subjects && member.subjects.length > 0 ? (
+                        member.subjects.map((subject, index) => (
+                          <span key={index} style={styles.subjectChip}>{subject}</span>
+                        ))
+                      ) : (
+                        <span style={styles.noSubjectChip}>No subjects assigned</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <p style={{ textAlign: 'center', color: '#6b7280' }}>No faculty members found.</p>
+        )}
+      </div>
+
+      {showAddModal && (
+        <div style={styles.modal} onClick={() => { setShowAddModal(false); setEditingFaculty(null); }}>
+          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h2 style={styles.modalHeader}>{editingFaculty ? "Edit Faculty Member" : "Add New Faculty Member"}</h2>
+            
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Name</label>
+              <input type="text" style={styles.input} value={newFaculty.name} onChange={(e) => setNewFaculty({ ...newFaculty, name: e.target.value })} placeholder="Enter full name" />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Email</label>
+              <input type="email" style={styles.input} value={newFaculty.email} onChange={(e) => setNewFaculty({ ...newFaculty, email: e.target.value })} placeholder="Enter email" />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Phone Number</label>
+              <input type="tel" style={styles.input} value={newFaculty.phoneNumber} onChange={(e) => setNewFaculty({ ...newFaculty, phoneNumber: e.target.value })} placeholder="Enter phone" />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Password</label>
+              <div style={styles.passwordFormGroup}>
+                <input type="text" style={styles.input} value={newFaculty.password || ""} onChange={(e) => setNewFaculty({ ...newFaculty, password: e.target.value })} placeholder="Enter password" />
+                <button style={styles.generateButton} onClick={() => setNewFaculty({ ...newFaculty, password: generateRandomPassword() })}>
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Department</label>
+              <select style={styles.select} value={newFaculty.department} onChange={(e) => setNewFaculty({ ...newFaculty, department: e.target.value })}>
+                <option value="">Select Department</option>
+                {allDepartments.map((dept) => (
+                  <option key={dept.Department_id} value={dept.Department}>{dept.Department}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Designation</label>
+              <input type="text" style={styles.input} value={newFaculty.designation} onChange={(e) => setNewFaculty({ ...newFaculty, designation: e.target.value })} placeholder="e.g., Professor" />
+            </div>
+
+            <div style={styles.accessSection} ref={dropdownRef}>
+              <div style={styles.accessTitle}>Subjects</div>
+              <div style={styles.selectorContainer}>
+                <div style={{ ...styles.inputArea, ...(isDropdownOpen ? styles.inputAreaFocused : {}) }} onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                  {newFaculty.subjects.length === 0 ? (
+                    <span style={styles.placeholder}>Select subjects</span>
+                  ) : (
+                    newFaculty.subjects.map((sub) => {
+                      const subName = typeof sub === "object" ? sub.Subject : sub;
+                      const subId = typeof sub === "object" ? sub.Subject_id : sub;
+                      return (
+                        <div key={subId} style={styles.chip}>
+                          <span>{subName}</span>
+                          <button style={styles.removeButton} onClick={(e) => { e.stopPropagation(); handleRemoveSubject(subId); }}>
+                            <X size={14} />
+                          </button>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {isDropdownOpen && (
+                  <div style={styles.dropdown}>
+                    {allSubjects.map((subObj) => {
+                      const isSelected = newFaculty.subjects.some((sub) => sub.Subject_id === subObj.Subject_id);
+                      return (
+                        <div key={subObj.Subject_id} style={{ ...styles.dropdownItem, ...(isSelected ? styles.dropdownItemSelected : {}) }} onClick={() => handleSubjectSelect(subObj)}>
+                          {subObj.Subject} {isSelected && "✓"}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div style={styles.modalActions}>
+              <button style={styles.cancelButton} onClick={() => { setShowAddModal(false); setEditingFaculty(null); }}>Cancel</button>
+              <button style={styles.saveButton}>
+                {editingFaculty ? "Update Faculty" : "Add Faculty"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
