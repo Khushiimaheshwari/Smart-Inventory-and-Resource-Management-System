@@ -11,35 +11,103 @@ const LabTimetablePage = () => {
   const [labData, setLabData] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [subjects, setSubjects] = useState([]);
+  const [timetableData, setTimetableData] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [programs, setPrograms] = useState([]);
+  const [faculties, setFaculties] = useState([]);
+  const [formData, setFormData] = useState({
+    Subject: "",
+    Program: "",
+    Faculty: "",
+    Day: "",
+    StartTimeSlot: "",
+    EndTimeSlot: "",
+    Lab: id, 
+  });
+  const [filteredSubjects, setFilteredSubjects] = useState([]);
+  const [filteredFaculties, setFilteredFaculties] = useState([]);
+
+  const fetchLab = async () => {
+    try {
+      const res = await fetch(`/api/admin/getLabById/${id}`);
+      const data = await res.json();
+      if (res.ok) {
+        setLabData(data.lab);
+
+        const labsArray = Array.isArray(data.labs)
+          ? data.labs
+          : [data.lab || data.labs];
+
+        const formattedData = labsArray.flatMap((lab) =>
+          (lab?.TimeTable || []).map((item, index) => {
+            const [start, end] = item.TimeSlot.split(" - ");
+            return {
+              id: item._id,
+              day: item.Day,
+              subject: item.Subject?.Course_Name || "Unnamed Subject",
+              course: `${item.Program?.Program_Section || ""}  ${item.Program?.Program_Name || ""} ${
+                item.Program?.Program_Semester
+                  ? "Sem " + item.Program.Program_Semester
+                  : ""
+              } ${item.Program?.Program_Batch || ""} ${item.Program?.Program_Group || ""}`,
+              faculty:
+                typeof item.Faculty === "string"
+                  ? item.Faculty === "Not Assigned"
+                    ? ""
+                    : item.Faculty
+                  : item.Faculty?.Name || "",
+              startTime: start.trim(),
+              endTime: end.trim(),
+              color: colors[index % colors.length],
+            };
+          })
+        );
+
+        setTimetableData(formattedData);
+        console.log(data);
+        
+      } else {
+        console.error("Failed to fetch lab:", data.error);
+      }
+    } catch (err) {
+      console.error("Error fetching lab:", err);
+    }
+  };
 
   useEffect(() => {
-      const fetchLab = async () => {
-        try {
-          const res = await fetch(`/api/admin/getLabById/${id}`);
-          const data = await res.json();
-          if (res.ok) {
-            setLabData(data.lab);
-            console.log(data);
-            
-          } else {
-            console.error("Failed to fetch lab:", data.error);
-          }
-        } catch (err) {
-          console.error("Error fetching lab:", err);
-        }
-      };
-  
       fetchLab();
     }, []);
 
   useEffect(() => {
-    const fetchLab = async () => {
+    const fetchSubject = async () => {
       try {
         const labID = id;
         const res = await fetch(`/api/admin/getLabSubject?labId=${labID}`);
         const data = await res.json();
         if (res.ok) {
           setSubjects(data.subjects);
+
+          const allPrograms = data.subjects.flatMap((s) => s.Programs);
+
+          const uniquePrograms = allPrograms.filter(
+            (p, i, self) => i === self.findIndex((x) => x._id === p._id)
+          );
+          setPrograms(uniquePrograms);
+
+          const facultiesArr = data.subjects.flatMap((s) =>
+            s.Programs.flatMap((p) =>
+              p.Subject.map((ps) => ({
+                Faculty_ID: ps.Faculty_Assigned || "Not Assigned",
+                Faculty_Name: ps.Faculty_Assigned || "Not Assigned",
+              }))
+            )
+          );
+
+          const uniqueFaculties = facultiesArr.filter(
+            (f, i, self) => i === self.findIndex((x) => x.Faculty_ID === f.Faculty_ID)
+          );
+
+          setFaculties(uniqueFaculties);
           console.log(data);
           
         } else {
@@ -50,8 +118,40 @@ const LabTimetablePage = () => {
       }
     };
 
-    fetchLab();
+    fetchSubject();
   }, []);
+
+  const handleProgramChange = (programId) => {
+    setFormData({ ...formData, Program: programId });
+
+    const relatedSubjects = subjects
+      .map((subj) => {
+        const matchedProgram = subj.Programs.find((p) => p._id === programId);
+        if (matchedProgram) {
+          return {
+            ...subj,
+            Programs: [matchedProgram], 
+          };
+        }
+        return null;
+      })
+      .filter(Boolean); 
+
+    const relatedFaculties = relatedSubjects.flatMap((subj) =>
+      subj.Programs.flatMap((p) =>
+        p.Subject.map((ps) => ({
+          Faculty_ID: ps.Faculty_Assigned || "Not Assigned",
+          Faculty_Name: ps.Faculty_Assigned || "Not Assigned",
+        }))
+      )
+    );
+
+    console.log(relatedSubjects);
+    console.log(relatedFaculties);
+    
+    setFilteredSubjects(relatedSubjects);
+    setFilteredFaculties(relatedFaculties);
+  };
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
@@ -104,74 +204,31 @@ const LabTimetablePage = () => {
     input.click();
   };
 
-  // Timetable Data
-  const timetableData = [
-    {
-      id: 1,
-      day: 'Monday',
-      startTime: '09:10',
-      endTime: '11:00',
-      subject: 'Computer Networks Lab',
-      course: 'BCA Sem 2',
-      faculty: 'Prof. Mike Chen',
-      color: '#00c97b'
-    },
-    {
-      id: 2,
-      day: 'Monday',
-      startTime: '14:20',
-      endTime: '16:00',
-      subject: 'Database Management Lab',
-      course: 'BCA Sem 4',
-      faculty: 'Dr. Emily Brown',
-      color: '#00b8d9'
-    },
-    {
-      id: 3,
-      day: 'Tuesday',
-      startTime: '10:05',
-      endTime: '11:50',
-      subject: 'Web Development Lab',
-      course: 'BCA Sem 3',
-      faculty: 'Prof. John Doe',
-      color: '#f6ad55'
-    },
-    {
-      id: 4,
-      day: 'Wednesday',
-      startTime: '09:10',
-      endTime: '11:00',
-      subject: 'Operating System Lab',
-      course: 'BCA Sem 5',
-      faculty: 'Dr. Sarah Johnson',
-      color: '#9f7aea'
-    },
-    {
-      id: 5,
-      day: 'Thursday',
-      startTime: '13:30',
-      endTime: '15:10',
-      subject: 'Python Programming Lab',
-      course: 'BCA Sem 1',
-      faculty: 'Prof. Alex Kumar',
-      color: '#fc8181'
-    },
-    {
-      id: 6,
-      day: 'Friday',
-      startTime: '11:00',
-      endTime: '12:40',
-      subject: 'Data Structures Lab',
-      course: 'BCA Sem 3',
-      faculty: 'Dr. Lisa Wang',
-      color: '#4299e1'
-    }
-  ];
+  console.log(timetableData);
+
+  // const pickColor = (i) => colors[i % colors.length];
+  const colors = ["#00c97b", "#00b8d9", "#f6ad55", "#9f7aea", "#fc8181", "#4299e1"];
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const startTimeSlots = [
+    '09:10 AM', '10:05 AM', '11:00 AM', '11:50 AM',
+    '12:40 PM', '13:30 PM', '14:20 PM', '15:10 PM'
+  ];
+
+  const endTimeSlots = [
+    '10:00 AM', '11:00 AM', '11:50 AM', '12:40 PM',
+    '13:30 PM', '14:20 PM', '15:10 PM', '16:00 PM'
+  ];
+
   const timeSlots = [
-    '09:10 - 10:00', '10:05 - 11:00', '11:00 - 11:50', '11:50 - 12:40',
-    '12:40 - 13:30', '13:30 - 14:20', '14:20 - 15:10', '15:10 - 16:00'
+    "09:10 AM - 10:00 AM",
+    "10:05 AM - 11:00 AM",
+    "11:00 AM - 11:50 AM",
+    "11:50 AM - 12:40 PM",
+    "12:40 PM - 13:30 PM",
+    "13:30 PM - 14:20 PM",
+    "14:20 PM - 15:10 PM",
+    "15:10 PM - 16:00 PM",
   ];
 
    const getWeekDates = () => {
@@ -186,14 +243,30 @@ const LabTimetablePage = () => {
   };
 
   const formatTime = (time) => {
-    const [hours, minutes] = time.split(':').map(Number);
-    const period = hours >= 12 ? 'PM' : 'AM';
+    if (!time) return "";
+    const [timePart, modifier] = time.trim().split(" ");
+    const [hoursStr, minutesStr] = timePart.split(":");
+    let hours = parseInt(hoursStr, 10);
+    const minutes = parseInt(minutesStr, 10);
+
+    if (modifier === "PM" && hours !== 12) hours += 12;
+    if (modifier === "AM" && hours === 12) hours = 0;
+
     const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
-    return `${String(displayHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${period}`;
+    const period = hours >= 12 ? "PM" : "AM";
+
+    return `${String(displayHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${period}`;
   };
 
   const timeToMinutes = (time) => {
-    const [hours, minutes] = time.split(':').map(Number);
+    const [timePart, modifier] = time.trim().split(" ");
+    const [hoursStr, minutesStr] = timePart.split(":");
+    let hours = parseInt(hoursStr, 10);
+    const minutes = parseInt(minutesStr, 10);
+
+    if (modifier === "PM" && hours !== 12) hours += 12;
+    if (modifier === "AM" && hours === 12) hours = 0;
+
     return hours * 60 + minutes;
   };
 
@@ -202,7 +275,7 @@ const LabTimetablePage = () => {
     const slotMinutes = timeToMinutes(slotStart);
     
     return timetableData.find((event) => {
-      if (event.day !== day) return false;
+      if (event.day.toLowerCase() !== day.toLowerCase()) return false;
       const startMinutes = timeToMinutes(event.startTime);
       const endMinutes = timeToMinutes(event.endTime);
       return slotMinutes >= startMinutes && slotMinutes < endMinutes;
@@ -242,6 +315,46 @@ const LabTimetablePage = () => {
   };
 
   const renderedEvents = {};
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.Subject || !formData.Program || !formData.Day || !formData.StartTimeSlot || !formData.EndTimeSlot || !formData.Lab) {
+      alert("Please fill in all required fields!");
+      return;
+    }
+
+    const payload = { 
+      Subject: formData.Subject,
+      Program: formData.Program,
+      Faculty: formData.Faculty,
+      Day: formData.Day,
+      TimeSlot: `${formData.StartTimeSlot} - ${formData.EndTimeSlot}`,
+      Lab: formData.Lab,
+     };
+    console.log(payload);
+
+    try {
+      const res = await fetch("/api/admin/bookTimetableSlot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Timetable Slot Booked successfully!");
+        fetchLab();
+        setShowForm(false);
+      } else {
+        alert(data.error || "Failed to book slot");
+      }
+    } catch (error) {
+      console.error("Error booking slot:", error);
+      alert("Something went wrong while booking the slot.");
+    }
+  };
 
   const styles = {
     container: {
@@ -600,8 +713,9 @@ const LabTimetablePage = () => {
       transition: 'all 0.3s ease'
     },
     toggleButtonActive: {
-      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
-      color: 'white',
+      // background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
+      backgroundColor: '#e2e8f0',
+      color: 'black',
       borderColor: 'transparent'
     },
     addButton: {
@@ -669,7 +783,56 @@ const LabTimetablePage = () => {
       fontSize: '11px',
       opacity: 0.9
     },
-
+    overlay: {
+      position: 'fixed',
+      inset: 0,
+      backgroundColor: 'rgba(0,0,0,0.3)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000,
+    },
+    modal: {
+      backgroundColor: '#fff',
+      borderRadius: '1rem',
+      boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
+      padding: '2rem',
+      width: '380px',
+      maxWidth: '90%',
+    },
+    heading: {
+      fontSize: '1.25rem',
+      fontWeight: '600',
+      marginBottom: '1rem',
+      textAlign: 'center',
+    },
+    select: {
+      width: '100%',
+      padding: '0.5rem',
+      borderRadius: '6px',
+      border: '1px solid #ccc',
+      marginBottom: '1rem',
+    },
+    buttonContainer: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      gap: '0.75rem',
+    },
+    cancelButton: {
+      padding: '0.5rem 1rem',
+      backgroundColor: '#f0f0f0',
+      border: '1px solid #ccc',
+      borderRadius: '6px',
+      cursor: 'pointer',
+    },
+    saveButton: {
+      padding: '0.5rem 1rem',
+      backgroundColor: '#00b894',
+      color: '#fff',
+      border: 'none',
+      borderRadius: '6px',
+      cursor: 'pointer',
+    },
   };
 
   return (
@@ -838,28 +1001,30 @@ const LabTimetablePage = () => {
                         <div style={styles.section}>
                           <div style={styles.sectionTitle}>Assigned Programs</div>
                           <div style={styles.programsGrid}>
-                            {subject.Programs ? (
-                              <div key={subject.Programs[0]._id} style={styles.programCard}>
-                                <div style={styles.programHeader}>
-                                  <div>
-                                    <div style={styles.programName}>{subject.Programs[0].Program_Name}</div>
-                                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                                      Section {subject.Programs[0].Program_Section} • Semester {subject.Programs[0].Program_Semester}
+                            {subject.Programs && subject.Programs.length > 0 ? (
+                              subject.Programs.map((sp) => (
+                                <div key={sp._id} style={styles.programCard}>
+                                  <div style={styles.programHeader}>
+                                    <div>
+                                      <div style={styles.programName}>{sp.Program_Name}</div>
+                                      <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                                        Section {sp.Program_Section} • Semester {sp.Program_Semester} • Batch {sp.Program_Batch}
+                                      </div>
+                                    </div>
+                                    <span style={styles.programBadge}>{sp.Program_Group}</span>
+                                  </div>
+                                  <div style={styles.programDetails}>
+                                    <div style={styles.detailRow}>
+                                      <span style={styles.detailLabel}>Faculty:</span>
+                                      <span style={styles.detailValue}>{(sp.Subject && sp.Subject[0] && sp.Subject[0].Faculty_Assigned) || "Not Assigned"}</span>
+                                    </div>
+                                    <div style={styles.detailRow}>
+                                      <span style={styles.detailLabel}>Hours/Week:</span>
+                                      <span style={styles.detailValue}>{(sp.Subject && sp.Subject[0] && sp.Subject[0].Number_Of_Hours) || "N/A"}</span>
                                     </div>
                                   </div>
-                                  <span style={styles.programBadge}>{subject.Programs[0].Program_Group}</span>
                                 </div>
-                                <div style={styles.programDetails}>
-                                  <div style={styles.detailRow}>
-                                    <span style={styles.detailLabel}>Faculty:</span>
-                                    <span style={styles.detailValue}>{subject.Programs[0].Subject[0].Faculty_Assigned || "Not Assigned"}</span>
-                                  </div>
-                                  <div style={styles.detailRow}>
-                                    <span style={styles.detailLabel}>Hours/Week:</span>
-                                    <span style={styles.detailValue}>{subject.Programs[0].Subject[0].Number_Of_Hours || "N/A"}</span>
-                                  </div>
-                                </div>
-                              </div>
+                              ))
                             ) : (
                               <div>No programs assigned.</div>
                             )}
@@ -898,7 +1063,7 @@ const LabTimetablePage = () => {
               >
                 Week
               </button>
-              <button
+              {/* <button
                 style={{
                   ...styles.toggleButton,
                   ...(view === 'day' ? styles.toggleButtonActive : {})
@@ -906,11 +1071,13 @@ const LabTimetablePage = () => {
                 onClick={() => setView('day')}
               >
                 Day
-              </button>
+              </button> */}
             </div>
-            <button style={styles.addButton}>
+            <button 
+              style={styles.addButton}
+              onClick={() => setShowForm(true)}>
               <Plus size={16} />
-              New Booking
+              New Slot
             </button>
           </div>
         </div>
@@ -966,6 +1133,96 @@ const LabTimetablePage = () => {
           ))}
         </div>
       </div>
+
+      {/* Book Timetable Slot */}
+      {showForm && (
+        <div style={styles.overlay}>
+          <div style={styles.modal}>
+            <h2 style={styles.heading}>New Booking</h2>
+
+            <select
+              value={formData.Program}
+              onChange={(e) => handleProgramChange(e.target.value)}
+              style={styles.select}
+            >
+              <option value="">Select Program</option>
+              {programs.map(p => (               
+                (<option key={p._id} value={p._id}>{ p.Program_Section + " - " + p.Program_Name + " - Sem " + p.Program_Semester + " " + p.Program_Batch + " " + p.Program_Group}</option>)
+              ))}
+            </select>
+
+            <select
+              value={formData.Subject}
+              onChange={(e) => setFormData({ ...formData, Subject: e.target.value })}
+              disabled={!formData.Program || !filteredSubjects.length}
+              style={styles.select}
+            >
+              <option value="">Select Subject</option>
+              {filteredSubjects.map(s => (
+                <option key={s._id} value={s._id}>{s.Course_Name}</option>
+              ))}
+            </select>
+
+            <select
+              value={formData.Faculty}
+              onChange={(e) => setFormData({ ...formData, Faculty: e.target.value })}
+              style={styles.select}
+              disabled={!formData.Program || !filteredFaculties.length}              
+            >
+              <option value="">Select Faculty</option>
+              {console.log(faculties)}
+              {filteredFaculties.map(f => (
+                <option key={f.Faculty_ID} value={f.Faculty_ID}>
+                  {f.Faculty_Name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={formData.Day}
+              onChange={(e) => setFormData({ ...formData, Day: e.target.value })}
+              style={styles.select}
+            >
+              <option value="">Select Day</option>
+              {days.map(d =>
+                <option key={d} value={d}>{d}</option>
+              )}
+            </select>
+
+            <select
+              value={formData.StartTimeSlot}
+              onChange={(e) => setFormData({ ...formData, StartTimeSlot: e.target.value })}
+              style={styles.select}
+            >
+              <option value="">Select Time Slot</option>
+              {startTimeSlots.map(slot => <option key={slot} value={slot}>{slot}</option>)}
+            </select>
+
+            <select
+              value={formData.EndTimeSlot}
+              onChange={(e) => setFormData({ ...formData, EndTimeSlot: e.target.value })}
+              style={styles.select}
+            >
+              <option value="">Select Time Slot</option>
+              {endTimeSlots.map(slot => <option key={slot} value={slot}>{slot}</option>)}
+            </select>
+
+            <div style={styles.buttonContainer}>
+              <button 
+                onClick={() => {
+                  setShowForm(false)
+                  setFormData({ Subject: '', Program: '', Faculty: '', Day: '', TimeSlot: '', Lab: id });
+                  }} 
+                style={styles.cancelButton}>
+                Cancel
+              </button>
+              <button onClick={handleSubmit} style={styles.saveButton}>
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
