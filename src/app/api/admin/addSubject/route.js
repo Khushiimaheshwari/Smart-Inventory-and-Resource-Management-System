@@ -8,7 +8,6 @@ export async function POST(req) {
     await connectDB(); 
 
     const body = await req.json();
-    console.log(body);
     
     const { courseName, courseCode, courseDepartment } = body;
 
