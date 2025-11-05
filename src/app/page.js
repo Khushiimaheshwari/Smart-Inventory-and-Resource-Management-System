@@ -192,152 +192,313 @@ export default function Home() {
               </circle>
               <text x="418" y="310" fontSize="24">📊</text>
             </g>
-            
-            <line x1="105" y1="250" x2="130" y2="240" stroke="url(#mainGradient)" strokeWidth="2" opacity="0.4" strokeDasharray="5,5">
-              <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
-            </line>
-            <line x1="370" y1="240" x2="395" y2="200" stroke="url(#mainGradient)" strokeWidth="2" opacity="0.4" strokeDasharray="5,5">
-              <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
-            </line>
-            <line x1="370" y1="310" x2="405" y2="300" stroke="url(#mainGradient)" strokeWidth="2" opacity="0.4" strokeDasharray="5,5">
-              <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
-            </line>
           </svg>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className={styles.featuresSection}>
+      {/* Challenges Section */}
+      <section className={styles.challengesSection}>
         <div className={styles.sectionHeader}>
-          <h2>Powerful Features</h2>
-          <p>Everything you need to manage your assets efficiently</p>
+          <h2>The Challenges We Solve</h2>
+          <p>Managing educational labs comes with numerous obstacles</p>
         </div>
         
-        <div className={styles.featuresGrid}>
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>📊</div>
-            <h3>Real-Time Tracking</h3>
-            <p>Monitor all your assets in real-time with live updates and notifications</p>
+        <div className={styles.challengesGrid}>
+          <div className={styles.challengeCard}>
+            <div className={styles.challengeIconWrapper}>
+              <div className={styles.challengeIcon}>📦</div>
+            </div>
+            <h3>Equipment Misplacement</h3>
+            <p>Loss and misplacement of valuable lab equipment and PCs due to poor tracking and manual record-keeping systems</p>
           </div>
           
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>🔒</div>
-            <h3>Secure & Reliable</h3>
-            <p>Enterprise-grade security to keep your data safe and protected</p>
+          <div className={styles.challengeCard}>
+            <div className={styles.challengeIconWrapper}>
+              <div className={styles.challengeIcon}>📋</div>
+            </div>
+            <h3>Inaccurate Records</h3>
+            <p>Outdated and inconsistent data during audits and inspections, leading to compliance issues and financial discrepancies</p>
           </div>
           
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>📈</div>
-            <h3>Analytics & Insights</h3>
-            <p>Get detailed reports and analytics to make informed decisions</p>
+          <div className={styles.challengeCard}>
+            <div className={styles.challengeIconWrapper}>
+              <div className={styles.challengeIcon}>🔄</div>
+            </div>
+            <h3>Lifecycle Tracking</h3>
+            <p>Inability to properly track asset lifecycle including purchase details, maintenance schedules, and depreciation values</p>
           </div>
           
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>⚡</div>
-            <h3>Automation</h3>
-            <p>Automate repetitive tasks and save time with smart workflows</p>
+          <div className={styles.challengeCard}>
+            <div className={styles.challengeIconWrapper}>
+              <div className={styles.challengeIcon}>⚠️</div>
+            </div>
+            <h3>Accountability Gap</h3>
+            <p>Difficulty in assigning and tracking equipment responsibilities among faculty and lab technicians</p>
           </div>
           
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>🌐</div>
-            <h3>Cloud Integration</h3>
-            <p>Seamlessly integrate with popular cloud platforms and services</p>
+          <div className={styles.challengeCard}>
+            <div className={styles.challengeIconWrapper}>
+              <div className={styles.challengeIcon}>🗂️</div>
+            </div>
+            <h3>Fragmented Systems</h3>
+            <p>Absence of centralized platform for managing timetables, experiments, and subject-lab mappings across departments</p>
           </div>
           
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>👥</div>
-            <h3>Team Collaboration</h3>
-            <p>Work together with your team with shared access and permissions</p>
+          <div className={styles.challengeCard}>
+            <div className={styles.challengeIconWrapper}>
+              <div className={styles.challengeIcon}>🤝</div>
+            </div>
+            <h3>Poor Coordination</h3>
+            <p>Inefficient communication and coordination between faculty, lab technicians, and administrative staff</p>
           </div>
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className={styles.howItWorksSection}>
+      {/* Solutions Section */}
+      <section className={styles.solutionsSection}>
         <div className={styles.sectionHeader}>
-          <h2>How It Works</h2>
-          <p>Get started in three simple steps</p>
+          <h2>Our Comprehensive Solutions</h2>
+          <p>AI-powered features designed to transform lab management</p>
         </div>
         
-        <div className={styles.stepsContainer}>
-          <div className={styles.step}>
-            <div className={styles.stepNumber}>1</div>
-            <div className={styles.stepContent}>
-              <h3>Sign Up & Setup</h3>
-              <p>Create your account and configure your workspace in minutes</p>
+        <div className={styles.solutionsContainer}>
+          <div className={styles.solutionItem}>
+            <div className={styles.solutionNumber}>01</div>
+            <div className={styles.solutionContent}>
+              <h3>Unified Asset Management</h3>
+              <p>Centralized platform to manage multiple laboratories with structured asset registration, detailed specifications, serial numbers, purchase history, warranty tracking, and vendor information—all in one place.</p>
             </div>
           </div>
-          
-          <div className={styles.stepConnector}></div>
-          
-          <div className={styles.step}>
-            <div className={styles.stepNumber}>2</div>
-            <div className={styles.stepContent}>
-              <h3>Add Your Assets</h3>
-              <p>Import or manually add your digital and physical assets to the platform</p>
+
+          <div className={styles.solutionItem}>
+            <div className={styles.solutionNumber}>02</div>
+            <div className={styles.solutionContent}>
+              <h3>Smart Maintenance Tracker</h3>
+              <p>Automated maintenance scheduling with AMC tracking, warranty alerts, service history, and complaint management to ensure equipment is always in optimal condition.</p>
             </div>
           </div>
-          
-          <div className={styles.stepConnector}></div>
-          
-          <div className={styles.step}>
-            <div className={styles.stepNumber}>3</div>
-            <div className={styles.stepContent}>
-              <h3>Track & Optimize</h3>
-              <p>Monitor, analyze, and optimize your assets with powerful tools</p>
+
+          <div className={styles.solutionItem}>
+            <div className={styles.solutionNumber}>03</div>
+            <div className={styles.solutionContent}>
+              <h3>Advanced Analytics Dashboard</h3>
+              <p>Comprehensive reports on department-wise lab usage, equipment performance, maintenance summaries, and resource utilization with AI-driven predictive insights.</p>
+            </div>
+          </div>
+
+          <div className={styles.solutionItem}>
+            <div className={styles.solutionNumber}>04</div>
+            <div className={styles.solutionContent}>
+              <h3>Role-Based Access Control</h3>
+              <p>Secure authentication with dedicated dashboards for admins, lab technicians, and faculty. Automated credential management and granular permissions for enhanced security.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Animated Statistics Section */}
-      <section ref={statsRef} className={styles.statsSection}>
-        <div className={styles.sectionHeader}>
-          <h2>Trusted by Thousands</h2>
-          <p>Real numbers from real companies</p>
-        </div>
-
-        <div className={styles.statsGrid}>
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}>🚀</div>
-            <div className={styles.statNumber}>
-              <span className={styles.countUp}>{Math.floor(counters[0]).toLocaleString()}</span>
-              <span className={styles.plus}>+</span>
-            </div>
-            <div className={styles.statLabel}>Active Users</div>
+      {/* Admin Benefits Section */}
+      <section className={styles.adminSection}>
+        <div className={styles.benefitsContainer}>
+          <div className={styles.benefitsLeft}>
+            <div className={styles.roleIcon}>👨‍💼</div>
+            <h2>Benefits for Administrators</h2>
+            <p className={styles.roleSubtitle}>Complete control and oversight of all laboratory operations</p>
           </div>
-
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}>💼</div>
-            <div className={styles.statNumber}>
-              <span className={styles.countUp}>{Math.floor(counters[1]).toLocaleString()}</span>
-              <span className={styles.plus}>+</span>
+          
+          <div className={styles.benefitsRight}>
+            <div className={styles.benefitItem}>
+              <div className={styles.benefitIconBox}>
+                <span className={styles.benefitIcon}>🎛️</span>
+              </div>
+              <div className={styles.benefitText}>
+                <h4>Centralized Dashboard</h4>
+                <p>Manage multiple labs, users, and assets from a single unified interface with real-time visibility</p>
+              </div>
             </div>
-            <div className={styles.statLabel}>Companies Trust Us</div>
-          </div>
 
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}>📦</div>
-            <div className={styles.statNumber}>
-              <span className={styles.countUp}>{counters[2].toFixed(1)}</span>
-              <span className={styles.plus}>M+</span>
+            <div className={styles.benefitItem}>
+              <div className={styles.benefitIconBox}>
+                <span className={styles.benefitIcon}>👥</span>
+              </div>
+              <div className={styles.benefitText}>
+                <h4>User Management</h4>
+                <p>Create and manage lab technicians and faculty accounts with automated credential distribution via email</p>
+              </div>
             </div>
-            <div className={styles.statLabel}>Assets Managed</div>
-          </div>
 
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}>⚡</div>
-            <div className={styles.statNumber}>
-              <span className={styles.countUp}>{counters[3].toFixed(1)}</span>
-              <span className={styles.plus}>%</span>
+            <div className={styles.benefitItem}>
+              <div className={styles.benefitIconBox}>
+                <span className={styles.benefitIcon}>🔍</span>
+              </div>
+              <div className={styles.benefitText}>
+                <h4>Complete Visibility</h4>
+                <p>Track every asset transaction, maintenance activity, and user action with detailed audit trails</p>
+              </div>
             </div>
-            <div className={styles.statLabel}>Uptime Guarantee</div>
+
+            <div className={styles.benefitItem}>
+              <div className={styles.benefitIconBox}>
+                <span className={styles.benefitIcon}>🛡️</span>
+              </div>
+              <div className={styles.benefitText}>
+                <h4>Compliance & Security</h4>
+                <p>Ensure data integrity with automated backups, secure authentication, and compliance-ready audit logs</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <footer className={styles.footer}>
-        <p>© 2025 Lab360. All rights reserved.</p>
+      {/* Lab Technician Benefits Section */}
+      <section className={styles.technicianSection}>
+        <div className={styles.benefitsContainer}>
+          <div className={styles.benefitsRight}>
+            <div className={styles.benefitItem}>
+              <div className={styles.benefitIconBox}>
+                <span className={styles.benefitIcon}>📦</span>
+              </div>
+              <div className={styles.benefitText}>
+                <h4>Asset Management</h4>
+                <p>Easily assign, return, and track equipment with unique asset IDs and serial number search functionality</p>
+              </div>
+            </div>
+
+            <div className={styles.benefitItem}>
+              <div className={styles.benefitIconBox}>
+                <span className={styles.benefitIcon}>🔧</span>
+              </div>
+              <div className={styles.benefitText}>
+                <h4>Maintenance Logging</h4>
+                <p>Record servicing activities, log complaints, track warranty status, and schedule preventive maintenance</p>
+              </div>
+            </div>
+
+            <div className={styles.benefitItem}>
+              <div className={styles.benefitIconBox}>
+                <span className={styles.benefitIcon}>⚡</span>
+              </div>
+              <div className={styles.benefitText}>
+                <h4>Quick Issue Resolution</h4>
+                <p>Receive instant notifications for equipment issues and respond quickly with streamlined workflows</p>
+              </div>
+            </div>
+
+            <div className={styles.benefitItem}>
+              <div className={styles.benefitIconBox}>
+                <span className={styles.benefitIcon}>📅</span>
+              </div>
+              <div className={styles.benefitText}>
+                <h4>Timetable Management</h4>
+                <p>View and edit lab schedules, manage experiment bookings, and optimize lab utilization efficiently</p>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.benefitsLeft}>
+            <div className={styles.roleIcon}>👨‍🔧</div>
+            <h2>Benefits for Lab Technicians</h2>
+            <p className={styles.roleSubtitle}>Streamlined operations and efficient lab management tools</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Faculty Benefits Section */}
+      <section className={styles.facultySection}>
+        <div className={styles.benefitsContainer}>
+          <div className={styles.benefitsLeft}>
+            <div className={styles.roleIcon}>👨‍🏫</div>
+            <h2>Benefits for Faculty</h2>
+            <p className={styles.roleSubtitle}>Easy access to lab resources and scheduling information</p>
+          </div>
+          
+          <div className={styles.benefitsRight}>
+            <div className={styles.benefitItem}>
+              <div className={styles.benefitIconBox}>
+                <span className={styles.benefitIcon}>🗓️</span>
+              </div>
+              <div className={styles.benefitText}>
+                <h4>Timetable Access</h4>
+                <p>View lab schedules, check availability, and plan experiments according to your teaching requirements</p>
+              </div>
+            </div>
+
+            <div className={styles.benefitItem}>
+              <div className={styles.benefitIconBox}>
+                <span className={styles.benefitIcon}>🔍</span>
+              </div>
+              <div className={styles.benefitText}>
+                <h4>Asset Search & Details</h4>
+                <p>Quickly search equipment by serial number or asset ID to check specifications and availability status</p>
+              </div>
+            </div>
+
+            <div className={styles.benefitItem}>
+              <div className={styles.benefitIconBox}>
+                <span className={styles.benefitIcon}>📝</span>
+              </div>
+              <div className={styles.benefitText}>
+                <h4>Issue Reporting</h4>
+                <p>Report equipment malfunctions or request maintenance directly through the platform with photo uploads</p>
+              </div>
+            </div>
+
+            <div className={styles.benefitItem}>
+              <div className={styles.benefitIconBox}>
+                <span className={styles.benefitIcon}>🧪</span>
+              </div>
+              <div className={styles.benefitText}>
+                <h4>Experiment Planning</h4>
+                <p>Access experiment guides, check required equipment availability, and coordinate with lab technicians</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className={styles.newFooter}>
+        <div className={styles.footerContainer}>
+          <div className={styles.footerLeft}>
+            <h3 className={styles.logo}>Lab360°</h3>
+            <p>
+              AI-powered lab management platform designed for educational institutions.
+              Simplify scheduling, asset tracking, and maintenance with transparency.
+            </p>
+            <div className={styles.socialIcons}>
+              <a href="#"><i className="fab fa-twitter"></i></a>
+              <a href="#"><i className="fab fa-linkedin-in"></i></a>
+              <a href="#"><i className="fab fa-github"></i></a>
+              <a href="mailto:info@lab360.com"><i className="fas fa-envelope"></i></a>
+            </div>
+          </div>
+
+          <div className={styles.footerLinks}>
+            <div>
+              <h4>Quick Links</h4>
+              <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#demo">Demo</a></li>
+                <li><a href="#solutions">Solutions</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4>Company</h4>
+              <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.footerBottom}>
+          <p>© 2025 Lab360 AI. All rights reserved.</p>
+          <div className={styles.policyLinks}>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Cookie Policy</a>
+          </div>
+        </div>
       </footer>
     </div>
   );

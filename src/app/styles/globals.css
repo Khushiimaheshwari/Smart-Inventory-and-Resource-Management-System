@@ -5,7 +5,14 @@
   padding: 0;
   box-sizing: border-box;
 }
-
+section {
+  margin-top: 0;
+  padding-top: 0;
+}
+main {
+  margin-top: 0;
+  padding-top: 0;
+}
 
 :root {
   --background: #ffffff;
