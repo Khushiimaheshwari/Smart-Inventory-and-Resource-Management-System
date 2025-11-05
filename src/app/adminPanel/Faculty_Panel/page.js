@@ -5,7 +5,9 @@ import { X, ChevronDown } from 'lucide-react';
 
 export default function FacultyManagement() {
   const [faculty, setFaculty] = useState([]);
-  const [allDepartments, setAllDepartments] = useState([]);
+  const [allDepartments, setAllDepartments] = useState([
+    { Department: "SOET", Department_id: 1 },
+  ]);
   const [allSubjects, setAllSubjects] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState(null);
@@ -15,67 +17,56 @@ export default function FacultyManagement() {
   const [newFaculty, setNewFaculty] = useState({
     name: "",
     email: "",
-    phoneNumber: "",
     department: "",
     designation: "",
     subjects: [],
   });
 
-  useEffect(() => {
-    const fetchFaculty = async () => {
-      try {
-        const res = await fetch("/api/admin/getFaculty");
-        if(!res.ok) throw new Error("Failed to fetch faculty");
-        const data = await res.json();
-        setFaculty(
-          data.faculty.map(f => ({
-            id: f._id,
-            name: f.Name,
-            email: f.Email,
-            phoneNumber: f.PhoneNumber,
-            profileImage: f.ProfileImage,
-            department: f.Department,
-            designation: f.Designation,
-            location: f.Location,
-            status: f.AccountStatus,
-            subjects: f.Subjects?.map(sub => sub.Subject_ID),
-          }))
-        );
-      }catch (err) {
-        console.error("Fetch Faculty Error:", err);
-      }
-    };
-    fetchFaculty();
-  }, []);
+  const fetchFaculty = async () => {
+    try {
+      const res = await fetch("/api/admin/getFaculty");
+
+      if(!res.ok) throw new Error("Failed to fetch faculty");
+
+      const data = await res.json();
+      console.log(data);
+      
+      setFaculty(
+        data.faculty.map(f => ({
+          id: f._id,
+          name: f.Name,
+          email: f.Email,
+          phoneNumber: f.PhoneNumber,
+          profileImage: f.ProfileImage,
+          department: f.Department,
+          designation: f.Designation,
+          location: f.Location,
+          status: f.AccountStatus,
+          subjects: f.Subjects?.map(sub => sub.Subject_ID),
+        }))
+      );
+    }catch (err) {
+      console.error("Fetch Faculty Error:", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const res = await fetch("/api/admin/getDepartments");
-        if(!res.ok) throw new Error("Failed to fetch Departments");
-        const data = await res.json();
-        setAllDepartments(
-          data.departments.map(d => ({
-           Department: d.Department_Name,
-           Department_id: d._id,
-          }))
-        );
-      }catch (err) {
-        console.error("Fetch Departments Error:", err);
-      }
-    };
-    fetchDepartments();
-  }, []);  
+    fetchFaculty();
+  }, []);
 
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
         const res = await fetch("/api/admin/getSubjects");
+
         if(!res.ok) throw new Error("Failed to fetch Subjects");
+
         const data = await res.json();
+        console.log(data);
+
         setAllSubjects(
           data.subjects.map(s => ({
-           Subject: s.Subject_Name,
+           Subject: (s.Course_Name).toUpperCase() + " - " + s.Course_Code,
            Subject_id: s._id,
           }))
         );
@@ -91,6 +82,7 @@ export default function FacultyManagement() {
       name: "",
       email: "",
       phoneNumber: "",
+      location: "",
       department: "",
       designation: "",
       subjects: [],
@@ -136,6 +128,147 @@ export default function FacultyManagement() {
       password += charset.charAt(Math.floor(Math.random() * charset.length));
     }
     return password;
+  };
+
+  const handleAddFaculty = async () => {
+    if (!newFaculty.name || !newFaculty.email || !newFaculty.password) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/addFaculty", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newFaculty.name,
+          email: newFaculty.email,
+          password: newFaculty.password,
+          department: newFaculty.department,
+          designation: newFaculty.designation,
+          subjects: newFaculty.subjects.map(sub => sub.Subject_id),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
+        return;
+      }
+
+      // await emailjs.send(
+      //   "service_2xk0xdb",  
+      //   "template_mq4w3fc",    
+      //   {
+      //     to_name: newFaculty.name,
+      //     to_email: newFaculty.email,
+      //     password: newFaculty.password,
+      //   },
+      //   "JVeTTsN2NUeZ0UlPA"
+      // );
+
+      setFaculty([
+        ...faculty,
+        {
+          id: faculty.length + 1,
+          name: newFaculty.name,
+          email: newFaculty.email,
+        },
+      ]);
+
+      alert("Lab Technician added successfully!");
+      setShowAddModal(false);
+      setNewFaculty({
+        name: "",
+        email: "",
+        phoneNumber: "",
+        location: "",
+        department: "",
+        designation: "",
+        subjects: [],
+      });
+      await fetchFaculty();
+    } catch (err) {
+      console.error("Add Lab Technician Error:", err);
+      alert("Something went wrong while editing Lab Technician.");
+    }
+  };
+  
+    const handleEditFaculty = (user) => {
+      setEditingUser(user);    
+      setShowAddModal(true);
+      setnewFaculty(user);
+    };
+  
+    const handleUpdateFaculty = async () => {
+  
+      if (!newFaculty.name || !newFaculty.email) {
+        alert("Please fill all required fields");
+        return;
+      }
+  
+      try {
+        const res = await fetch("/api/admin/editFaculty", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: newFaculty.name,
+            email: newFaculty.email,
+            password: newFaculty.password,
+            department: newFaculty.department,
+            designation: newFaculty.designation,
+            subjects: newFaculty.subjects.map(sub => sub.Subject_id),
+          }),
+        });
+  
+        const data = await res.json();
+  
+        if (!res.ok) {
+          alert(data.error || "Something went wrong!");
+          return;
+        }
+  
+        if (newFaculty.password && newFaculty.password.trim() !== "") {
+          await emailjs.send(
+            "service_2xk0xdb",  
+            "template_mq4w3fc",    
+            {
+              to_name: newFaculty.name,
+              to_email: newFaculty.email,
+              password: newFaculty.password,
+            },
+            "JVeTTsN2NUeZ0UlPA"
+          ); 
+        }
+  
+        setFaculty([
+          ...faculty,
+          {
+            id: faculty.length + 1,
+            name: newFaculty.name,
+            email: newFaculty.email,
+          },
+        ]);
+  
+      alert("Lab Technician updated successfully!");
+      setFaculty(faculty.map((u) => (u.id === editingUser.id ? newFaculty : u)));
+      setShowAddModal(false);
+      setEditingUser(null);
+      setNewFaculty({
+        name: "",
+        email: "",
+        phoneNumber: "",
+        location: "",
+        department: "",
+        designation: "",
+        subjects: [],
+      });
+      await fetchFaculty();
+    } catch (err) {
+      console.error("Edit Lab Technician Error:", err);
+      alert("Something went wrong while editing Lab Technician.");
+    }
   };
 
   const styles = {
@@ -391,10 +524,10 @@ export default function FacultyManagement() {
     modalContent: {
       background: "white",
       borderRadius: "12px",
-      padding: "30px",
+      padding: "0px 30px 20px",
       width: "90%",
       maxWidth: "600px",
-      maxHeight: "90vh",
+      maxHeight: "100vh",
       overflowY: "auto",
     },
     modalHeader: {
@@ -680,11 +813,6 @@ export default function FacultyManagement() {
             </div>
 
             <div style={styles.formGroup}>
-              <label style={styles.label}>Phone Number</label>
-              <input type="tel" style={styles.input} value={newFaculty.phoneNumber} onChange={(e) => setNewFaculty({ ...newFaculty, phoneNumber: e.target.value })} placeholder="Enter phone" />
-            </div>
-
-            <div style={styles.formGroup}>
               <label style={styles.label}>Password</label>
               <div style={styles.passwordFormGroup}>
                 <input type="text" style={styles.input} value={newFaculty.password || ""} onChange={(e) => setNewFaculty({ ...newFaculty, password: e.target.value })} placeholder="Enter password" />
@@ -736,6 +864,7 @@ export default function FacultyManagement() {
                 {isDropdownOpen && (
                   <div style={styles.dropdown}>
                     {allSubjects.map((subObj) => {
+                      console.log(subObj);
                       const isSelected = newFaculty.subjects.some((sub) => sub.Subject_id === subObj.Subject_id);
                       return (
                         <div key={subObj.Subject_id} style={{ ...styles.dropdownItem, ...(isSelected ? styles.dropdownItemSelected : {}) }} onClick={() => handleSubjectSelect(subObj)}>
@@ -750,11 +879,13 @@ export default function FacultyManagement() {
 
             <div style={styles.modalActions}>
               <button style={styles.cancelButton} onClick={() => { setShowAddModal(false); setEditingFaculty(null); }}>Cancel</button>
-              <button style={styles.saveButton}>
+              <button 
+                style={styles.saveButton}
+                onClick={editingFaculty ? handleUpdateFaculty : handleAddFaculty}>
                 {editingFaculty ? "Update Faculty" : "Add Faculty"}
               </button>
             </div>
-          </div>
+          </div> 
         </div>
       )}
     </div>

@@ -13,7 +13,7 @@ const ProgramsSchema = new mongoose.Schema({
     Faculty_Assigned: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     Lab_Allocated: { type: mongoose.Schema.Types.ObjectId, ref: "Lab" },
   }],
-}, { timestamps: true });
+}, { timestamps: true }); 
 
 const Programs = mongoose.models.Programs || mongoose.model("Programs", ProgramsSchema);
 

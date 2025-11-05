@@ -68,8 +68,10 @@ export default function ProfilePage() {
           height={140}
           className={styles.avatar}
         />
-        <h1 className={styles.userName}>{user.Name}</h1>
-        <p className={styles.userEmail}>{user.Email}</p>
+        <div className={styles.userInfo}>
+          <h1 className={styles.userName}>{user.Name}</h1>
+          <p className={styles.userEmail}>{user.Email}</p>
+        </div>
       </div>
 
       {/* Single Profile Card */}
