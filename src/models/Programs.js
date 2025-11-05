@@ -10,7 +10,7 @@ const ProgramsSchema = new mongoose.Schema({
   Subject:[{
     Subject_ID: { type: mongoose.Schema.Types.ObjectId, ref: "SubjectList" },
     Number_Of_Hours: { type: String, default: "" },
-    Faculty_Assigned: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    Faculty_Assigned: { type: mongoose.Schema.Types.ObjectId, ref: "Faculty" },
     Lab_Allocated: { type: mongoose.Schema.Types.ObjectId, ref: "Lab" },
   }],
 }, { timestamps: true }); 

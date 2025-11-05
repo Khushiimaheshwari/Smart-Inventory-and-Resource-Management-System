@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Programs from "../../../../../models/Programs";
 import SubjectList from "../../../../../models/Subject_List";
+import Faculty from "../../../../../models/Faculty";
 import { connectDB } from "../../../utils/db";
 
 export async function PUT(req, { params }) {

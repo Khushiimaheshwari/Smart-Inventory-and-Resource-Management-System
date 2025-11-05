@@ -588,7 +588,7 @@ export default function LabProgramsPage() {
 
       setPrograms((prev) => [...prev, data.program || payload]);
       handleCloseForm();
-      fetchPrograms();
+      await fetchPrograms();
     } catch (err) {
       console.error("Error adding program:", err);
       alert("Something went wrong while adding the program.");
@@ -641,6 +641,8 @@ export default function LabProgramsPage() {
           : [],
     };
 
+    console.log("Sending edit payload:", payload);
+
     const res = await fetch(`/api/admin/updateProgram/${formData._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -656,7 +658,7 @@ export default function LabProgramsPage() {
       prev.map((p) => (p._id === formData._id ? { ...p, ...data.updatedProgram } : p))
     );
     handleCloseForm();
-    fetchPrograms();
+    await fetchPrograms();
   } catch (err) {
     console.error("Edit Program Error:", err);
     alert("Something went wrong while updating the program.");
@@ -787,7 +789,7 @@ export default function LabProgramsPage() {
                             </div>
 
                             <div style={styles.subjectDetails}>
-                              <p><strong>Faculty:</strong> {subj.Faculty_Assigned?.name || "Not Assigned"}</p>
+                              <p><strong>Faculty:</strong> {subj.Faculty_Assigned?.Name || "Not Assigned"}</p>
                               <p><strong>Lab:</strong> {subj.Lab_Allocated?.Lab_ID || "Not Assigned"}</p>
                               <p><strong>Hours:</strong> {subj.Number_Of_Hours || "N/A"}</p>
                             </div>

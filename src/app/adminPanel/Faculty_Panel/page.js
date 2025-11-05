@@ -42,7 +42,12 @@ export default function FacultyManagement() {
           designation: f.Designation,
           location: f.Location,
           status: f.AccountStatus,
-          subjects: f.Subjects?.map(sub => sub.Subject_ID),
+          subjects: f.Subject?.map(sub => ({
+            Subject_ID: sub._id,
+            Course_Name: sub.Course_Name,
+            Course_Code: sub.Course_Code,
+            Course_Department: sub.Course_Department,
+          })),
         }))
       );
     }catch (err) {
@@ -780,8 +785,8 @@ export default function FacultyManagement() {
                     </span>
                     <div style={styles.subjectChipsContainer}>
                       {member.subjects && member.subjects.length > 0 ? (
-                        member.subjects.map((subject, index) => (
-                          <span key={index} style={styles.subjectChip}>{subject}</span>
+                        member.subjects.map((sub, index) => (
+                          <span key={index} style={styles.subjectChip}>{sub.Course_Name} {sub.Course_Code} </span>
                         ))
                       ) : (
                         <span style={styles.noSubjectChip}>No subjects assigned</span>
