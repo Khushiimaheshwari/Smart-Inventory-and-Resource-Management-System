@@ -1,6 +1,6 @@
 /* Modern Background with Teal/Green Theme */
 .profileContainer {
-  background: linear-gradient(-45deg, #00c97b, #00b8d9, #00a085, #23d5ab);
+  background: #f9fafb;
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
   min-height: 100vh;
@@ -45,6 +45,8 @@
 
 /* Glassmorphism Header */
 .profileHeader {
+  display: flex;
+  gap: 1.5rem;
   text-align: center;
   margin-bottom: 3rem;
   position: relative;
@@ -89,9 +91,14 @@
     0 0 60px rgba(0, 201, 123, 0.6);
 }
 
+.userInfo {
+  display: inline-block;
+  text-align: left;
+  margin-left: 1.5rem;
+}
 .userName {
   font-size: 2.5rem;
-  color: white;
+  color: #000;
   font-weight: 800;
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
@@ -99,7 +106,7 @@
 }
 
 .userEmail {
-  color: rgba(255, 255, 255, 0.95);
+  color: #4a5568;
   font-size: 1.1rem;
   font-weight: 500;
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
