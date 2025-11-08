@@ -1,12 +1,12 @@
 /* Container - Properly aligned with sidebar */
 .container {
-  width: calc(100% - 245px);
+  width: calc(100% - 255px);
   min-height: 100vh;
   background-color: #f9fafb;
   padding: 2rem;
   box-sizing: border-box;
   overflow-x: hidden;
-  margin-left: 245px;
+  margin-left: 255px;
 }
 
 /* Header */

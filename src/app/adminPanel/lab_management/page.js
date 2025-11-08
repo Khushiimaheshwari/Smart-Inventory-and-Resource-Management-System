@@ -213,9 +213,13 @@ export default function LabManagement() {
 
   const styles = {
     container: {
-      display: 'flex',
+      width: 'calc(100% - 255px)', 
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
+      padding: '2rem',
+      boxSizing: 'border-box',
+      marginLeft: '255px',
+      overflowX: 'hidden',
     },
     sidebar: {
       width: '260px',

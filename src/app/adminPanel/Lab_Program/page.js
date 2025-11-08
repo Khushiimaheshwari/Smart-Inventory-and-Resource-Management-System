@@ -4,7 +4,7 @@ import { Plus, Edit2, Trash2, ChevronDown } from 'lucide-react';
 
 const styles = {
   container: {
-    width: 'calc(100% - 230px)',
+    width: 'calc(100% - 255px)',
     minHeight: '100vh',
     backgroundColor: '#f9fafb',
     padding: '2rem',

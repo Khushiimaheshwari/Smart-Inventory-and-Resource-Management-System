@@ -94,7 +94,6 @@
 }
 
 .profileImg:hover {
-  transform: scale(1.1);
   border-color: #00c97b;
 }
 

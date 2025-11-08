@@ -180,7 +180,7 @@ export default function SubjectListPage() {
 
   const styles = {
     subjectListContainer: {
-      width: "calc(100% - 230px)",
+      width: "calc(100% - 255px)",
       minHeight: "100vh",
       backgroundColor: "#f9fafb",
       padding: "2rem",

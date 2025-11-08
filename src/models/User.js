@@ -75,6 +75,24 @@ export async function userProfile(userId) {
 }
 
 /**
+ * Get user profile picture
+ */
+export async function userProfilePic(userId) {
+  await connectDB();
+
+  const user = await User.findById(userId).select("ProfileImage");
+
+  if (!user) return null;
+
+  if (user.ProfileImage?.startsWith("http")) {
+    return user.ProfileImage;
+  }
+
+  return user.ProfileImage ? user.ProfileImage : null;
+}
+
+
+/**
  * Get user profile by email for OAuth logins
  */
 export async function userProfileByEmail(email) {
