@@ -29,9 +29,18 @@ export async function GET(req) {
     });
 
     const subjects = await SubjectList.find(
-      { _id: { $in: subjectIds } },
+      { _id: { $in: subjectIds } }, 
       "_id Course_Name Course_Code Course_Department Experiment_List Status Programs"
-    ).populate("Programs");
+    ).populate({
+      path: "Programs",
+      populate: [
+        {
+          path: "Subject.Faculty_Assigned",
+          model: "Faculty",
+          select: "Name Email",
+        },
+      ],
+    });
 
     return NextResponse.json({ subjects });
   } catch (error) {

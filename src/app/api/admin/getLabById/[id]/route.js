@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "../../../../../app/api/utils/db";
 import Lab from "../../../../../models/Labs";
 import LabTechnician from "../../../../../models/Lab_Technician";
+import Faculty from "../../../../../models/Faculty";
 import Timetable from "../../../../../models/Timetable";
 
 export async function GET(req, { params }) {
@@ -11,14 +12,15 @@ export async function GET(req, { params }) {
 
     const lab = await Lab.findById(id
     )
-      .populate("LabTechnician", "Name Email PhoneNumber")
+      .populate("LabTechnician", "Name Email ")
+      .populate("Lab_Incharge", "Name Email")
       .populate({
         path: "TimeTable",
         select: "_id Subject Program Faculty Day TimeSlot",
         populate: [
           { path: "Subject", select: "Course_Name Course_Code" },
           { path: "Program", select: "Program_Name Program_Section Program_Semester Program_Batch Program_Group" },
-          // { path: "User", select: "Name Email" },
+          // { path: "Faculty", select: "Name Email" },
         ],
       });
 

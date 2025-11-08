@@ -9,6 +9,16 @@ const LabTimetablePage = () => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [view, setView] = useState('week');
   const [labData, setLabData] = useState([]);
+  const [showMoreInfo, setShowMoreInfo] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [newInfo, setNewInfo] = useState({
+    hardwareSpecs: "",
+    softwareSpecs: "",
+    device: [
+      { Device_Type: "", Brand: "", Serial_No: "" }
+    ]
+  });
   const [expandedId, setExpandedId] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [timetableData, setTimetableData] = useState([]);
@@ -77,6 +87,59 @@ const LabTimetablePage = () => {
   useEffect(() => {
       fetchLab();
     }, []);
+
+
+  const addMoreInfo = () => {
+    setShowAddModal(true);
+  };
+
+  const deviceType = ['Projector', 'Screen Board'];
+
+  const handleAddInfo = async () => {
+
+    if(!newInfo.hardwareSpecs || !newInfo.softwareSpecs || !newInfo.device[0].Device_Type || !newInfo.device[0].Brand || !newInfo.device[0].Serial_No) {
+      alert("Please fill in all required fields!");
+      return;
+    }
+    
+    const payload = {
+      Hardware_Specifications: newInfo.hardwareSpecs,
+      Software_Specifications: newInfo.softwareSpecs,
+      Device: newInfo.device,
+    }
+
+    console.log(payload);
+    console.log(id);
+
+    try {
+      const res = await fetch(`/api/admin/addLabMoreInfo/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Additional Info added successfully!");
+        setShowAddModal(false);
+        setNewInfo({
+          hardwareSpecs: "",
+          softwareSpecs: "",
+          device: [{ Device_Type: "", Brand: "", Serial_No: "" }],
+        });
+        fetchLab();
+
+      } else {
+        alert(data.error || "Failed to add info");
+      }
+    } catch (error) {
+      console.error("Error adding info:", error);
+      alert("Something went wrong while adding the info.");
+    }
+  };
+
+  const handleUpdateInfo = async () => {};
 
   useEffect(() => {
     const fetchSubject = async () => {
@@ -204,9 +267,6 @@ const LabTimetablePage = () => {
     input.click();
   };
 
-  console.log(timetableData);
-
-  // const pickColor = (i) => colors[i % colors.length];
   const colors = ["#00c97b", "#00b8d9", "#f6ad55", "#9f7aea", "#fc8181", "#4299e1"];
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -378,7 +438,9 @@ const LabTimetablePage = () => {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '20px'
+      marginBottom: '20px',
+      flexWrap: 'wrap',
+      gap: '12px'
     },
     labTitle: {
       fontSize: '28px',
@@ -416,6 +478,231 @@ const LabTimetablePage = () => {
       fontSize: '15px',
       color: '#2d3748',
       fontWeight: 500
+    },
+    moreInfoSection: {
+      marginTop: '24px',
+      borderTop: '2px solid rgba(0, 201, 123, 0.1)',
+      paddingTop: '24px'
+    },
+    moreInfoHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '20px',
+      cursor: 'pointer'
+    },
+    moreInfoTitle: {
+      fontSize: '20px',
+      fontWeight: 700,
+      color: '#2d3748',
+      margin: 0,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px'
+    },
+    toggleIcon: {
+      fontSize: '20px',
+      color: '#00c97b',
+      transition: 'transform 0.3s ease'
+    },
+    moreInfoContent: {
+      display: showMoreInfo ? 'block' : 'none'
+    },
+    infoSectionTitle: {
+      fontSize: '16px',
+      fontWeight: 600,
+      color: '#2d3748',
+      marginBottom: '20px',
+      marginTop: '20px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    },
+    addButton: {
+      background: '#00c97b',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      padding: '8px 16px',
+      fontSize: '14px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      transition: 'all 0.3s ease'
+    },
+    deviceCard: {
+      background: 'white',
+      borderRadius: '12px',
+      padding: '16px',
+      marginBottom: '20px',
+      border: '1px solid rgba(0, 201, 123, 0.15)',
+      boxShadow: '0 2px 8px rgba(0, 201, 123, 0.08)',
+      transition: 'all 0.3s ease'
+    },
+    deviceCardHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '16px',
+      paddingBottom: '12px',
+      borderBottom: '1px solid rgba(0, 201, 123, 0.1)'
+    },
+    deviceType: {
+      fontSize: '16px',
+      fontWeight: 700,
+      color: '#2d3748'
+    },
+    deviceQuantity: {
+      fontSize: '13px',
+      fontWeight: 600,
+      color: '#00c97b',
+      background: 'rgba(0, 201, 123, 0.1)',
+      padding: '4px 12px',
+      borderRadius: '12px'
+    },
+    deviceCardBody: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '12px'
+    },
+    deviceDetail: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: '8px'
+    },
+    deviceDetailLabel: {
+      fontSize: '12px',
+      color: '#718096',
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      minWidth: '80px'
+    },
+    deviceDetailValue: {
+      fontSize: '14px',
+      color: '#2d3748',
+      fontWeight: 500,
+      textAlign: 'right',
+      flex: 1
+    },
+    specsBox: {
+      background: 'rgba(0, 201, 123, 0.05)',
+      borderRadius: '12px',
+      padding: '20px',
+      marginBottom: '20px',
+      border: '1px solid rgba(0, 201, 123, 0.15)'
+    },
+    specsContent: {
+      fontSize: '14px',
+      color: '#4a5568',
+      lineHeight: '1.8',
+      whiteSpace: 'pre-line',
+      fontFamily: 'monospace'
+    },
+    remarksBox: {
+      background: 'rgba(0, 201, 123, 0.05)',
+      borderRadius: '12px',
+      padding: '20px',
+      marginTop: '16px',
+      border: '1px solid rgba(0, 201, 123, 0.15)'
+    },
+    remarksText: {
+      fontSize: '14px',
+      color: '#4a5568',
+      lineHeight: '1.6'
+    },
+    emptyState: {
+      textAlign: 'center',
+      padding: '40px 20px',
+      color: '#718096',
+      fontSize: '14px'
+    },
+    modal: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000
+    },
+    modalContent: {
+      background: 'white',
+      borderRadius: '16px',
+      padding: '28px 30px',
+      width: '90%',
+      maxWidth: '600px',
+      maxHeight: '95vh',
+      overflowY: 'auto'
+    },
+    modalHeader: {
+      fontSize: '24px',
+      fontWeight: 700,
+      color: '#2d3748',
+      marginBottom: '20px',
+      marginTop: 0
+    },
+    formGroup: {
+      marginBottom: '20px'
+    },
+    label: {
+      display: 'block',
+      fontSize: '14px',
+      fontWeight: 600,
+      color: '#2d3748',
+      marginBottom: '8px'
+    },
+    input: {
+      width: '100%',
+      padding: '12px',
+      border: '2px solid #e2e8f0',
+      borderRadius: '8px',
+      fontSize: '14px',
+      transition: 'all 0.3s ease',
+      boxSizing: 'border-box'
+    },
+    select: {
+      width: '100%',
+      padding: '12px',
+      border: '2px solid #e2e8f0',
+      borderRadius: '8px',
+      fontSize: '14px',
+      transition: 'all 0.3s ease',
+      boxSizing: 'border-box',
+      background: 'white'
+    },
+    modalActions: {
+      display: 'flex',
+      gap: '12px',
+      marginTop: '24px'
+    },
+    cancelButton: {
+      flex: 1,
+      padding: '12px',
+      background: 'white',
+      color: '#718096',
+      border: '2px solid #e2e8f0',
+      borderRadius: '8px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      fontSize: '14px'
+    },
+    saveButton: {
+      flex: 1,
+      padding: '12px',
+      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      fontSize: '14px'
     },
     subjectListCard: {
       background: 'rgba(255, 255, 255, 0.95)',
@@ -792,7 +1079,7 @@ const LabTimetablePage = () => {
       alignItems: 'center',
       zIndex: 1000,
     },
-    modal: {
+    modalTT: {
       backgroundColor: '#fff',
       borderRadius: '1rem',
       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
@@ -867,11 +1154,11 @@ const LabTimetablePage = () => {
               <span style={styles.infoLabel}>Lab Technician</span>
               <span style={styles.infoValue}>{labData?.LabTechnician?.[0]?.Name}</span>
               <span style={styles.infoValue}>{labData?.LabTechnician?.[0]?.Email}</span>
-              <span style={styles.infoValue}>{labData?.LabTechnician?.[0]?.PhoneNumber}</span>
             </div>
             <div style={styles.infoItem}>
               <span style={styles.infoLabel}>Lab Incharge</span>
-              <span style={styles.infoValue}>{labData?.Lab_Incharge}</span>
+              <span style={styles.infoValue}>{labData?.Lab_Incharge?.[0]?.Name}</span>
+              <span style={styles.infoValue}>{labData?.Lab_Incharge?.[0]?.Email}</span>
             </div>
             <div style={styles.infoItem}>
               <span style={styles.infoLabel}>Total Capacity</span>
@@ -881,23 +1168,246 @@ const LabTimetablePage = () => {
               <span style={styles.infoLabel}>Total PCs</span>
               <span style={styles.infoValue}>{labData?.PCs?.length}</span>
             </div>
-            <div style={styles.infoItem}>
-              <span style={styles.infoLabel}>Software</span>
-              <span style={styles.infoValue}>{labData?.Software_Specifications}</span>
+          </div>
+
+          {/* More Info Section */}
+          <div style={styles.moreInfoSection}>
+            <div 
+              style={styles.moreInfoHeader}
+              onClick={() => setShowMoreInfo(!showMoreInfo)}>
+              <h2 style={styles.moreInfoTitle}>
+                More Information
+                <span style={{
+                  ...styles.toggleIcon,
+                  transform: showMoreInfo ? 'rotate(180deg)' : 'rotate(0deg)'
+                }}>
+                  ▼
+                </span>
+              </h2>
             </div>
-            <div style={styles.infoItem}>
-              <span style={styles.infoLabel}>Hardware</span>
-              <span style={styles.infoValue}>{labData?.Hardware_Specifications}</span>
-            </div>
-            <div style={styles.infoItem}>
-              <span style={styles.infoLabel}>Remarks</span>
-              <span style={styles.infoValue}>{labData?.Remarks}</span>
+
+            <div style={styles.moreInfoContent}>
+              {/* Add Button for Specifications */}
+              <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+                <button 
+                  style={styles.addButton}
+                  onClick={addMoreInfo}>
+                  <span style={{fontSize: '18px'}}>+</span> Add Information
+                </button>
+              </div>
+
+              {/* Hardware Specifications */}
+              <div style={styles.infoSectionTitle}>
+                <span>Hardware Specifications</span>
+              </div>
+              {labData.Hardware_Specifications ? (
+                <div style={styles.specsBox}>
+                  <div style={styles.specsContent}>
+                    {labData.Hardware_Specifications}
+                  </div>
+                </div>
+              ) : (
+                <div style={styles.emptyState}>No hardware specifications added yet</div>
+              )}
+
+              {/* Software Specifications */}
+              <div style={styles.infoSectionTitle}>
+                <span>Software Specifications</span>
+              </div>
+              {labData.Software_Specifications ? (
+                <div style={styles.specsBox}>
+                  <div style={styles.specsContent}>
+                    {labData.Software_Specifications}
+                  </div>
+                </div>
+              ) : (
+                <div style={styles.emptyState}>No software specifications added yet</div>
+              )}
+
+              {/* Screen Panel / Projector Details */}
+              <div style={styles.infoSectionTitle}>
+                <span>Screen Board / Projector Details</span>
+              </div>
+              
+              {labData?.Device?.length > 0 ? (
+                <div style={styles.cardGrid}>
+                  {labData.Device.map((device, index) => (
+                    <div key={index} style={styles.deviceCard}>
+                      <div style={styles.deviceCardHeader}>
+                        <span style={styles.deviceType}>
+                          {device.Device_Type
+                            .split(" ")
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(" ")}
+                        </span>
+                        <span style={styles.deviceQuantity}>Qty: {labData.Device?.length}</span>
+                      </div>
+                      <div style={styles.deviceCardBody}>
+                        <div style={styles.deviceDetail}>
+                          <span style={styles.deviceDetailLabel}>Brand</span>
+                          <span style={styles.deviceDetailValue}>{device.Brand}</span>
+                        </div>
+                        <div style={styles.deviceDetail}>
+                          <span style={styles.deviceDetailLabel}>Serial No.</span>
+                          <span style={styles.deviceDetailValue}>{device.Serial_No}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={styles.emptyState}>No screen/projector details added yet</div>
+              )} 
+
+              {/* Remarks */}
+              <div style={styles.sectionTitle}>
+                <span>Remarks</span>
+              </div>
+              <div style={styles.remarksBox}>
+                <div style={styles.specsContent}>
+                  {labData?.Remarks || 'No remarks added'}
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
       ) : (
         <p>Loading...</p> 
+      )}
+
+      {/* Add/Edit Information Modal */}
+      {showAddModal && (
+        <div style={styles.modal} onClick={() => {
+          setShowAddModal(false);
+          setEditing(null);
+        }}>
+          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h2 style={styles.modalHeader}>{editing ? 'Update Information' : 'Add Information'}</h2>
+            
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Hardware Specifications</label>
+              <input 
+                type="text"
+                style={styles.input}
+              value={newInfo.hardwareSpecs}
+                onChange={(e) => setNewInfo({...newInfo, hardwareSpecs: e.target.value})}
+                placeholder="Enter Hardware Specifications"
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Software Specifications</label>
+              <input 
+                type="text"
+                style={styles.input}
+                value={newInfo.softwareSpecs}
+                onChange={(e) => setNewInfo({...newInfo, softwareSpecs: e.target.value})}
+                placeholder="Enter Software Specifications"
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Device</label>
+              <select
+                style={styles.input}
+                value={newInfo.device[0].Device_Type}
+                onChange={(e) =>
+                  setNewInfo({
+                    ...newInfo,
+                    device: [
+                      {
+                        ...((newInfo.device && newInfo.device[0]) || {
+                          Device_Type: "",
+                          Brand: "",
+                          Serial_No: "",
+                        }),
+                        Device_Type: e.target.value,
+                      },
+                    ],
+                  })
+                }>
+                <option value="">Select Device_Type</option>
+                {deviceType.map((d, index) => (
+                  <option key={index} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Brand</label>
+              <input 
+                type="text"
+                style={styles.input}
+                value={newInfo.device[0].Brand}
+                onChange={(e) =>
+                  setNewInfo({
+                    ...newInfo,
+                    device: [
+                      {
+                        ...((newInfo.device && newInfo.device[0]) || {
+                          Device_Type: "",
+                          Brand: "",
+                          Serial_No: "",
+                        }),
+                        Brand: e.target.value,
+                      },
+                    ],
+                  })
+                }
+                placeholder="Enter Brand"
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>S/N</label>
+              <input 
+                type="text"
+                style={styles.input}
+                value={newInfo.device[0].Serial_No}
+                onChange={(e) =>
+                  setNewInfo({
+                    ...newInfo,
+                    device: [
+                      {
+                        ...((newInfo.device && newInfo.device[0]) || {
+                          Device_Type: "",
+                          Brand: "",
+                          Serial_No: "",
+                        }),
+                        Serial_No: e.target.value,
+                      },
+                    ],
+                  })
+                }
+                placeholder="Enter S/N"
+              />
+            </div>
+
+            <div style={styles.modalActions}>
+              <button 
+                style={styles.cancelButton}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setEditing(null);
+                  setNewInfo({
+                    hardwareSpecs: "",
+                    softwareSpecs: "",
+                    device: [{ Device_Type: "", Brand: "", Serial_No: "" }],
+                  });
+                }}>
+                Cancel
+              </button>
+              <button 
+                style={styles.saveButton}
+                onClick={editing ? handleUpdateInfo : handleAddInfo}>
+                {editing ? 'Update Information' : 'Add Information'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Subject List Card */}
@@ -1016,7 +1526,7 @@ const LabTimetablePage = () => {
                                   <div style={styles.programDetails}>
                                     <div style={styles.detailRow}>
                                       <span style={styles.detailLabel}>Faculty:</span>
-                                      <span style={styles.detailValue}>{(sp.Subject && sp.Subject[0] && sp.Subject[0].Faculty_Assigned) || "Not Assigned"}</span>
+                                      <span style={styles.detailValue}>{(sp.Subject && sp.Subject[0] && sp.Subject[0].Faculty_Assigned?.Name) || "Not Assigned"}</span>
                                     </div>
                                     <div style={styles.detailRow}>
                                       <span style={styles.detailLabel}>Hours/Week:</span>
@@ -1137,7 +1647,7 @@ const LabTimetablePage = () => {
       {/* Book Timetable Slot */}
       {showForm && (
         <div style={styles.overlay}>
-          <div style={styles.modal}>
+          <div style={styles.modalTT}>
             <h2 style={styles.heading}>New Booking</h2>
 
             <select

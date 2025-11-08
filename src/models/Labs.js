@@ -7,7 +7,7 @@ const LabSchema = new mongoose.Schema({
   Block: { type: String, default: "" },
   Lab_Room: { type: String, default: "" },
   LabTechnician: [{ type: mongoose.Schema.Types.ObjectId, ref: "LabTechnician" }],
-  Lab_Incharge: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", default: "" }],
+  Lab_Incharge: [{ type: mongoose.Schema.Types.ObjectId, ref: "Faculty", default: "" }],
   Total_Capacity: { type: Number, default: 0 },
   Status: { type: String, enum: ["active", "inactive"], default: "active" },
   Software_Specifications: { type: String, default: "" },
@@ -15,6 +15,11 @@ const LabSchema = new mongoose.Schema({
   PCs: [{ type: mongoose.Schema.Types.ObjectId, ref: "PCs" }],
   TimeTable: [{ type: mongoose.Schema.Types.ObjectId, ref: "Timetable" }],
   Remarks: { type: String, default: "" },
+  Device: [{
+    Device_Type: { type: String, enum:["projector", "screen board", "N/A"] , default: "" },
+    Brand: { type: String, default: "" },
+    Serial_No: { type: String, default: "" },
+  }],
 
 }, { timestamps: true });
 

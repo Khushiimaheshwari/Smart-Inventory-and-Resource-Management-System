@@ -182,7 +182,7 @@ export default function FacultyManagement() {
         },
       ]);
 
-      alert("Lab Technician added successfully!");
+      alert("Faculty added successfully!");
       setShowAddModal(false);
       setNewFaculty({
         name: "",
@@ -195,15 +195,15 @@ export default function FacultyManagement() {
       });
       await fetchFaculty();
     } catch (err) {
-      console.error("Add Lab Technician Error:", err);
-      alert("Something went wrong while editing Lab Technician.");
+      console.error("Add Faculty Error:", err);
+      alert("Something went wrong while editing Faculty.");
     }
   };
   
     const handleEditFaculty = (user) => {
       setEditingUser(user);    
       setShowAddModal(true);
-      setnewFaculty(user);
+      setNewFaculty(user);
     };
   
     const handleUpdateFaculty = async () => {
@@ -256,7 +256,7 @@ export default function FacultyManagement() {
           },
         ]);
   
-      alert("Lab Technician updated successfully!");
+      alert("Faculty updated successfully!");
       setFaculty(faculty.map((u) => (u.id === editingUser.id ? newFaculty : u)));
       setShowAddModal(false);
       setEditingUser(null);
@@ -271,8 +271,8 @@ export default function FacultyManagement() {
       });
       await fetchFaculty();
     } catch (err) {
-      console.error("Edit Lab Technician Error:", err);
-      alert("Something went wrong while editing Lab Technician.");
+      console.error("Edit Faculty Error:", err);
+      alert("Something went wrong while editing Faculty.");
     }
   };
 
@@ -869,7 +869,6 @@ export default function FacultyManagement() {
                 {isDropdownOpen && (
                   <div style={styles.dropdown}>
                     {allSubjects.map((subObj) => {
-                      console.log(subObj);
                       const isSelected = newFaculty.subjects.some((sub) => sub.Subject_id === subObj.Subject_id);
                       return (
                         <div key={subObj.Subject_id} style={{ ...styles.dropdownItem, ...(isSelected ? styles.dropdownItemSelected : {}) }} onClick={() => handleSubjectSelect(subObj)}>

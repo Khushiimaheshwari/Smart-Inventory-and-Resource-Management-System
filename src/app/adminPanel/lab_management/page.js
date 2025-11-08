@@ -7,6 +7,7 @@ export default function LabManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingLab, setEditingLab] = useState(null);
   const [technicians, setTechnicians] = useState([]);
+  const [labIncharge, setLabIncharge] = useState([]);
   const [newLab, setNewLab] = useState({
     id: '',
     name: '',
@@ -41,6 +42,26 @@ export default function LabManagement() {
     };
 
     fetchTechnicians();
+  }, []);
+
+  useEffect(() => {
+    const fetchLabIncharge = async () => {
+      try {
+        const res = await fetch("/api/admin/getFaculty");
+        const data = await res.json();
+        if (res.ok) {
+          setLabIncharge(data.faculty);
+          console.log(data);
+          
+        } else {
+          console.error("Failed to fetch faculty:", data.error);
+        }
+      } catch (err) {
+        console.error("Error fetching faculty:", err);
+      }
+    };
+
+    fetchLabIncharge();
   }, []);
 
   const fetchLab = async () => {
@@ -106,15 +127,71 @@ export default function LabManagement() {
 
   const handleEditLab = (lab) => {
     setEditingLab(lab);
+    console.log(lab);
+    
     setShowAddModal(true);
-    setNewLab(lab);
+    setNewLab({
+      id: lab.Lab_ID || "",
+      name: lab.Lab_Name || "",
+      block: lab.Block || "",
+      labRoom: lab.Lab_Room || "",
+      capacity: lab.Total_Capacity || "",
+      status: lab.Status || "Active",
+      technician: lab.LabTechnician?.[0]?._id || "",   
+      incharge: lab.Lab_Incharge?.[0]?._id || "",
+    });
   };
 
-  const handleUpdateLab = () => {
-    setLabs(labs.map(l => l.id === editingLab.id ? newLab : l));
-    setShowAddModal(false);
-    setEditingLab(null);
-    resetForm();
+  const handleUpdateLab = async () => {
+    
+    const payload = {
+      Lab_ID: newLab.id,
+      Lab_Name: newLab.name,
+      Block: newLab.block,
+      Lab_Room: newLab.labRoom,
+      Total_Capacity: newLab.capacity,
+      Status: newLab.status,
+      LabTechnician: newLab.technician,
+      LabIncharge: newLab.incharge,
+    };
+
+    console.log(payload);
+    
+    try {
+      const res = await fetch(`/api/admin/editLabs/${editingLab._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setLabs((prev) =>
+          prev.map((lab) =>
+            lab._id === editingLab._id ? data.lab : lab
+          )
+        );
+        setShowAddModal(false);
+        setEditingLab(null);
+        setNewLab({
+          id: "",
+          name: "",
+          block: "",
+          labRoom: "",
+          capacity: "",
+          status: "Active",
+          technician: "",
+          incharge: "",
+        });
+        resetForm();
+        alert("Lab updated successfully!");
+      } else {
+        alert(data.error || "Failed to update lab");
+      }
+    } catch (err) {
+      console.error("Error updating lab:", err);
+    }  
   };
 
   const handleDeleteLab = (labId) => {
@@ -494,7 +571,7 @@ export default function LabManagement() {
         {labs ? (
           <div style={styles.cardContainer}>
             {labs.map((lab) => (
-              <div key={lab.id} style={styles.card}>
+              <div key={lab._id} style={styles.card}>
                 <div style={styles.cardHeader}>
                   <div style={styles.cardLeft}>
                     <div style={styles.labIcon}>
@@ -602,7 +679,7 @@ export default function LabManagement() {
             setEditingLab(null);
           }}>
             <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-              <h2 style={styles.modalHeader}>{editingLab ? 'Edit Lab' : 'Add New Lab'}</h2>
+              <h2 style={styles.modalHeader}>{editingLab ? 'Update Lab' : 'Add New Lab'}</h2>
               
               <div style={styles.formGroup}>
                 <label style={styles.label}>Lab ID</label>
@@ -700,9 +777,11 @@ export default function LabManagement() {
                     setNewLab({ ...newLab, incharge: e.target.value })
                   }>
                   <option value="">Select Lab incharge</option>
-                  {technicians.map((tech) => (
-                    <option key={tech._id} value={tech._id}>
-                      {tech.Name} ({tech.Email})
+                  {labIncharge.map((incharge) => (
+                    console.log(incharge._id),
+                    
+                    <option key={incharge._id} value={incharge._id}>
+                      {incharge.Name} ({incharge.Email})
                     </option>
                   ))}
                 </select>
