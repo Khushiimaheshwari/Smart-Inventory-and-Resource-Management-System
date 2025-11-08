@@ -208,12 +208,13 @@ export default function AssetManagement() {
       padding: '0.5rem 1rem',
       background: '#f7fafc',
       color: '#4a5568',
-      border: '2px solid #e2e8f0',
+      border: '2px solid',
+      borderColor: '#e2e8f0',
       borderRadius: '8px',
       fontWeight: 500,
       cursor: 'pointer',
       fontSize: '14px',
-      transition: 'all 0.2s ease'
+      transition: 'all 0.2s ease',
     },
     filterButtonActive: {
       background: '#10b981',

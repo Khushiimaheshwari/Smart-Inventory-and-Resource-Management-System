@@ -15,6 +15,7 @@ const FacultySchema = new mongoose.Schema({
   Designation: { type: String, default: "" },
   Department: { type: String, default: "" },
   Subject: [{ type: mongoose.Schema.Types.ObjectId, ref: "SubjectList" }],
+  Labs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lab" }],
 
 }, { timestamps: true });
 

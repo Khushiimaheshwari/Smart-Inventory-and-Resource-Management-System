@@ -35,7 +35,9 @@ export async function POST(req) {
       Role: "faculty",
     });
 
-    const subjectsIds = subjects.map((id) => new mongoose.Types.ObjectId(id));
+    const subjectsIds = Array.isArray(subjects) && subjects.length > 0
+      ? subjects.map((id) => new mongoose.Types.ObjectId(id))
+      : [];
 
     const newFaculty = await Faculty.create({
       Name: name,
@@ -47,12 +49,13 @@ export async function POST(req) {
       Subject: subjectsIds,
     });
 
-    await Programs.updateMany(
+    if (subjectsIds.length > 0) {
+      await Programs.updateMany(
         { "Subject.Subject_ID": subjectsIds }, 
         { $set: { "Subject.$[elem].Faculty_Assigned": newFaculty._id } },
         { arrayFilters: [{ "elem.Subject_ID": subjectsIds }] } 
-        );
-
+      );
+    }
 
     return NextResponse.json({
       message: "Faculty created successfully",

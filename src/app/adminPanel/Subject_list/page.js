@@ -1010,8 +1010,20 @@ return (
                               <div style={styles.programMeta2}>
                                 Section {program.Program_Section} • Semester {program.Program_Semester}
                               </div>
+                              {program.Subject.map((subj, index) => (
+                                <div key={index}>
+                                  <div style={styles.programMeta1}>
+                                    Faculty: {subj.Faculty_Assigned?.Name || 'Not Assigned'}
+                                  </div>
+                                  <div style={styles.programMeta2}>
+                                    Lab: {subj.Lab_Allocated?.Lab_ID || 'Not Assigned'}
+                                  </div>
+                                </div>
+                              ))}
                           </div>
-                          <span style={styles.programBadge}>{program.Program_Group}</span>
+                          <div>
+                            <span style={styles.programBadge}>{program.Program_Group}</span>
+                          </div>
                         </div>
                       </div>
                     ))}
