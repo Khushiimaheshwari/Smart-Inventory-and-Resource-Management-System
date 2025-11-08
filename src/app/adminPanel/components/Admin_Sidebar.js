@@ -67,35 +67,60 @@ const navItems = [
   },
 ];
 
-export default function Sidebar() {
-    const pathname = usePathname();
+export default function Sidebar({ isOpen, onClose }) {
+  const pathname = usePathname();
 
-    return (
-        <aside className={styles.sidebar}>
+  return (
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className={styles.mobileOverlay} 
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
+        {/* Close button for mobile */}
+        <button 
+          className={styles.closeBtn} 
+          onClick={onClose}
+          aria-label="Close sidebar"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+
+
+        {/* Navigation */}
         <nav>
-            <ul className={styles["nav-menu"]}>
+          <ul className={styles.navMenu}>
             {navItems.map((item) => {
-                const isActive = pathname === item.href; 
-                return (
-                <li key={item.name} className={styles["nav-item"]}>
-                    <Link
+              const isActive = pathname === item.href; 
+              return (
+                <li key={item.name} className={styles.navItem}>
+                  <Link
                     href={item.href}
-                    className={`${styles["nav-link"]} ${isActive ? styles.active : ""}`}
-                    >
+                    className={`${styles.navLink} ${isActive ? styles.active : ""}`}
+                    onClick={onClose}
+                  >
                     <svg
-                        className={styles["nav-icon"]}
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
+                      className={styles.navIcon}
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
                     >
-                        {item.icon}
+                      {item.icon}
                     </svg>
                     {item.name}
-                    </Link>
+                  </Link>
                 </li>
-                );
+              );
             })}
-            </ul>
+          </ul>
         </nav>
-        </aside>
-    );
+      </aside>
+    </>
+  );
 }

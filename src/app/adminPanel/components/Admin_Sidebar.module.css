@@ -1,14 +1,59 @@
+/* Sidebar - Now starts BELOW navbar */
 .sidebar {
   width: 260px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-right: 1px solid #e2e8f0;
-  padding: 20px 0;
+  padding: 100px 0;
   position: fixed;
+  left: 0;
+  top: 0; /* Sidebar will be below navbar due to layout structure */
   height: 100vh;
   overflow-y: auto;
+  z-index: 999;
+  transition: transform 0.3s ease;
 }
 
+/* Custom Scrollbar */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 201, 123, 0.3);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 201, 123, 0.5);
+}
+
+/* Close Button - Hidden on Desktop */
+.closeBtn {
+  display: none;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #718096;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  z-index: 1001;
+}
+
+.closeBtn:hover {
+  background: #f7fafc;
+  color: #2d3748;
+}
+
+/* Logo */
 .logo {
   display: flex;
   align-items: center;
@@ -17,7 +62,7 @@
   margin-bottom: 20px;
 }
 
-.logo-icon {
+.logoIcon {
   width: 32px;
   height: 32px;
   background: linear-gradient(135deg, #00c97b 0%, #00b8d9 100%);
@@ -26,24 +71,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
-.logo-text {
+.logoText {
   font-size: 20px;
   font-weight: 700;
   color: #2d3748;
 }
 
-.nav-menu {
+/* Navigation Menu */
+.navMenu {
   list-style: none;
   padding: 0 20px;
+  margin: 0;
 }
 
-.nav-item {
+.navItem {
   margin-bottom: 5px;
 }
 
-.nav-link {
+.navLink {
   display: flex;
   align-items: center;
   padding: 12px 16px;
@@ -52,18 +100,129 @@
   border-radius: 10px;
   transition: all 0.3s ease;
   font-weight: 500;
+  font-size: 15px;
 }
 
-.nav-link.active,
-.nav-link:hover {
+.navLink:hover {
+  background: rgba(0, 201, 123, 0.1);
+  color: #00c97b;
+  transform: translateX(5px);
+}
+
+.navLink.active {
   background: linear-gradient(135deg, #00c97b 0%, #00b8d9 100%);
   color: white;
   transform: translateX(5px);
 }
 
-.nav-icon {
+.navIcon {
   width: 20px;
   height: 20px;
   margin-right: 12px;
   opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.navLink.active .navIcon {
+  opacity: 1;
+}
+
+/* Mobile Overlay */
+.mobileOverlay {
+  display: none;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+/* Tablet & Below */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 240px;
+  }
+
+  .navLink {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+}
+
+/* Mobile & Tablet Portrait */
+@media (max-width: 768px) {
+  /* Completely hide sidebar by default on mobile */
+  .sidebar {
+    transform: translateX(-100%);
+    box-shadow: none;
+    z-index: 1002;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s ease, visibility 0s 0.3s, opacity 0.3s;
+  }
+
+  /* Show sidebar when open */
+  .sidebar.sidebarOpen {
+    transform: translateX(0);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    visibility: visible;
+    opacity: 1;
+    transition: all 0.3s ease, visibility 0s, opacity 0.3s;
+  }
+
+  /* Show close button on mobile */
+  .closeBtn {
+    display: flex;
+  }
+
+  /* Show overlay when sidebar is open */
+  .mobileOverlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    backdrop-filter: blur(2px);
+  }
+
+  .logo {
+    padding: 0 20px 20px;
+    margin-bottom: 15px;
+  }
+
+  .navMenu {
+    padding: 0 15px;
+  }
+
+  .sidebar {
+    width: 280px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 280px;
+  }
+
+  .navLink {
+    font-size: 14px;
+    padding: 11px 14px;
+  }
+
+  .logoText {
+    font-size: 18px;
+  }
+
+  .logoIcon {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Very Small Mobile */
+@media (max-width: 360px) {
+  .sidebar {
+    width: 100%;
+  }
 }

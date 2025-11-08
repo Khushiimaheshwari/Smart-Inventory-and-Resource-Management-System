@@ -522,13 +522,19 @@
   padding: 100px 100px;
   background: linear-gradient(135deg, #f8fafb 0%, #e8f5f0 100%);
   position: relative;
+  display: grid;
+  align-items: center;
+  justify-content: center;
 }
 
 .technicianSection .benefitsContainer {
+  display: grid;
   grid-template-columns: 1fr 400px;
   gap: 80px;
+  align-items: center;
 }
 
+/* Default desktop order */
 .technicianSection .benefitsLeft {
   order: 2;
 }
@@ -537,83 +543,70 @@
   order: 1;
 }
 
+/* Tablet */
+@media (max-width: 1024px) {
+  .technicianSection {
+    padding: 80px 60px;
+  }
+
+  .technicianSection .benefitsContainer {
+    grid-template-columns: 1fr 300px;
+    gap: 40px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .technicianSection {
+    padding: 60px 20px;
+  }
+
+  .technicianSection .benefitsContainer {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    text-align: center;
+  }
+
+  /* Reverse order for mobile: text comes first */
+  .technicianSection .benefitsLeft {
+    order: 1; /* text section */
+  }
+
+  .technicianSection .benefitsRight {
+    order: 2; /* image section */
+  }
+
+  /* Center and resize image */
+  .technicianSection .benefitsRight img,
+  .technicianSection .benefitsRight svg {
+    width: 80%;
+    max-width: 320px;
+    margin: 0 auto;
+    display: block;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .technicianSection {
+    padding: 50px 15px;
+  }
+
+  .technicianSection .benefitsContainer {
+    gap: 30px;
+  }
+
+  .technicianSection .benefitsRight img,
+  .technicianSection .benefitsRight svg {
+    width: 100%;
+    max-width: 280px;
+  }
+}
 /* Faculty Benefits Section */
 .facultySection {
   padding: 100px 100px;
   background: white;
   position: relative;
-}
-
-/* Stats Section */
-.statsSection {
-  padding: 100px 100px;
-  background: linear-gradient(135deg, #f8fafb 0%, #e8f5f0 100%);
-}
-
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.statCard {
-  position: relative;
-  padding: 40px;
-  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  text-align: center;
-  overflow: hidden;
-  animation: scaleIn 0.6s ease-out backwards;
-  transition: all 0.3s ease;
-}
-
-.statCard:nth-child(1) { animation-delay: 0.2s; }
-.statCard:nth-child(2) { animation-delay: 0.4s; }
-.statCard:nth-child(3) { animation-delay: 0.6s; }
-.statCard:nth-child(4) { animation-delay: 0.8s; }
-
-.statCard:hover {
-  transform: translateY(-10px);
-}
-
-.statIcon {
-  font-size: 48px;
-  margin-bottom: 20px;
-  animation: float 3s ease-in-out infinite;
-}
-
-.statCard:nth-child(1) .statIcon { animation-delay: 0s; }
-.statCard:nth-child(2) .statIcon { animation-delay: 0.5s; }
-.statCard:nth-child(3) .statIcon { animation-delay: 1s; }
-.statCard:nth-child(4) .statIcon { animation-delay: 1.5s; }
-
-.statNumber {
-  font-size: 48px;
-  font-weight: 700;
-  color: #1d2b36;
-  margin-bottom: 12px;
-}
-
-.countUp {
-  font-size: 48px;
-  font-weight: 700;
-  color: #1d2b36;
-}
-
-.plus {
-  font-size: 32px;
-  font-weight: 600;
-  color: #00c97b;
-  margin-left: 4px;
-}
-
-.statLabel {
-  font-size: 16px;
-  color: #5a6c7d;
-  font-weight: 500;
 }
 
 /* Footer */
@@ -843,5 +836,75 @@
 
   .benefitText p {
     font-size: 13px;
+  }
+}
+/* Ultra Small Devices (up to 375px wide) */
+@media (max-width: 375px) {
+  .heroLeft h1 {
+    font-size: 38px;
+    line-height: 1.2;
+  }
+
+  .heroLeft h3 {
+    font-size: 22px;
+  }
+
+  .heroLeft p {
+    font-size: 15px;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    width: 100%;
+    padding: 14px 0;
+    font-size: 15px;
+  }
+
+  .challengeCard {
+    padding: 25px 20px;
+  }
+
+  .solutionItem {
+    padding: 20px;
+  }
+
+  .solutionContent h3 {
+    font-size: 20px;
+  }
+
+  .benefitItem {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .benefitIconBox {
+    margin-bottom: 10px;
+  }
+
+  .statCard {
+    padding: 30px 20px;
+  }
+
+  .footerContainer {
+    flex-direction: column;
+    text-align: center;
+    gap: 30px;
+  }
+
+  .footerLinks {
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+  }
+
+  .footerBottom {
+    flex-direction: column;
+    gap: 10px;
   }
 }

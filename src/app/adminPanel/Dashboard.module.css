@@ -1,0 +1,425 @@
+/* Container - Properly aligned with sidebar */
+.container {
+  width: calc(100% - 245px);
+  min-height: 100vh;
+  background-color: #f9fafb;
+  padding: 2rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  margin-left: 245px;
+}
+
+/* Header */
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* Metrics Grid */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.metricCard {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.metricCard:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.metricHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.metricTitle {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.metricIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.iconSuccess {
+  background-color: #d1fae5;
+  color: #10b981;
+}
+
+.iconWarning {
+  background-color: #fed7aa;
+  color: #f59e0b;
+}
+
+.metricValue {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.metricChange {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #10b981;
+}
+
+.metricChangeNegative {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #f59e0b;
+}
+
+.progressContainer {
+  margin-top: 0.75rem;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #10b981;
+  border-radius: 999px;
+  transition: width 1s ease-out;
+}
+
+/* Charts */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.chartCard {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 400px;
+}
+
+.chartHeader {
+  margin-bottom: 1rem;
+}
+
+.chartTitle {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.chartSubtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.chartContainer {
+  width: 100%;
+  height: 320px;
+}
+
+.donutContainer {
+  width: 100%;
+  height: 280px;
+}
+
+.legendContainer {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legendText {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Actions */
+.actionSection {
+  margin-bottom: 1.5rem;
+}
+
+.actionButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.primaryBtn {
+  background-color: #10b981;
+  color: white;
+}
+
+.primaryBtn:hover {
+  background-color: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.secondaryBtn {
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.secondaryBtn:hover {
+  background-color: #f9fafb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Activity */
+.activitySection {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.activityItem {
+  display: flex;
+  gap: 1rem;
+  padding: 0.875rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.activityItem:hover {
+  background-color: #f9fafb;
+}
+
+.activityDot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.activityContent {
+  flex: 1;
+}
+
+.activityText {
+  color: #1f2937;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.activityTime {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .container {
+    width: calc(100% - 200px);
+    margin-left: 200px;
+    padding: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .metricsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .metricsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.875rem;
+  }
+
+  .metricCard {
+    padding: 1rem;
+  }
+
+  .metricValue {
+    font-size: 1.5rem;
+  }
+
+  .metricIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .chartCard {
+    padding: 1rem;
+    min-height: 350px;
+  }
+
+  .chartContainer {
+    height: 280px;
+  }
+
+  .donutContainer {
+    height: 240px;
+  }
+
+  .actionButtons {
+    gap: 0.5rem;
+  }
+
+  .actionBtn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .container {
+    width: 100%;
+    margin-left: 0;
+    padding: 0.75rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .metricsGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .metricValue {
+    font-size: 1.375rem;
+  }
+
+  .chartsGrid {
+    gap: 1rem;
+  }
+
+  .chartCard {
+    min-height: 320px;
+  }
+
+  .chartContainer {
+    height: 240px;
+  }
+
+  .donutContainer {
+    height: 220px;
+  }
+
+  .actionBtn {
+    flex: 1;
+    min-width: 140px;
+    justify-content: center;
+  }
+
+  .legendContainer {
+    gap: 12px;
+  }
+
+  .legendText {
+    font-size: 12px;
+  }
+}
+
+/* Very Small Mobile */
+@media (max-width: 360px) {
+  .container {
+    width: 100%;
+    margin-left: 0;
+    padding: 0.5rem;
+  }
+
+  .metricCard {
+    padding: 0.875rem;
+  }
+
+  .chartCard {
+    padding: 0.875rem;
+  }
+
+  .activitySection {
+    padding: 1rem;
+  }
+}
