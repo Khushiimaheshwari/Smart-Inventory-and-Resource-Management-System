@@ -28,18 +28,7 @@ export default function AdminNavbar({ onToggleSidebar }) {
 
   return (
     <nav className={styles.navbar}>
-      {/* Hamburger Menu Button */}
-      <button 
-        className={styles.hamburgerBtn} 
-        onClick={onToggleSidebar}
-        aria-label="Toggle sidebar"
-      >
-        <span className={styles.hamburger}></span>
-        <span className={styles.hamburger}></span>
-        <span className={styles.hamburger}></span>
-      </button>
-
-      {/* Logo */}
+      {/* Logo - Left Side */}
       <div className={styles.logo}>
         <Link href="/adminPanel">
           <Image
@@ -74,6 +63,17 @@ export default function AdminNavbar({ onToggleSidebar }) {
             />
           </div>
         </Link>
+
+        {/* Hamburger Menu Button - Mobile Only */}
+        <button 
+          className={styles.hamburgerBtn} 
+          onClick={onToggleSidebar}
+          aria-label="Toggle sidebar"
+        >
+          <span className={styles.hamburger}></span>
+          <span className={styles.hamburger}></span>
+          <span className={styles.hamburger}></span>
+        </button>
       </div>
     </nav>
   );
