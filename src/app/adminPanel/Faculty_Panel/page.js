@@ -13,6 +13,7 @@ export default function FacultyManagement() {
   const [editingFaculty, setEditingFaculty] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
   const dropdownRef = useRef(null);
   const [newFaculty, setNewFaculty] = useState({
     name: "",
@@ -21,6 +22,16 @@ export default function FacultyManagement() {
     designation: "",
     subjects: [],
   });
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const fetchFaculty = async () => {
     try {
@@ -162,17 +173,6 @@ export default function FacultyManagement() {
         return;
       }
 
-      // await emailjs.send(
-      //   "service_2xk0xdb",  
-      //   "template_mq4w3fc",    
-      //   {
-      //     to_name: newFaculty.name,
-      //     to_email: newFaculty.email,
-      //     password: newFaculty.password,
-      //   },
-      //   "JVeTTsN2NUeZ0UlPA"
-      // );
-
       setFaculty([
         ...faculty,
         {
@@ -278,30 +278,30 @@ export default function FacultyManagement() {
 
   const styles = {
     container: {
-      width: 'calc(100% - 255px)', 
+      width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
-      padding: '2rem',
+      padding: isMobile ? '1rem' : '2rem',
       boxSizing: 'border-box',
-      marginLeft: '255px',
+      marginLeft: isMobile ? '0' : '255px',
       overflowX: 'hidden',
     },
     header: {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: "2rem",
+      marginBottom: isMobile ? "1.5rem" : "2rem",
       flexWrap: "wrap",
       gap: "1rem",
     },
     headerTitle: {
-      fontSize: "32px",
+      fontSize: isMobile ? "24px" : "32px",
       fontWeight: 700,
       color: "#2d3748",
       margin: 0,
     },
     addButton: {
-      padding: "10px 24px",
+      padding: isMobile ? "8px 20px" : "10px 24px",
       background: "#10b981",
       color: "white",
       border: "none",
@@ -311,38 +311,39 @@ export default function FacultyManagement() {
       display: "flex",
       alignItems: "center",
       gap: "8px",
-      fontSize: "14px",
+      fontSize: isMobile ? "13px" : "14px",
       transition: "all 0.2s ease",
     },
     cardContainer: {
       width: "100%",
       display: "flex",
       flexDirection: "column",
-      gap: "1rem",     
+      gap: isMobile ? "0.75rem" : "1rem",
     },
     card: {
       background: "white",
       borderRadius: "8px",
-      padding: "1.5rem",
+      padding: isMobile ? "1rem" : "1.5rem",
       boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
     },
     cardHeader: {
       display: "flex",
-      alignItems: "center",
+      alignItems: isMobile ? "flex-start" : "center",
       justifyContent: "space-between",
       gap: "1rem",
       flexWrap: "wrap",
+      flexDirection: isMobile ? "column" : "row",
     },
     cardLeft: {
       display: "flex",
       alignItems: "center",
-      gap: "1rem",
+      gap: isMobile ? "0.75rem" : "1rem",
       flex: "1",
-      minWidth: "250px",
+      minWidth: isMobile ? "100%" : "250px",
     },
     profileImage: {
-      width: "48px",
-      height: "48px",
+      width: isMobile ? "40px" : "48px",
+      height: isMobile ? "40px" : "48px",
       borderRadius: "8px",
       objectFit: "cover",
       background: "#e5e7eb",
@@ -351,35 +352,39 @@ export default function FacultyManagement() {
       justifyContent: "center",
       fontSize: "12px",
       color: "#6b7280",
+      flexShrink: 0,
     },
     cardInfo: {
       flex: "1",
     },
     cardName: {
-      fontSize: "16px",
+      fontSize: isMobile ? "15px" : "16px",
       fontWeight: 600,
       color: "#1f2937",
       margin: "0 0 4px 0",
     },
     cardEmail: {
-      fontSize: "14px",
+      fontSize: isMobile ? "12px" : "14px",
       color: "#6b7280",
       margin: 0,
+      wordBreak: "break-word",
     },
     cardRight: {
       display: "flex",
       alignItems: "center",
-      gap: "1.5rem",
+      gap: isMobile ? "0.75rem" : "1.5rem",
       flexWrap: "wrap",
+      width: isMobile ? "100%" : "auto",
+      justifyContent: isMobile ? "space-between" : "flex-start",
     },
     cardDesignation: {
-      fontSize: "14px",
+      fontSize: isMobile ? "13px" : "14px",
       fontWeight: 600,
       color: "#1f2937",
       margin: 0,
     },
     cardDepartment: {
-      fontSize: "13px",
+      fontSize: isMobile ? "12px" : "13px",
       color: "#6b7280",
       margin: 0,
     },
@@ -387,9 +392,9 @@ export default function FacultyManagement() {
       display: "inline-flex",
       alignItems: "center",
       gap: "6px",
-      padding: "6px 12px",
+      padding: isMobile ? "4px 10px" : "6px 12px",
       borderRadius: "6px",
-      fontSize: "13px",
+      fontSize: isMobile ? "12px" : "13px",
       fontWeight: 600,
     },
     statusApproved: {
@@ -402,11 +407,11 @@ export default function FacultyManagement() {
     },
     actionButtons: {
       display: "flex",
-      gap: "8px",
+      gap: isMobile ? "6px" : "8px",
     },
     iconButton: {
-      width: "36px",
-      height: "36px",
+      width: isMobile ? "32px" : "36px",
+      height: isMobile ? "32px" : "36px",
       background: "transparent",
       border: "none",
       borderRadius: "6px",
@@ -426,27 +431,27 @@ export default function FacultyManagement() {
       color: "#4b5563",
     },
     expandedContent: {
-      marginTop: "1.5rem",
-      paddingTop: "1.5rem",
+      marginTop: isMobile ? "1rem" : "1.5rem",
+      paddingTop: isMobile ? "1rem" : "1.5rem",
       borderTop: "1px solid #e5e7eb",
     },
     detailsGrid: {
       display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-      gap: "1.25rem",
-      marginBottom: "1.5rem",
+      gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(200px, 1fr))",
+      gap: isMobile ? "0.75rem" : "1.25rem",
+      marginBottom: isMobile ? "1rem" : "1.5rem",
     },
     infoBlock: {
       display: "flex",
       flexDirection: "column",
       gap: "8px",
-      padding: "1rem",
+      padding: isMobile ? "0.75rem" : "1rem",
       background: "#f9fafb",
       borderRadius: "8px",
       border: "1px solid #e5e7eb",
     },
     infoLabel: {
-      fontSize: "12px",
+      fontSize: isMobile ? "11px" : "12px",
       color: "#6b7280",
       textTransform: "uppercase",
       fontWeight: 600,
@@ -455,19 +460,19 @@ export default function FacultyManagement() {
       alignItems: "center",
     },
     infoValue: {
-      fontSize: "15px",
+      fontSize: isMobile ? "14px" : "15px",
       color: "#1f2937",
       fontWeight: 600,
       marginTop: "2px",
     },
     subjectsSection: {
-      padding: "1.25rem",
+      padding: isMobile ? "1rem" : "1.25rem",
       background: "#f0fdf4",
       borderRadius: "8px",
       border: "1px solid #d1fae5",
     },
     subjectsLabel: {
-      fontSize: "13px",
+      fontSize: isMobile ? "12px" : "13px",
       color: "#065f46",
       textTransform: "uppercase",
       fontWeight: 600,
@@ -478,7 +483,7 @@ export default function FacultyManagement() {
     },
     subjectCount: {
       marginLeft: "auto",
-      fontSize: "12px",
+      fontSize: isMobile ? "11px" : "12px",
       padding: "2px 10px",
       background: "#10b981",
       color: "white",
@@ -488,30 +493,30 @@ export default function FacultyManagement() {
     subjectChipsContainer: {
       display: "flex",
       flexWrap: "wrap",
-      gap: "8px",
+      gap: isMobile ? "6px" : "8px",
     },
     subjectChip: {
       display: "inline-flex",
       alignItems: "center",
       gap: "6px",
-      padding: "8px 14px",
+      padding: isMobile ? "6px 10px" : "8px 14px",
       background: "white",
       color: "#059669",
       border: "1.5px solid #10b981",
       borderRadius: "6px",
-      fontSize: "13px",
+      fontSize: isMobile ? "12px" : "13px",
       fontWeight: 600,
     },
     noSubjectChip: {
       display: "inline-flex",
       alignItems: "center",
       gap: "6px",
-      padding: "8px 14px",
+      padding: isMobile ? "6px 10px" : "8px 14px",
       background: "#fef2f2",
       color: "#dc2626",
       border: "1.5px solid #fecaca",
       borderRadius: "6px",
-      fontSize: "13px",
+      fontSize: isMobile ? "12px" : "13px",
       fontWeight: 600,
     },
     modal: {
@@ -525,35 +530,36 @@ export default function FacultyManagement() {
       alignItems: "center",
       justifyContent: "center",
       zIndex: 1000,
+      padding: isMobile ? "1rem" : "0",
     },
     modalContent: {
       background: "white",
       borderRadius: "12px",
-      padding: "20px 30px 30px",
-      width: "90%",
+      padding: isMobile ? "0px 20px 15px" : "0px 30px 20px",
+      width: isMobile ? "100%" : "90%",
       maxWidth: "600px",
-      maxHeight: "100vh",
+      maxHeight: isMobile ? "95vh" : "100vh",
       overflowY: "auto",
     },
     modalHeader: {
-      fontSize: "24px",
+      fontSize: isMobile ? "20px" : "24px",
       fontWeight: 700,
       color: "#2d3748",
       marginBottom: "20px",
     },
     formGroup: {
-      marginBottom: "20px",
+      marginBottom: isMobile ? "16px" : "20px",
     },
     label: {
       display: "block",
-      fontSize: "14px",
+      fontSize: isMobile ? "13px" : "14px",
       fontWeight: 600,
       color: "#2d3748",
       marginBottom: "8px",
     },
     input: {
       width: "100%",
-      padding: "12px",
+      padding: isMobile ? "10px" : "12px",
       border: "2px solid #e2e8f0",
       borderRadius: "8px",
       fontSize: "14px",
@@ -563,6 +569,7 @@ export default function FacultyManagement() {
       display: "flex",
       gap: "12px",
       marginTop: "24px",
+      flexDirection: isMobile ? "column" : "row",
     },
     cancelButton: {
       flex: 1,
@@ -595,6 +602,7 @@ export default function FacultyManagement() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      minWidth: "40px",
     },
     passwordFormGroup: {
       display: "flex",
@@ -603,7 +611,7 @@ export default function FacultyManagement() {
     },
     select: {
       width: "100%",
-      padding: "12px",
+      padding: isMobile ? "10px" : "12px",
       border: "2px solid #e2e8f0",
       borderRadius: "8px",
       fontSize: "14px",
@@ -617,7 +625,7 @@ export default function FacultyManagement() {
     accessTitle: {
       fontWeight: '600',
       marginBottom: '8px',
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       color: '#333',
     },
     selectorContainer: {
@@ -625,7 +633,7 @@ export default function FacultyManagement() {
       width: '100%',
     },
     inputArea: {
-      width: '96%',
+      width: isMobile ? '93%' : '96%',
       minHeight: '42px',
       padding: '2px 12px',
       borderRadius: '8px',
@@ -645,7 +653,7 @@ export default function FacultyManagement() {
     },
     placeholder: {
       color: '#999',
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
     },
     chip: {
       display: 'inline-flex',
@@ -653,9 +661,9 @@ export default function FacultyManagement() {
       gap: '6px',
       backgroundColor: '#14b8a6',
       color: 'white',
-      padding: '4px 8px',
+      padding: isMobile ? '3px 6px' : '4px 8px',
       borderRadius: '4px',
-      fontSize: '13px',
+      fontSize: isMobile ? '12px' : '13px',
       fontWeight: '500',
     },
     removeButton: {
@@ -683,9 +691,9 @@ export default function FacultyManagement() {
       zIndex: 1000,
     },
     dropdownItem: {
-      padding: '10px 12px',
+      padding: isMobile ? '8px 10px' : '10px 12px',
       cursor: 'pointer',
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       color: '#333',
     },
     dropdownItemSelected: {
@@ -715,7 +723,7 @@ export default function FacultyManagement() {
                 <div style={styles.cardLeft}>
                   <div style={styles.profileImage}>
                     {member.profileImage ? (
-                      <img src={member.profileImage} alt="Profile" style={{ width: "48px", height: "48px", borderRadius: "8px", objectFit: "cover" }} />
+                      <img src={member.profileImage} alt="Profile" style={{ width: isMobile ? "40px" : "48px", height: isMobile ? "40px" : "48px", borderRadius: "8px", objectFit: "cover" }} />
                     ) : "N/A"}
                   </div>
                   <div style={styles.cardInfo}>
@@ -725,13 +733,13 @@ export default function FacultyManagement() {
                 </div>
 
                 <div style={styles.cardRight}>
-                  <div style={{ textAlign: "right" }}>
+                  <div style={{ textAlign: isMobile ? "left" : "right" }}>
                     <p style={styles.cardDesignation}>{member.designation || "N/A"}</p>
                     <p style={styles.cardDepartment}>{member.department || "No Department"}</p>
                   </div>
 
                   <span style={{ ...styles.statusBadge, ...(member.status === "active" ? styles.statusApproved : styles.statusRejected) }}>
-                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                    <svg width={isMobile ? "14" : "16"} height={isMobile ? "14" : "16"} viewBox="0 0 20 20" fill="currentColor">
                       {member.status === "active" ? (
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       ) : (
@@ -743,17 +751,17 @@ export default function FacultyManagement() {
 
                   <div style={styles.actionButtons}>
                     <button style={{ ...styles.iconButton, ...styles.editButton }} onClick={() => handleEditFaculty(member)}>
-                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                      <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 20 20" fill="currentColor">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                       </svg>
                     </button>
                     <button style={{ ...styles.iconButton, ...styles.deleteButton }}>
-                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                      <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
                     </button>
                     <button style={{ ...styles.iconButton, ...styles.expandButton, transform: expandedCard === member.id ? "rotate(180deg)" : "rotate(0deg)" }} onClick={() => setExpandedCard(expandedCard === member.id ? null : member.id)}>
-                      <ChevronDown size={18} />
+                      <ChevronDown size={isMobile ? 16 : 18} />
                     </button>
                   </div>
                 </div>

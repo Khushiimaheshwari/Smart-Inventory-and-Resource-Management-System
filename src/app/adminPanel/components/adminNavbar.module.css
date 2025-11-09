@@ -38,7 +38,7 @@
   border-radius: 2px;
 }
 
-/* Logo */
+/* Logo - Always on Left */
 .logo {
   display: flex;
   align-items: center;
@@ -49,7 +49,7 @@
   height: auto;
 }
 
-/* Desktop Actions */
+/* Desktop Actions - Always on Right */
 .desktopActions {
   display: flex;
   align-items: center;
@@ -109,25 +109,23 @@
 /* Mobile & Tablet Portrait */
 @media (max-width: 768px) {
   .navbar {
-    padding: 15px 20px;
+    padding: 15px 15px;
   }
 
-  /* Show hamburger button on mobile */
+  /* Logo stays on left, touching the edge */
+  .logo {
+    margin-right: auto;
+  }
+
+  /* Show hamburger button on mobile - last item on right */
   .hamburgerBtn {
     display: flex;
+    order: 3;
   }
 
-  .logo {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .desktopActions {
-    gap: 0.75rem;
-  }
-
+  /* Notification button - middle */
   .notificationBtn {
+    order: 1;
     width: 40px;
     height: 40px;
   }
@@ -137,16 +135,25 @@
     height: 18px;
   }
 
+  /* Profile - second from right */
+  .profileLink {
+    order: 2;
+  }
+
   .profileImg {
     width: 36px;
     height: 36px;
+  }
+
+  .desktopActions {
+    gap: 0.75rem;
   }
 }
 
 /* Small Mobile */
 @media (max-width: 480px) {
   .navbar {
-    padding: 12px 15px;
+    padding: 12px 12px;
   }
 
   .logo img {
@@ -170,14 +177,14 @@
   }
 
   .desktopActions {
-    gap: 0.5rem;
+    gap: 0.6rem;
   }
 }
 
 /* Very Small Mobile */
 @media (max-width: 360px) {
   .navbar {
-    padding: 10px 12px;
+    padding: 10px 10px;
   }
 
   .logo img {
@@ -191,5 +198,19 @@
   .hamburger {
     width: 22px;
     height: 2.5px;
+  }
+
+  .desktopActions {
+    gap: 0.5rem;
+  }
+
+  .notificationBtn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .profileImg {
+    width: 32px;
+    height: 32px;
   }
 }

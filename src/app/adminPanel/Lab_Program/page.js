@@ -2,404 +2,6 @@
 import { useEffect, useState } from 'react';
 import { Plus, Edit2, Trash2, ChevronDown } from 'lucide-react';
 
-const styles = {
-  container: {
-    width: 'calc(100% - 255px)',
-    minHeight: '100vh',
-    backgroundColor: '#f9fafb',
-    padding: '2rem',
-    boxSizing: 'border-box',
-    marginLeft: '255px',
-    overflowX: 'hidden',
-  },
-  contentWrapper: {
-    maxWidth: '1400px',
-    margin: '0 auto',
-  },
-  pageHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: '2rem',
-  },
-  pageTitle: {
-    fontSize: '2rem',
-    fontWeight: '700',
-    color: '#111827',
-    margin: 0,
-  },
-  addBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    backgroundColor: '#10b981',
-    color: 'white',
-    padding: '0.75rem 1.5rem',
-    border: 'none',
-    borderRadius: '0.5rem',
-    fontWeight: '500',
-    cursor: 'pointer',
-    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
-    transition: 'background-color 0.2s',
-  },
-  programsList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-  },
-  programCard: {
-    backgroundColor: 'white',
-    borderRadius: '0.75rem',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    overflow: 'hidden',
-    transition: 'box-shadow 0.2s',
-  },
-  programCardContent: {
-    padding: '1.5rem',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  programInfoSection: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1.5rem',
-  },
-  programAvatar: {
-    width: '4rem',
-    height: '4rem',
-    backgroundColor: '#f3f4f6',
-    borderRadius: '0.5rem',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  programAvatarSpan: {
-    fontSize: '1.25rem',
-    fontWeight: '700',
-    color: '#6b7280',
-  },
-  programDetails: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.25rem',
-  },
-  programName: {
-    fontSize: '1.25rem',
-    fontWeight: '700',
-    color: '#111827',
-    margin: 0,
-  },
-  programMeta: {
-    color: '#6b7280',
-    margin: 0,
-    fontSize: '0.95rem',
-  },
-  programActions: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  statusBadge: {
-    padding: '0.5rem 1rem',
-    borderRadius: '9999px',
-    fontSize: '0.875rem',
-    fontWeight: '500',
-    backgroundColor: '#d1fae5',
-    color: '#065f46',
-  },
-  labBadge: {
-    padding: '0.5rem 1rem',
-    backgroundColor: '#dbeafe',
-    color: '#1e40af',
-    borderRadius: '9999px',
-    fontSize: '0.875rem',
-    fontWeight: '500',
-  },
-  iconBtn: {
-    padding: '0.5rem',
-    border: 'none',
-    borderRadius: '0.5rem',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s',
-    backgroundColor: 'transparent',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconBtnEdit: {
-    color: '#10b981',
-  },
-  iconBtnDelete: {
-    color: '#ef4444',
-  },
-  iconBtnExpand: {
-    color: '#6b7280',
-  },
-  rotated: {
-    transform: 'rotate(180deg)',
-    transition: 'transform 0.2s',
-  },
-  expandedContent: {
-    backgroundColor: '#f0fdf4',
-    padding: '1.5rem',
-    borderTop: '1px solid #e5e7eb',
-  },
-  detailsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '1.5rem',
-  },
-  detailCard: {
-    backgroundColor: 'white',
-    padding: '1rem',
-    borderRadius: '6px',
-    border: '1px solid #e5e7eb',
-  },
-  detailLabel: {
-    fontSize: '0.75rem',
-    color: '#64748b',
-    marginBottom: '0.5rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.375rem',
-    fontWeight: '500',
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-  },
-  detailValue: {
-    fontSize: '0.875rem',
-    color: '#1e293b',
-    fontWeight: '600',
-  },
-  accessSection: {
-    marginTop: '0',
-  },
-  accessHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    marginBottom: '12px',
-  },
-  accessTitle: {
-    fontSize: '14px',
-    fontWeight: '700',
-    color: '#374151',
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-  },
-  accessBadge: {
-    padding: '4px 8px',
-    borderRadius: '4px',
-    fontSize: '12px',
-    fontWeight: '600',
-    backgroundColor: '#dbeafe',
-    color: '#1e40af',
-  },
-  labsList: {
-    display: 'flex',
-    gap: '12px',
-  },
-  subjectCard: {
-    display: "flex",
-    flexDirection: "column",
-    width: 'calc(100%)',
-    border: "1px solid #e5e7eb",
-    borderRadius: "8px",
-    padding: "10px",
-    backgroundColor: "#fafafa",
-  },
-  subjectsHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: "16px",
-    fontWeight: "600",
-    marginLeft: "10px",
-    marginTop: "6px",
-  },
-  subjectDetails: {
-    fontSize: "14px",
-    color: "#444",
-    lineHeight: "1.6",
-    marginLeft: "10px",
-  },
-  modal: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    padding: '24px',
-    width: '90%',
-    maxWidth: '600px',
-    maxHeight: '90vh',
-    overflowY: 'auto',
-    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-  },
-  modalHeader: {
-    fontSize: '24px',
-    fontWeight: '600',
-    marginBottom: '24px',
-    color: '#111827',
-  },
-  subjectSection: {
-    marginTop: "20px",
-  },
-  subjectHeader: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: "10px",
-  },
-  subjectTitle: {
-    margin: 0,
-    fontSize: "18px",
-    fontWeight: "600",
-    color: "#111827",
-  },
-  addSubjectButton: {
-    backgroundColor: "#5a93f8",       
-    color: "white",
-    border: "none",
-    padding: "8px 14px",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "14px",
-    fontWeight: "500",
-    transition: "background-color 0.2s ease",
-  },
-  addSubjectButtonHover: {
-    backgroundColor: "#3b82f6", 
-  },
-  formGroup: {
-    marginBottom: '20px',
-  },
-  formRow: {
-    display: 'flex',
-    gap: '16px',
-    marginBottom: '20px',
-  },
-  formColumn: {
-    flex: 1,
-  },
-  label: {
-    display: 'block',
-    fontSize: '14px',
-    fontWeight: '500',
-    marginBottom: '8px',
-    color: '#374151',
-  },
-  input: {
-    width: "100%",
-    padding: "11px",
-    border: "1px solid #d1d5db",
-    borderRadius: "8px",
-    fontSize: "14px",
-    transition: "all 0.3s ease",
-    boxSizing: "border-box",
-    outline: "None"
-  },
-  select: {
-    width: '100%',
-    padding: '10px 12px',
-    border: '1px solid #d1d5db',
-    borderRadius: '8px',
-    fontSize: '14px',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-    boxSizing: 'border-box',
-    backgroundColor: 'white',
-    // ...(isEditMode && { backgroundColor: "#f9fafb", cursor: "not-allowed" }),
-  },
-  switchButton: {
-    backgroundColor: "white",
-    border: "1px solid #d1d5db",
-    borderRadius: "6px",
-    padding: "8px 12px",
-    cursor: "pointer",
-    fontSize: "13px",
-    color: "#374151",
-    transition: "background-color 0.2s ease",
-  },
-  modalActions: {
-    display: 'flex',
-    gap: '12px',
-    justifyContent: 'flex-end',
-    marginTop: '24px',
-  },
-  cancelButton: {
-    padding: '10px 20px',
-    border: '1px solid #d1d5db',
-    borderRadius: '8px',
-    backgroundColor: 'white',
-    color: '#374151',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s',
-  },
-  saveButton: {
-    padding: '10px 20px',
-    border: 'none',
-    borderRadius: '8px',
-    backgroundColor: '#10b981',
-    color: 'white',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s',
-  },
-};
-
-const dummyPrograms = [
-  {
-    id: 1,
-    programName: 'B.Tech',
-    section: 'A',
-    semester: '3',
-    group: 'G1',
-    batch: '2023',
-    labs: ['Lab 1'],
-  },
-  {
-    id: 2,
-    programName: 'BCA',
-    section: 'B',
-    semester: '4',
-    group: 'G2',
-    batch: '2023',
-    labs: ['Lab 8'],
-  },
-  {
-    id: 3,
-    programName: 'MCA',
-    section: 'A',
-    semester: '5',
-    group: 'G1',
-    batch: '2022',
-    labs: ['Lab 1', 'Lab 3'],
-  },
-  {
-    id: 4,
-    programName: 'M.Tech',
-    section: 'C',
-    semester: '2',
-    group: 'G3',
-    batch: '2024',
-    labs: ['Lab 2', 'Lab 5'],
-  },
-];
-
 export default function LabProgramsPage() {
   const [showForm, setShowForm] = useState(false);
   const [programs, setPrograms] = useState([]);
@@ -408,6 +10,8 @@ export default function LabProgramsPage() {
   const [facultyList, setFacultyList] = useState([]);
   const [labList, setLabList] = useState([]);
   const [showCustomSpecialization, setShowCustomSpecialization] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
   const [formData, setFormData] = useState({
     programName: '',
     section: '',
@@ -449,6 +53,19 @@ export default function LabProgramsPage() {
     ],
   };
 
+  // Responsive breakpoint detection
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width >= 768 && width < 1024);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -463,9 +80,6 @@ export default function LabProgramsPage() {
           facultyRes.json(),
           labsRes.json(),
         ]);
-        console.log(subjects);
-        console.log(faculty);
-        console.log(labs);
 
         setSubjectList(subjects.subjects || []);
         setFacultyList(faculty.faculty || []);
@@ -487,8 +101,6 @@ export default function LabProgramsPage() {
       };
 
       const data = await res.json();
-      console.log("Fetched Programs:", data.programs);
-
       setPrograms(data.programs);
     } catch (err) {
       console.error("Error fetching programs:", err);
@@ -553,7 +165,7 @@ export default function LabProgramsPage() {
 
     try {
       const payload = {
-        programName: `${formData.programName} ${formData.specialization} ` ,
+        programName: `${formData.programName} ${formData.specialization}`,
         section: formData.section,
         semester: formData.semester,
         group: formData.group,
@@ -569,8 +181,6 @@ export default function LabProgramsPage() {
             : null, 
       };
 
-      console.log("Sending payload:", payload);
-
       const res = await fetch("/api/admin/addProgram", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -585,7 +195,6 @@ export default function LabProgramsPage() {
       }
 
       alert("Program added successfully!");
-
       setPrograms((prev) => [...prev, data.program || payload]);
       handleCloseForm();
       await fetchPrograms();
@@ -620,56 +229,431 @@ export default function LabProgramsPage() {
   };
 
   const handleEditProgramSubmit = async () => {
-  if (!formData._id) {
-    alert("Missing Program ID for edit!");
-    return;
-  }
+    if (!formData._id) {
+      alert("Missing Program ID for edit!");
+      return;
+    }
 
-  try {
-    const payload = {
-      section: formData.section,
-      semester: formData.semester,
-      group: formData.group,
-      subjects:
-        formData.subjects && formData.subjects.length > 0
-          ? formData.subjects.map((subj) => ({
-              Subject_ID: subj.Subject_ID || "",
-              Number_Of_Hours: subj.Number_Of_Hours || "",
-              Faculty_Assigned: subj.Faculty_Assigned || null,
-              Lab_Allocated: subj.Lab_Allocated || "",
-            }))
-          : [],
-    };
+    try {
+      const payload = {
+        section: formData.section,
+        semester: formData.semester,
+        group: formData.group,
+        subjects:
+          formData.subjects && formData.subjects.length > 0
+            ? formData.subjects.map((subj) => ({
+                Subject_ID: subj.Subject_ID || "",
+                Number_Of_Hours: subj.Number_Of_Hours || "",
+                Faculty_Assigned: subj.Faculty_Assigned || null,
+                Lab_Allocated: subj.Lab_Allocated || "",
+              }))
+            : [],
+      };
 
-    console.log("Sending edit payload:", payload);
+      const res = await fetch(`/api/admin/updateProgram/${formData._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    const res = await fetch(`/api/admin/updateProgram/${formData._id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+      const data = await res.json();
 
-    const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to edit program");
 
-    if (!res.ok) throw new Error(data.error || "Failed to edit program");
-
-    alert("Program updated successfully!");
-    setPrograms((prev) =>
-      prev.map((p) => (p._id === formData._id ? { ...p, ...data.updatedProgram } : p))
-    );
-    handleCloseForm();
-    await fetchPrograms();
-  } catch (err) {
-    console.error("Edit Program Error:", err);
-    alert("Something went wrong while updating the program.");
-  }
-};
+      alert("Program updated successfully!");
+      setPrograms((prev) =>
+        prev.map((p) => (p._id === formData._id ? { ...p, ...data.updatedProgram } : p))
+      );
+      handleCloseForm();
+      await fetchPrograms();
+    } catch (err) {
+      console.error("Edit Program Error:", err);
+      alert("Something went wrong while updating the program.");
+    }
+  };
 
   const handleDelete = (id, e) => {
     e.stopPropagation();
     if (confirm('Are you sure you want to delete this program?')) {
       setPrograms(programs.filter(p => p.id !== id));
     }
+  };
+
+  const styles = {
+    container: {
+      width: (isMobile || isTablet) ? '100%' : 'calc(100% - 255px)',
+      minHeight: '100vh',
+      backgroundColor: '#f9fafb',
+      padding: (isMobile || isTablet) ? '1rem' : '2rem',
+      boxSizing: 'border-box',
+      marginLeft: (isMobile || isTablet) ? '0' : '255px',
+      overflowX: 'hidden',
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    contentWrapper: {
+      maxWidth: '1400px',
+      margin: '0 auto',
+    },
+    pageHeader: {
+      display: 'flex',
+      flexDirection: (isMobile || isTablet) ? 'column' : 'row',
+      alignItems: (isMobile || isTablet) ? 'stretch' : 'center',
+      justifyContent: 'space-between',
+      marginBottom: (isMobile || isTablet) ? '1.5rem' : '2rem',
+      gap: (isMobile || isTablet) ? '1rem' : '0',
+    },
+    pageTitle: {
+      fontSize: isMobile ? '1.5rem' : isTablet ? '1.75rem' : '2rem',
+      fontWeight: '700',
+      color: '#111827',
+      margin: 0,
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    addBtn: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '0.5rem',
+      backgroundColor: '#10b981',
+      color: 'white',
+      padding: (isMobile || isTablet) ? '0.65rem 1.25rem' : '0.75rem 1.5rem',
+      border: 'none',
+      borderRadius: '0.5rem',
+      fontWeight: '500',
+      cursor: 'pointer',
+      boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+      transition: 'background-color 0.2s',
+      width: (isMobile || isTablet) ? '100%' : 'auto',
+      fontFamily: "'Times New Roman', Times, serif",
+      fontSize: isMobile ? '0.9rem' : '1rem',
+    },
+    programsList: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: (isMobile || isTablet) ? '0.75rem' : '1rem',
+    },
+    programCard: {
+      backgroundColor: 'white',
+      borderRadius: (isMobile || isTablet) ? '0.5rem' : '0.75rem',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      overflow: 'hidden',
+      transition: 'box-shadow 0.2s',
+    },
+    programCardContent: {
+      padding: (isMobile || isTablet) ? '1rem' : '1.5rem',
+      display: 'flex',
+      flexDirection: (isMobile || isTablet) ? 'column' : 'row',
+      alignItems: (isMobile || isTablet) ? 'stretch' : 'center',
+      justifyContent: 'space-between',
+      gap: (isMobile || isTablet) ? '1rem' : '0',
+    },
+    programInfoSection: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: (isMobile || isTablet) ? '0.75rem' : '1.5rem',
+    },
+    programAvatar: {
+      width: isMobile ? '3rem' : isTablet ? '3.5rem' : '4rem',
+      height: isMobile ? '3rem' : isTablet ? '3.5rem' : '4rem',
+      backgroundColor: '#f3f4f6',
+      borderRadius: '0.5rem',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
+    programAvatarSpan: {
+      fontSize: isMobile ? '1rem' : isTablet ? '1.125rem' : '1.25rem',
+      fontWeight: '700',
+      color: '#6b7280',
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    programDetails: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '0.25rem',
+      flex: '1',
+    },
+    programName: {
+      fontSize: isMobile ? '1rem' : isTablet ? '1.125rem' : '1.25rem',
+      fontWeight: '700',
+      color: '#111827',
+      margin: 0,
+      fontFamily: "'Times New Roman', Times, serif",
+      wordBreak: 'break-word',
+    },
+    programMeta: {
+      color: '#6b7280',
+      margin: 0,
+      fontSize: isMobile ? '0.85rem' : '0.95rem',
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    programActions: {
+      display: 'flex',
+      flexDirection: (isMobile || isTablet) ? 'row' : 'row',
+      alignItems: 'center',
+      gap: (isMobile || isTablet) ? '0.5rem' : '1rem',
+      flexWrap: 'wrap',
+    },
+    statusBadge: {
+      padding: isMobile ? '0.4rem 0.75rem' : '0.5rem 1rem',
+      borderRadius: '9999px',
+      fontSize: isMobile ? '0.75rem' : '0.875rem',
+      fontWeight: '500',
+      backgroundColor: '#d1fae5',
+      color: '#065f46',
+      fontFamily: "'Times New Roman', Times, serif",
+      whiteSpace: 'nowrap',
+    },
+    labBadge: {
+      padding: isMobile ? '0.4rem 0.75rem' : '0.5rem 1rem',
+      backgroundColor: '#dbeafe',
+      color: '#1e40af',
+      borderRadius: '9999px',
+      fontSize: isMobile ? '0.75rem' : '0.875rem',
+      fontWeight: '500',
+      fontFamily: "'Times New Roman', Times, serif",
+      whiteSpace: 'nowrap',
+    },
+    iconBtn: {
+      padding: '0.5rem',
+      border: 'none',
+      borderRadius: '0.5rem',
+      cursor: 'pointer',
+      transition: 'background-color 0.2s',
+      backgroundColor: 'transparent',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    iconBtnEdit: {
+      color: '#10b981',
+    },
+    iconBtnDelete: {
+      color: '#ef4444',
+    },
+    iconBtnExpand: {
+      color: '#6b7280',
+    },
+    rotated: {
+      transform: 'rotate(180deg)',
+      transition: 'transform 0.2s',
+    },
+    expandedContent: {
+      backgroundColor: '#f0fdf4',
+      padding: (isMobile || isTablet) ? '1rem' : '1.5rem',
+      borderTop: '1px solid #e5e7eb',
+    },
+    detailsGrid: {
+      display: 'grid',
+      gridTemplateColumns: (isMobile || isTablet) ? '1fr' : 'repeat(4, 1fr)',
+      gap: (isMobile || isTablet) ? '0.75rem' : '1.5rem',
+    },
+    detailCard: {
+      backgroundColor: 'white',
+      padding: (isMobile || isTablet) ? '0.75rem' : '1rem',
+      borderRadius: '6px',
+      border: '1px solid #e5e7eb',
+    },
+    detailLabel: {
+      fontSize: isMobile ? '0.7rem' : '0.75rem',
+      color: '#64748b',
+      marginBottom: '0.5rem',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.375rem',
+      fontWeight: '500',
+      textTransform: 'uppercase',
+      letterSpacing: '0.05em',
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    detailValue: {
+      fontSize: isMobile ? '0.8rem' : '0.875rem',
+      color: '#1e293b',
+      fontWeight: '600',
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    labsList: {
+      display: 'flex',
+      flexDirection: (isMobile || isTablet) ? 'column' : 'row',
+      gap: '12px',
+      flexWrap: 'wrap',
+    },
+    subjectCard: {
+      display: "flex",
+      flexDirection: "column",
+      width: (isMobile || isTablet) ? '100%' : 'calc(50% - 6px)',
+      border: "1px solid #e5e7eb",
+      borderRadius: "8px",
+      padding: (isMobile || isTablet) ? "0.75rem" : "10px",
+      backgroundColor: "#fafafa",
+    },
+    subjectsHeader: {
+      display: "flex",
+      flexDirection: isMobile ? 'column' : 'row',
+      justifyContent: "space-between",
+      fontSize: isMobile ? "0.9rem" : "16px",
+      fontWeight: "600",
+      marginLeft: "10px",
+      marginTop: "6px",
+      fontFamily: "'Times New Roman', Times, serif",
+      gap: isMobile ? '0.25rem' : '0',
+    },
+    subjectDetails: {
+      fontSize: isMobile ? "0.8rem" : "14px",
+      color: "#444",
+      lineHeight: "1.6",
+      marginLeft: "10px",
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    modal: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: (isMobile || isTablet) ? '1rem' : '2rem',
+    },
+    modalContent: {
+      backgroundColor: 'white',
+      borderRadius: (isMobile || isTablet) ? '10px' : '12px',
+      padding: (isMobile || isTablet) ? '1.25rem' : '24px',
+      width: '100%',
+      maxWidth: (isMobile || isTablet) ? '100%' : '600px',
+      maxHeight: '90vh',
+      overflowY: 'auto',
+      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    modalHeader: {
+      fontSize: isMobile ? '1.25rem' : '24px',
+      fontWeight: '600',
+      marginBottom: (isMobile || isTablet) ? '1rem' : '24px',
+      color: '#111827',
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    subjectSection: {
+      marginTop: (isMobile || isTablet) ? "15px" : "20px",
+    },
+    subjectHeader: {
+      display: "flex",
+      flexDirection: (isMobile || isTablet) ? 'column' : 'row',
+      alignItems: (isMobile || isTablet) ? 'stretch' : 'center',
+      justifyContent: "space-between",
+      marginBottom: "10px",
+      gap: (isMobile || isTablet) ? '0.75rem' : '0',
+    },
+    subjectTitle: {
+      margin: 0,
+      fontSize: isMobile ? '1rem' : '18px',
+      fontWeight: "600",
+      color: "#111827",
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    addSubjectButton: {
+      backgroundColor: "#5a93f8",       
+      color: "white",
+      border: "none",
+      padding: (isMobile || isTablet) ? "10px 14px" : "8px 14px",
+      borderRadius: "6px",
+      cursor: "pointer",
+      fontSize: isMobile ? "0.8rem" : "14px",
+      fontWeight: "500",
+      transition: "background-color 0.2s ease",
+      fontFamily: "'Times New Roman', Times, serif",
+      width: (isMobile || isTablet) ? '100%' : 'auto',
+    },
+    formGroup: {
+      marginBottom: (isMobile || isTablet) ? '1rem' : '20px',
+    },
+    formRow: {
+      display: 'flex',
+      flexDirection: (isMobile || isTablet) ? 'column' : 'row',
+      gap: (isMobile || isTablet) ? '1rem' : '16px',
+      marginBottom: (isMobile || isTablet) ? '1rem' : '20px',
+    },
+    formColumn: {
+      flex: 1,
+    },
+    label: {
+      display: 'block',
+      fontSize: isMobile ? '0.85rem' : '14px',
+      fontWeight: '500',
+      marginBottom: '8px',
+      color: '#374151',
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    input: {
+      width: "100%",
+      padding: (isMobile || isTablet) ? "9px 11px" : "11px",
+      border: "1px solid #d1d5db",
+      borderRadius: "8px",
+      fontSize: isMobile ? "0.9rem" : "14px",
+      transition: "all 0.3s ease",
+      boxSizing: "border-box",
+      outline: "none",
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    select: {
+      width: '100%',
+      padding: (isMobile || isTablet) ? '9px 11px' : '10px 12px',
+      border: '1px solid #d1d5db',
+      borderRadius: '8px',
+      fontSize: isMobile ? '0.9rem' : '14px',
+      outline: 'none',
+      transition: 'border-color 0.2s',
+      boxSizing: 'border-box',
+      backgroundColor: 'white',
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    switchButton: {
+      backgroundColor: "white",
+      border: "1px solid #d1d5db",
+      borderRadius: "6px",
+      padding: (isMobile || isTablet) ? "9px 11px" : "8px 12px",
+      cursor: "pointer",
+      fontSize: isMobile ? "0.8rem" : "13px",
+      color: "#374151",
+      transition: "background-color 0.2s ease",
+      fontFamily: "'Times New Roman', Times, serif",
+      whiteSpace: 'nowrap',
+    },
+    modalActions: {
+      display: 'flex',
+      flexDirection: (isMobile || isTablet) ? 'column-reverse' : 'row',
+      gap: '12px',
+      justifyContent: 'flex-end',
+      marginTop: (isMobile || isTablet) ? '1.25rem' : '24px',
+    },
+    cancelButton: {
+      padding: (isMobile || isTablet) ? '9px 18px' : '10px 20px',
+      border: '1px solid #d1d5db',
+      borderRadius: '8px',
+      backgroundColor: 'white',
+      color: '#374151',
+      fontSize: '14px',
+      fontWeight: '500',
+      cursor: 'pointer',
+      transition: 'background-color 0.2s',
+      fontFamily: "'Times New Roman', Times, serif",
+    },
+    saveButton: {
+      padding: (isMobile || isTablet) ? '9px 18px' : '10px 20px',
+      border: 'none',
+      borderRadius: '8px',
+      backgroundColor: '#10b981',
+      color: 'white',
+      fontSize: '14px',
+      fontWeight: '500',
+      cursor: 'pointer',
+      transition: 'background-color 0.2s',
+      fontFamily: "'Times New Roman', Times, serif",
+    },
   };
 
   return (
@@ -704,7 +688,6 @@ export default function LabProgramsPage() {
                 </div>
 
                 <div style={styles.programActions}>
-
                   <span style={styles.labBadge}>
                     {program.Subject.length} {program.Subject.length === 1 ? 'Subject' : 'Subjects'}
                   </span>
@@ -745,27 +728,19 @@ export default function LabProgramsPage() {
                 <div style={styles.expandedContent}>
                   <div style={styles.detailsGrid}>
                     <div style={styles.detailCard}>
-                      <div style={styles.detailLabel}>
-                        SECTION
-                      </div>
+                      <div style={styles.detailLabel}>SECTION</div>
                       <div style={styles.detailValue}>Section {program.Program_Section}</div>
                     </div>
                     <div style={styles.detailCard}>
-                      <div style={styles.detailLabel}>
-                        SEMESTER
-                      </div>
+                      <div style={styles.detailLabel}>SEMESTER</div>
                       <div style={styles.detailValue}>Semester {program.Program_Semester}</div>
                     </div>
                     <div style={styles.detailCard}>
-                      <div style={styles.detailLabel}>
-                        GROUP
-                      </div>
+                      <div style={styles.detailLabel}>GROUP</div>
                       <div style={styles.detailValue}>{program.Program_Group}</div>
                     </div>
                     <div style={styles.detailCard}>
-                      <div style={styles.detailLabel}>
-                        BATCH
-                      </div>
+                      <div style={styles.detailLabel}>BATCH</div>
                       <div style={styles.detailValue}>{program.Program_Batch}</div>
                     </div>
                   </div>
@@ -780,7 +755,7 @@ export default function LabProgramsPage() {
                             <div style={styles.subjectsHeader}>
                               {subj.Subject_ID ? (
                                 <>
-                                  <strong>{(subj.Subject_ID.Course_Name).toUpperCase()}</strong>{" "}
+                                  <strong>{(subj.Subject_ID.Course_Name).toUpperCase()}</strong>
                                   <span style={{ color: "#666", marginRight: "10px" }}>({subj.Subject_ID.Course_Code})</span>
                                 </>
                               ) : (
@@ -801,10 +776,10 @@ export default function LabProgramsPage() {
                     </div>
                   </div>
                 </div>
-                )}
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          ))}
+        </div>
 
         {showForm && (
           <div style={styles.modal} onClick={handleCloseForm}>
@@ -859,7 +834,7 @@ export default function LabProgramsPage() {
                       value={formData.specialization}
                       onChange={handleChange}
                       style={{ ...styles.select, flex: 1 }}
-                      disabled={ isEditMode || !formData.programName}
+                      disabled={isEditMode || !formData.programName}
                     >
                       <option value="">
                         {formData.programName
@@ -944,7 +919,6 @@ export default function LabProgramsPage() {
                   <label style={styles.label}>Batch</label>
 
                   <div style={{ display: "flex", gap: "10px" }}>
-                    {/* Start Year */}
                     <select
                       name="batchStart"
                       value={formData.batchStart}
@@ -960,7 +934,6 @@ export default function LabProgramsPage() {
                       ))}
                     </select>
 
-                    {/* End Year */}
                     <select
                       name="batchEnd"
                       value={formData.batchEnd}
@@ -994,7 +967,6 @@ export default function LabProgramsPage() {
                 {formData.subjects.map((subj, index) => (
                   <div key={index} style={{ marginBottom: "15px", borderBottom: "1px solid #ddd", paddingBottom: "10px" }}>
                     <div style={styles.formRow}>
-                      {/* Subject Dropdown */}
                       <div style={styles.formColumn}>
                         <label style={styles.label}>Subject</label>
                         <select
@@ -1012,7 +984,6 @@ export default function LabProgramsPage() {
                         </select>
                       </div>
 
-                      {/* Number of Hours */}
                       <div style={styles.formColumn}>
                         <label style={styles.label}>Number of Hours</label>
                         <input
@@ -1027,7 +998,6 @@ export default function LabProgramsPage() {
                     </div>
 
                     <div style={styles.formRow}>
-                      {/* Faculty Dropdown */}
                       <div style={styles.formColumn}>
                         <label style={styles.label}>Faculty Assigned</label>
                         <select
@@ -1045,7 +1015,6 @@ export default function LabProgramsPage() {
                         </select>
                       </div>
 
-                      {/* Lab Dropdown */}
                       <div style={styles.formColumn}>
                         <label style={styles.label}>Lab Allocated</label>
                         <select
