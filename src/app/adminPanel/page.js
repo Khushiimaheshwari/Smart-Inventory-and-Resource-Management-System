@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import styles from './Dashboard.module.css';
+import './styles/globals.css'
 
 export default function Dashboard() {
   const [metrics] = useState({

@@ -3,8 +3,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./adminNavbar.module.css";
+import { useEffect, useState } from "react";
 
 export default function AdminNavbar({ onToggleSidebar }) {
+
+  const [profilePic, setProfilePic] = useState("/profile.png");
+
+  useEffect(() => {
+    const fetchProfilePic = async () => {
+      try {
+        const res = await fetch("/api/auth/profilePic");
+
+        const data = await res.json();
+
+        if (res.ok && data.profileImage) {
+          setProfilePic(data.profileImage);
+        }
+      } catch (err) {
+        console.error("Error fetching profile pic:", err);
+      }
+    };
+    fetchProfilePic();
+  }, []);
+
   return (
     <nav className={styles.navbar}>
       {/* Hamburger Menu Button */}
@@ -44,11 +65,12 @@ export default function AdminNavbar({ onToggleSidebar }) {
         <Link href="/adminPanel/profile">
           <div className={styles.profileLink}>
             <Image
-              src="/profile.png"
+              src={profilePic || "/profile.png"}
               alt="Profile"
               width={40}
               height={40}
               className={styles.profileImg}
+              unoptimized
             />
           </div>
         </Link>

@@ -7,7 +7,7 @@
   padding: 100px 0;
   position: fixed;
   left: 0;
-  top: 0; /* Sidebar will be below navbar due to layout structure */
+  top: 0; 
   height: 100vh;
   overflow-y: auto;
   z-index: 999;
@@ -83,7 +83,7 @@
 /* Navigation Menu */
 .navMenu {
   list-style: none;
-  padding: 0 20px;
+  padding: 0 10px;
   margin: 0;
 }
 
@@ -93,8 +93,9 @@
 
 .navLink {
   display: flex;
+  width: 90%;
   align-items: center;
-  padding: 12px 16px;
+  padding: 12px 20px;
   text-decoration: none;
   color: #718096;
   border-radius: 10px;
@@ -107,12 +108,14 @@
   background: rgba(0, 201, 123, 0.1);
   color: #00c97b;
   transform: translateX(5px);
+  width: 95%;
 }
 
 .navLink.active {
   background: linear-gradient(135deg, #00c97b 0%, #00b8d9 100%);
   color: white;
   transform: translateX(5px);
+  width: 95%;
 }
 
 .navIcon {

@@ -278,12 +278,12 @@ export default function FacultyManagement() {
 
   const styles = {
     container: {
-      width: 'calc(100% - 220px)', 
+      width: 'calc(100% - 255px)', 
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
       padding: '2rem',
       boxSizing: 'border-box',
-      marginLeft: '245px',
+      marginLeft: '255px',
       overflowX: 'hidden',
     },
     header: {
