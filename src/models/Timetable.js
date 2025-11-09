@@ -14,7 +14,7 @@ const TimetableSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, ref: "User",
   },
   Day: {
-    type: String, enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], required: true,
+    type: String, enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], required: true,
   },
   TimeSlot: { type: String, required: true,},
 }, { timestamps: true });
