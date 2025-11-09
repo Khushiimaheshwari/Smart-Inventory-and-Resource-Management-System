@@ -15,7 +15,7 @@ export default function LabTechnicianManagement() {
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
-    phoneNumber: "",
+    phoneNumber: "", 
     labAccess: [],
   });
 

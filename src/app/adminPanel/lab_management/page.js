@@ -221,47 +221,8 @@ export default function LabManagement() {
       marginLeft: '255px',
       overflowX: 'hidden',
     },
-    sidebar: {
-      width: '260px',
-      background: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(20px)',
-      borderRight: '1px solid #e2e8f0',
-      padding: '20px 0',
-      position: 'fixed',
-      height: '100vh',
-      overflowY: 'auto'
-    },
-    navMenu: {
-      listStyle: 'none',
-      padding: '0 20px',
-      margin: 0
-    },
-    navItem: {
-      marginBottom: '5px'
-    },
-    navLink: {
-      display: 'flex',
-      alignItems: 'center',
-      padding: '12px 16px',
-      textDecoration: 'none',
-      color: '#718096',
-      borderRadius: '10px',
-      transition: 'all 0.3s ease',
-      fontWeight: 500,
-      cursor: 'pointer'
-    },
-    navLinkActive: {
-      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
-      color: 'white'
-    },
-    navIcon: {
-      width: '20px',
-      height: '20px',
-      marginRight: '12px'
-    },
     mainContent: {
       flex: 1,
-      marginLeft: '260px',
       padding: '20px 30px'
     },
     header: {

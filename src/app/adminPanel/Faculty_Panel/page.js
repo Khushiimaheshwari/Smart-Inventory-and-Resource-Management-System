@@ -201,7 +201,7 @@ export default function FacultyManagement() {
   };
   
     const handleEditFaculty = (user) => {
-      setEditingUser(user);    
+      setEditingFaculty(user);    
       setShowAddModal(true);
       setNewFaculty(user);
     };
@@ -257,9 +257,9 @@ export default function FacultyManagement() {
         ]);
   
       alert("Faculty updated successfully!");
-      setFaculty(faculty.map((u) => (u.id === editingUser.id ? newFaculty : u)));
+      setFaculty(faculty.map((u) => (u.id === editingFaculty.id ? newFaculty : u)));
       setShowAddModal(false);
-      setEditingUser(null);
+      setEditingFaculty(null);
       setNewFaculty({
         name: "",
         email: "",
@@ -529,7 +529,7 @@ export default function FacultyManagement() {
     modalContent: {
       background: "white",
       borderRadius: "12px",
-      padding: "0px 30px 20px",
+      padding: "20px 30px 30px",
       width: "90%",
       maxWidth: "600px",
       maxHeight: "100vh",
@@ -851,9 +851,21 @@ export default function FacultyManagement() {
                   {newFaculty.subjects.length === 0 ? (
                     <span style={styles.placeholder}>Select subjects</span>
                   ) : (
-                    newFaculty.subjects.map((sub) => {
-                      const subName = typeof sub === "object" ? sub.Subject : sub;
-                      const subId = typeof sub === "object" ? sub.Subject_id : sub;
+                    newFaculty.subjects.map((sub, index) => {
+                      const subName =
+                        sub?.Subject ||
+                        (sub?.Course_Code && sub?.Course_Name
+                          ? `${sub.Course_Code} - ${sub.Course_Name}`
+                          : typeof sub === "string"
+                          ? sub
+                          : "Unknown Subject");
+
+                      const subId =
+                        sub?.Subject_id ||
+                        sub?.Subject_ID ||
+                        sub?._id ||
+                        (typeof sub === "string" ? sub : index);
+                      
                       return (
                         <div key={subId} style={styles.chip}>
                           <span>{subName}</span>
