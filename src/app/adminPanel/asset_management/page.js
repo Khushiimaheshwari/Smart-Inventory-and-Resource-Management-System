@@ -1,7 +1,7 @@
 "use client";
 
-import { withRouter } from "next/router";
 import { useEffect, useState } from "react";
+// import '../styles/globals.css';
 
 export default function AssetManagement() {
   const [pcs, setPCs] = useState([]);

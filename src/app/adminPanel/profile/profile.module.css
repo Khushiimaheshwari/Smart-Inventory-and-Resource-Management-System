@@ -11,7 +11,7 @@
   align-items: center;
   position: relative;
   overflow-x: hidden;
-  width: calc(100% - 230px);
+  width: calc(100% - 255px);
   box-sizing: border-box;
   margin-left: 255px;
 }

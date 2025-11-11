@@ -200,68 +200,81 @@ export default function FacultyManagement() {
     }
   };
   
-  const handleEditFaculty = (user) => {
-    setEditingUser(user);    
-    setShowAddModal(true);
-    setNewFaculty(user);
-  };
-
-  const handleUpdateFaculty = async () => {
-
-    if (!newFaculty.name || !newFaculty.email) {
-      alert("Please fill all required fields");
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/admin/editFaculty", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newFaculty.name,
-          email: newFaculty.email,
-          password: newFaculty.password,
-          department: newFaculty.department,
-          designation: newFaculty.designation,
-          subjects: newFaculty.subjects.map(sub => sub.Subject_id),
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.error || "Something went wrong!");
+    const handleEditFaculty = (user) => {
+      setEditingFaculty(user);    
+      setShowAddModal(true);
+      setNewFaculty(user);
+    };
+  
+    const handleUpdateFaculty = async () => {
+  
+      if (!newFaculty.name || !newFaculty.email) {
+        alert("Please fill all required fields");
         return;
       }
-
-      setFaculty([
-        ...faculty,
-        {
-          id: faculty.length + 1,
-          name: newFaculty.name,
-          email: newFaculty.email,
-        },
-      ]);
-
-    alert("Faculty updated successfully!");
-    setFaculty(faculty.map((u) => (u.id === editingUser.id ? newFaculty : u)));
-    setShowAddModal(false);
-    setEditingUser(null);
-    setNewFaculty({
-      name: "",
-      email: "",
-      phoneNumber: "",
-      location: "",
-      department: "",
-      designation: "",
-      subjects: [],
-    });
-    await fetchFaculty();
-  } catch (err) {
-    console.error("Edit Faculty Error:", err);
-    alert("Something went wrong while editing Faculty.");
-  }
-};
+  
+      try {
+        const res = await fetch("/api/admin/editFaculty", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: newFaculty.name,
+            email: newFaculty.email,
+            password: newFaculty.password,
+            department: newFaculty.department,
+            designation: newFaculty.designation,
+            subjects: newFaculty.subjects.map(sub => sub.Subject_id),
+          }),
+        });
+  
+        const data = await res.json();
+  
+        if (!res.ok) {
+          alert(data.error || "Something went wrong!");
+          return;
+        }
+  
+        if (newFaculty.password && newFaculty.password.trim() !== "") {
+          await emailjs.send(
+            "service_2xk0xdb",  
+            "template_mq4w3fc",    
+            {
+              to_name: newFaculty.name,
+              to_email: newFaculty.email,
+              password: newFaculty.password,
+            },
+            "JVeTTsN2NUeZ0UlPA"
+          ); 
+        }
+  
+        setFaculty([
+          ...faculty,
+          {
+            id: faculty.length + 1,
+            name: newFaculty.name,
+            email: newFaculty.email,
+          },
+        ]);
+  
+      alert("Faculty updated successfully!");
+      setFaculty(faculty.map((u) => (u.id === editingFaculty.id ? newFaculty : u)));
+      setShowAddModal(false);
+      setEditingFaculty(null);
+      setNewFaculty({
+        name: "",
+        email: "",
+        phoneNumber: "",
+        location: "",
+        department: "",
+        designation: "",
+        subjects: [],
+      });
+      await fetchFaculty();
+    } catch (err) {
+      console.error("Edit Faculty Error:", err);
+      alert("Something went wrong while editing Faculty.");
+    }
+  };
 
   const styles = {
     container: {
@@ -846,9 +859,21 @@ export default function FacultyManagement() {
                   {newFaculty.subjects.length === 0 ? (
                     <span style={styles.placeholder}>Select subjects</span>
                   ) : (
-                    newFaculty.subjects.map((sub) => {
-                      const subName = typeof sub === "object" ? sub.Subject : sub;
-                      const subId = typeof sub === "object" ? sub.Subject_id : sub;
+                    newFaculty.subjects.map((sub, index) => {
+                      const subName =
+                        sub?.Subject ||
+                        (sub?.Course_Code && sub?.Course_Name
+                          ? `${sub.Course_Code} - ${sub.Course_Name}`
+                          : typeof sub === "string"
+                          ? sub
+                          : "Unknown Subject");
+
+                      const subId =
+                        sub?.Subject_id ||
+                        sub?.Subject_ID ||
+                        sub?._id ||
+                        (typeof sub === "string" ? sub : index);
+                      
                       return (
                         <div key={subId} style={styles.chip}>
                           <span>{subName}</span>
