@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Search, Plus, Edit2, Trash2, ChevronDown, Filter, Upload } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 export default function SubjectListPage() {
   const [subjects, setSubjects] = useState([]);
@@ -31,7 +31,6 @@ export default function SubjectListPage() {
     labAllocated: ''
   });
 
-  // Responsive breakpoint detection
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
@@ -193,7 +192,7 @@ export default function SubjectListPage() {
   };
 
   const styles = {
-    subjectListContainer: {
+    container: {
       width: (isMobile || isTablet) ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
@@ -203,1078 +202,605 @@ export default function SubjectListPage() {
       overflowX: 'hidden',
       fontFamily: "'Times New Roman', Times, serif",
     },
-
-    contentWrapper: {
-      maxWidth: "1400px",
-      margin: "0 auto",
-    },
-
-    pageHeader: {
+    header: {
       display: "flex",
-      flexDirection: (isMobile || isTablet) ? "column" : "row",
-      alignItems: (isMobile || isTablet) ? "stretch" : "center",
       justifyContent: "space-between",
-      gap: (isMobile || isTablet) ? "1rem" : "0",
-      marginBottom: (isMobile || isTablet) ? "1.5rem" : "2rem",
-    },
-
-    pageTitle: {
-      fontSize: isMobile ? "1.5rem" : isTablet ? "1.75rem" : "2rem",
-      fontWeight: "700",
-      color: "#111827",
-      margin: "0",
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
-    addBtn: {
-      display: "flex",
       alignItems: "center",
-      justifyContent: "center",
-      gap: "0.5rem",
-      backgroundColor: "#10b981",
-      color: "white",
-      padding: (isMobile || isTablet) ? "0.65rem 1.25rem" : "0.75rem 1.5rem",
-      border: "none",
-      borderRadius: "0.5rem",
-      fontWeight: "500",
-      cursor: "pointer",
-      boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
-      transition: "background-color 0.2s",
-      width: (isMobile || isTablet) ? "100%" : "auto",
-      fontFamily: "'Times New Roman', Times, serif",
-      fontSize: isMobile ? "0.9rem" : "1rem",
-    },
-
-    filtersCard: {
-      backgroundColor: "white",
-      borderRadius: (isMobile || isTablet) ? "0.5rem" : "0.75rem",
-      padding: (isMobile || isTablet) ? "1rem" : "1.5rem",
-      marginBottom: (isMobile || isTablet) ? "1rem" : "1.5rem",
-      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-    },
-
-    searchWrapper: {
-      position: "relative",
-      marginBottom: "1rem",
-    },
-
-    searchIcon: {
-      position: "absolute",
-      left: "1rem",
-      top: "50%",
-      transform: "translateY(-50%)",
-      color: "#9ca3af",
-      pointerEvents: "none",
-      zIndex: "1",
-    },
-
-    searchInput: {
-      width: "100%",
-      padding: (isMobile || isTablet) ? "0.65rem 1rem 0.65rem 2.75rem" : "0.75rem 1rem 0.75rem 3rem",
-      border: "1px solid #d1d5db",
-      borderRadius: "0.5rem",
-      fontSize: isMobile ? "0.9rem" : "1rem",
-      outline: "none",
-      transition: "border-color 0.2s, box-shadow 0.2s",
-      boxSizing: "border-box",
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
-    filtersRow: {
-      display: "flex",
-      flexDirection: (isMobile || isTablet) ? "column" : "row",
+      marginBottom: "2rem",
       flexWrap: "wrap",
-      alignItems: (isMobile || isTablet) ? "stretch" : "center",
-      gap: (isMobile || isTablet) ? "0.75rem" : "1rem",
+      gap: "1rem",
     },
-
-    filterLabel: {
-      display: "flex",
-      alignItems: "center",
-      gap: "0.5rem",
-      color: "#374151",
-      fontWeight: "500",
-      fontSize: isMobile ? "0.875rem" : "1rem",
-      fontFamily: "'Times New Roman', Times, serif",
+    headerTitle: {
+      fontSize: "32px",
+      fontWeight: 700,
+      color: "#2d3748",
+      margin: 0,
     },
-
-    filterSelect: {
-      padding: (isMobile || isTablet) ? "0.5rem 0.75rem" : "0.5rem 1rem",
-      border: "1px solid #d1d5db",
-      borderRadius: "0.5rem",
-      fontSize: isMobile ? "0.8rem" : "0.875rem",
-      outline: "none",
+    addButton: {
+      padding: "10px 24px",
+      background: "#10b981",
+      color: "white",
+      border: "none",
+      borderRadius: "8px",
+      fontWeight: 600,
       cursor: "pointer",
-      transition: "border-color 0.2s",
-      flex: (isMobile || isTablet) ? "1" : "0",
-      minWidth: (isMobile || isTablet) ? "auto" : "150px",
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
-    resultCount: {
-      marginLeft: (isMobile || isTablet) ? "0" : "auto",
-      fontSize: isMobile ? "0.8rem" : "0.875rem",
-      color: "#6b7280",
-      textAlign: (isMobile || isTablet) ? "center" : "left",
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
-    subjectsList: {
-      display: "flex",
-      marginTop: (isMobile || isTablet) ? "1rem" : "1.5rem",
-      flexDirection: "column",
-      gap: (isMobile || isTablet) ? "0.75rem" : "1rem",
-    },
-
-    subjectCard: {
-      backgroundColor: "white",
-      borderRadius: (isMobile || isTablet) ? "0.5rem" : "0.75rem",
-      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-      overflow: "hidden",
-      transition: "box-shadow 0.2s",
-    },
-
-    subjectCardContent: {
-      padding: (isMobile || isTablet) ? "1rem" : "1.5rem",
-      display: "flex",
-      flexDirection: (isMobile || isTablet) ? "column" : "row",
-      alignItems: (isMobile || isTablet) ? "stretch" : "center",
-      justifyContent: "space-between",
-      gap: (isMobile || isTablet) ? "1rem" : "1.5rem",
-    },
-
-    subjectInfoSection: {
       display: "flex",
       alignItems: "center",
-      gap: (isMobile || isTablet) ? "0.75rem" : "1.5rem",
+      gap: "8px",
+      fontSize: "14px",
+      transition: "all 0.2s ease",
     },
-
-    subjectAvatar: {
-      width: isMobile ? "3rem" : isTablet ? "3.5rem" : "4rem",
-      height: isMobile ? "3rem" : isTablet ? "3.5rem" : "4rem",
-      backgroundColor: "#f3f4f6",
-      borderRadius: "0.5rem",
+    cardContainer: {
+      width: "100%",
+      display: "flex",
+      flexDirection: "column",
+      gap: "1rem",     
+    },
+    card: {
+      background: "white",
+      borderRadius: "8px",
+      padding: "1.5rem",
+      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+      transition: "all 0.2s ease",
+    },
+    cardHeader: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: "1rem",
+      flexWrap: "wrap",
+    },
+    cardLeft: {
+      display: "flex",
+      alignItems: "center",
+      gap: "1rem",
+      flex: "1",
+      minWidth: "250px",
+    },
+    profileImage: {
+      width: "48px",
+      height: "48px",
+      borderRadius: "8px",
+      objectFit: "cover",
+      background: "#e5e7eb",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      flexShrink: "0",
-      fontSize: isMobile ? "1rem" : isTablet ? "1.125rem" : "1.25rem",
-      fontWeight: "700",
+      fontSize: "12px",
       color: "#6b7280",
-      fontFamily: "'Times New Roman', Times, serif",
+      fontWeight: "700",
     },
-
-    subjectDetails: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "0.25rem",
+    cardInfo: {
       flex: "1",
     },
-
-    subjectName: {
-      fontSize: isMobile ? "1rem" : isTablet ? "1.125rem" : "1.25rem",
-      fontWeight: "700",
-      color: "#111827",
-      margin: "0",
-      wordBreak: "break-word",
-      fontFamily: "'Times New Roman', Times, serif",
+    cardName: {
+      fontSize: "16px",
+      fontWeight: 600,
+      color: "#1f2937",
+      margin: "0 0 4px 0",
     },
-
-    subjectCode: {
+    cardEmail: {
+      fontSize: "14px",
       color: "#6b7280",
-      margin: "0",
-      fontSize: isMobile ? "0.85rem" : "0.95rem",
-      fontFamily: "'Times New Roman', Times, serif",
+      margin: 0,
     },
-
-    subjectActions: {
-      display: "flex",
-      flexDirection: (isMobile || isTablet) ? "column" : "row",
-      alignItems: (isMobile || isTablet) ? "stretch" : "center",
-      gap: (isMobile || isTablet) ? "0.5rem" : "1rem",
-      flexWrap: "wrap",
-    },
-
-    actionButtonsRow: {
+    cardRight: {
       display: "flex",
       alignItems: "center",
-      justifyContent: (isMobile || isTablet) ? "space-between" : "flex-start",
-      gap: "0.5rem",
-      width: (isMobile || isTablet) ? "100%" : "auto",
+      gap: "1.5rem",
+      flexWrap: "wrap",
     },
-
+    cardStock: {
+      fontSize: "13px",
+      color: "#6b7280",
+      margin: 0,
+    },
     statusBadge: {
-      padding: isMobile ? "0.4rem 0.75rem" : "0.5rem 1rem",
-      borderRadius: "9999px",
-      fontSize: isMobile ? "0.75rem" : "0.875rem",
-      fontWeight: "500",
-      textAlign: "center",
-      whiteSpace: "nowrap",
-      fontFamily: "'Times New Roman', Times, serif",
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "6px",
+      padding: "6px 12px",
+      borderRadius: "6px",
+      fontSize: "13px",
+      fontWeight: 600,
     },
-
-    statusBadgeUploaded: {
-      backgroundColor: "#d1fae5",
+    statusApproved: {
+      background: "#d1fae5",
       color: "#065f46",
     },
-
-    statusBadgePending: {
-      backgroundColor: "#fef3c7",
+    statusPending: {
+      background: "#fef3c7",
       color: "#92400e",
     },
-
     programBadge: {
-      padding: isMobile ? "0.4rem 0.75rem" : "0.5rem 1rem",
-      backgroundColor: "#dbeafe",
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "6px",
+      padding: "6px 12px",
+      borderRadius: "6px",
+      fontSize: "13px",
+      fontWeight: 600,
+      background: "#dbeafe",
       color: "#1e40af",
-      borderRadius: "9999px",
-      fontSize: isMobile ? "0.75rem" : "0.875rem",
-      fontWeight: "500",
-      textAlign: "center",
-      whiteSpace: "nowrap",
-      fontFamily: "'Times New Roman', Times, serif",
     },
-
-    iconBtn: {
-      padding: "0.5rem",
+    actionButtons: {
+      display: "flex",
+      gap: "8px",
+    },
+    iconButton: {
+      width: "36px",
+      height: "36px",
+      background: "transparent",
       border: "none",
-      borderRadius: "0.5rem",
+      borderRadius: "6px",
       cursor: "pointer",
-      transition: "background-color 0.2s",
-      backgroundColor: "transparent",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      transition: "all 0.2s ease",
     },
-
-    iconBtnAddIcon: {
-      color: "#3b82f6",
-    },
-
-    iconBtnEditIcon: {
+    editButton: {
       color: "#10b981",
     },
-
-    iconBtnDeleteIcon: {
+    deleteButton: {
       color: "#ef4444",
     },
-
-    iconBtnExpandIcon: {
-      color: "#6b7280",
+    addProgramButton: {
+      color: "#3b82f6",
     },
-
-    rotated: {
-      transform: "rotate(180deg)",
-      transition: "transform 0.2s",
+    expandButton: {
+      background: "#f3f4f6",
+      color: "#4b5563",
+      transition: "all 0.2s ease",
     },
-
     expandedContent: {
-      padding: (isMobile || isTablet) ? "1rem" : "0 1.5rem 1.5rem 1.5rem",
+      marginTop: "1.5rem",
+      paddingTop: "1.5rem",
       borderTop: "1px solid #e5e7eb",
     },
-
-    expandedSection: {
-      marginBottom: (isMobile || isTablet) ? "1.5rem" : "24px",
+    labAccessSection: {
+      padding: "1.25rem",
+      background: "#f0fdf4",
+      borderRadius: "8px",
+      border: "1px solid #d1fae5",
+      marginBottom: "1.5rem",
     },
-
-    sectionTitle: {
-      fontSize: isMobile ? "0.8rem" : "14px",
-      fontWeight: "700",
-      color: "#374151",
-      marginBottom: "12px",
+    labAccessLabel: {
+      fontSize: "13px",
+      color: "#065f46",
       textTransform: "uppercase",
-      letterSpacing: "0.05em",
-      fontFamily: "'Times New Roman', Times, serif",
+      fontWeight: 600,
+      letterSpacing: "0.5px",
+      display: "flex",
+      alignItems: "center",
+      marginBottom: "12px",
     },
-
     uploadSection: {
       display: "flex",
-      flexDirection: (isMobile || isTablet) ? "column" : "row",
-      alignItems: (isMobile || isTablet) ? "stretch" : "center",
+      alignItems: "center",
       gap: "12px",
-      padding: (isMobile || isTablet) ? "12px" : "16px",
-      backgroundColor: "white",
-      borderRadius: "8px",
-      border: "2px dashed #d1d5db",
+      flexWrap: "wrap",
     },
-
+    fileName: {
+      fontSize: "14px",
+      color: "#059669",
+      fontWeight: 600,
+      flex: "1",
+      minWidth: "150px",
+    },
+    noFileText: {
+      fontSize: "14px",
+      color: "#6b7280",
+      fontStyle: "italic",
+      flex: "1",
+    },
     uploadButton: {
-      backgroundColor: "#3b82f6",
+      padding: "8px 14px",
+      background: "#3b82f6",
       color: "white",
       border: "none",
       borderRadius: "6px",
-      padding: (isMobile || isTablet) ? "10px 14px" : "8px 16px",
-      fontSize: isMobile ? "0.8rem" : "13px",
-      fontWeight: "600",
+      fontSize: "13px",
+      fontWeight: 600,
       cursor: "pointer",
       display: "flex",
       alignItems: "center",
-      justifyContent: "center",
       gap: "6px",
-      transition: "background-color 0.2s",
-      whiteSpace: "nowrap",
-      fontFamily: "'Times New Roman', Times, serif",
+      transition: "all 0.2s ease",
     },
-
     viewButton: {
-      backgroundColor: "#10b981",     
-      color: "#fff",
+      padding: "8px 14px",
+      background: "#10b981",
+      color: "white",
       border: "none",
-      borderRadius: "8px",
-      padding: (isMobile || isTablet) ? "10px 14px" : "8px 14px",
+      borderRadius: "6px",
+      fontSize: "13px",
+      fontWeight: 600,
+      cursor: "pointer",
       display: "flex",
       alignItems: "center",
-      justifyContent: "center",
       gap: "6px",
-      cursor: "pointer",
-      fontSize: isMobile ? "0.8rem" : "14px",
-      fontWeight: 500,
-      transition: "all 0.25s ease",
-      boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-      whiteSpace: "nowrap",
-      fontFamily: "'Times New Roman', Times, serif",
+      transition: "all 0.2s ease",
     },
-
-    fileName: {
-      fontSize: isMobile ? "0.8rem" : "14px",
-      color: "#374151",
-      fontWeight: "500",
-      wordBreak: "break-word",
-      flex: "1",
-      fontFamily: "'Times New Roman', Times, serif",
+    programsSection: {
+      padding: "1.25rem",
+      background: "#eff6ff",
+      borderRadius: "8px",
+      border: "1px solid #dbeafe",
     },
-
-    noFileText: {
-      fontSize: isMobile ? "0.8rem" : "14px",
-      color: "#9ca3af",
-      fontStyle: "italic",
-      fontFamily: "'Times New Roman', Times, serif",
+    programsSectionLabel: {
+      fontSize: "13px",
+      color: "#1e40af",
+      textTransform: "uppercase",
+      fontWeight: 600,
+      letterSpacing: "0.5px",
+      display: "flex",
+      alignItems: "center",
+      marginBottom: "12px",
     },
-
+    labCount: {
+      marginLeft: "auto",
+      fontSize: "12px",
+      padding: "2px 10px",
+      background: "#10b981",
+      color: "white",
+      borderRadius: "12px",
+      fontWeight: 700,
+    },
     programsGrid: {
       display: "grid",
-      gridTemplateColumns: (isMobile || isTablet) ? "1fr" : "repeat(auto-fill, minmax(300px, 1fr))",
-      gap: (isMobile || isTablet) ? "12px" : "16px",
+      gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+      gap: "12px",
     },
-
     programCard: {
-      backgroundColor: "white",
-      borderRadius: "8px",
-      padding: (isMobile || isTablet) ? "12px" : "16px",
+      background: "white",
+      padding: "12px",
+      borderRadius: "6px",
       border: "1px solid #e5e7eb",
     },
-
-    programHeader: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "flex-start",
-      gap: "0.5rem",
-    },
-
     programName: {
-      fontSize: isMobile ? "0.95rem" : "16px",
-      fontWeight: "700",
-      color: "#111827",
-      marginBottom: "8px",
-      wordBreak: "break-word",
-      fontFamily: "'Times New Roman', Times, serif",
+      fontSize: "14px",
+      fontWeight: 600,
+      color: "#1f2937",
+      marginBottom: "6px",
     },
-
-    programMeta1: {
-      fontSize: isMobile ? "0.8rem" : "14px",
+    programMeta: {
+      fontSize: "13px",
       color: "#6b7280",
       marginBottom: "4px",
-      fontFamily: "'Times New Roman', Times, serif",
     },
-
-    programMeta2: {
-      fontSize: isMobile ? "0.75rem" : "13px",
-      color: "#6b7280",
-      marginBottom: "4px",
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
     programBadgeAlt: {
+      display: "inline-block",
       padding: "4px 8px",
-      borderRadius: "4px",
-      fontSize: isMobile ? "0.7rem" : "12px",
-      fontWeight: "600",
-      backgroundColor: "#dbeafe",
+      background: "#dbeafe",
       color: "#1e40af",
-      whiteSpace: "nowrap",
-      fontFamily: "'Times New Roman', Times, serif",
+      borderRadius: "4px",
+      fontSize: "12px",
+      fontWeight: 600,
+      marginTop: "6px",
     },
-
-    noResults: {
-      backgroundColor: "white",
-      borderRadius: "0.75rem",
-      padding: (isMobile || isTablet) ? "2rem 1rem" : "3rem",
-      textAlign: "center",
-      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-    },
-
-    noResultsP: {
-      color: "#6b7280",
-      fontSize: isMobile ? "1rem" : "1.125rem",
-      margin: "0",
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
     modal: {
-      position: 'fixed',
+      position: "fixed",
       top: 0,
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      background: "rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       zIndex: 1000,
-      padding: (isMobile || isTablet) ? "1rem" : "2rem",
     },
-
     modalContent: {
-      backgroundColor: 'white',
-      borderRadius: (isMobile || isTablet) ? "10px" : "12px",
-      padding: (isMobile || isTablet) ? "1.25rem" : "24px",
-      width: '100%',
-      maxWidth: (isMobile || isTablet) ? "100%" : "500px",
-      maxHeight: (isMobile || isTablet) ? "90vh" : "95vh",
+      background: "white",
+      borderRadius: "12px",
+      padding: "30px",
+      width: "90%",
+      maxWidth: "600px",
+      maxHeight: "90vh",
       overflowY: "auto",
-      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-      fontFamily: "'Times New Roman', Times, serif",
     },
-
     modalHeader: {
-      fontSize: isMobile ? "1.25rem" : "24px",
-      fontWeight: '600',
-      marginBottom: (isMobile || isTablet) ? "1rem" : "24px",
-      color: '#111827',
-      fontFamily: "'Times New Roman', Times, serif",
+      fontSize: "24px",
+      fontWeight: 700,
+      color: "#2d3748",
+      marginBottom: "20px",
     },
-
     formGroup: {
-      marginBottom: (isMobile || isTablet) ? "1rem" : "20px"
+      marginBottom: "20px",
     },
-
     label: {
-      display: 'block',
-      fontSize: isMobile ? "0.85rem" : "14px",
-      fontWeight: '500',
-      marginBottom: '8px',
-      color: '#374151',
-      fontFamily: "'Times New Roman', Times, serif",
+      display: "block",
+      fontSize: "14px",
+      fontWeight: 600,
+      color: "#2d3748",
+      marginBottom: "8px",
     },
-
     input: {
-      width: '100%',
-      padding: (isMobile || isTablet) ? "9px 11px" : "10px 12px",
-      border: '1px solid #d1d5db',
-      borderRadius: '8px',
-      fontSize: isMobile ? "0.9rem" : "14px",
-      outline: 'none',
-      transition: 'border-color 0.2s',
-      boxSizing: 'border-box',
-      fontFamily: "'Times New Roman', Times, serif",
+      width: "100%",
+      padding: "12px",
+      border: "2px solid #e2e8f0",
+      borderRadius: "8px",
+      fontSize: "14px",
+      transition: "all 0.3s ease",
+      boxSizing: "border-box",
     },
-
     select: {
-      width: '100%',
-      padding: (isMobile || isTablet) ? "9px 11px" : "10px 12px",
-      border: '1px solid #d1d5db',
-      borderRadius: '8px',
-      fontSize: isMobile ? "0.9rem" : "14px",
-      outline: 'none',
-      transition: 'border-color 0.2s',
-      boxSizing: 'border-box',
-      backgroundColor: 'white',
-      fontFamily: "'Times New Roman', Times, serif",
+      width: "100%",
+      padding: "12px",
+      border: "2px solid #e2e8f0",
+      borderRadius: "8px",
+      fontSize: "14px",
+      transition: "all 0.3s ease",
+      boxSizing: "border-box",
+      background: "white",
     },
-
     modalActions: {
-      display: 'flex',
-      flexDirection: (isMobile || isTablet) ? "column-reverse" : "row",
-      gap: '12px',
-      justifyContent: 'flex-end',
-      marginTop: (isMobile || isTablet) ? "1.25rem" : "24px"
+      display: "flex",
+      gap: "12px",
+      marginTop: "24px",
     },
-
     cancelButton: {
-      padding: (isMobile || isTablet) ? "9px 18px" : "10px 20px",
-      border: '1px solid #d1d5db',
-      borderRadius: '8px',
-      backgroundColor: 'white',
-      color: '#374151',
-      fontSize: '14px',
-      fontWeight: '500',
-      cursor: 'pointer',
-      transition: 'background-color 0.2s',
-      fontFamily: "'Times New Roman', Times, serif",
+      flex: 1,
+      padding: "12px",
+      background: "white",
+      color: "#718096",
+      border: "2px solid #e2e8f0",
+      borderRadius: "8px",
+      fontWeight: 600,
+      cursor: "pointer",
+      fontSize: "14px",
     },
-
     saveButton: {
-      padding: (isMobile || isTablet) ? "9px 18px" : "10px 20px",
-      border: 'none',
-      borderRadius: '8px',
-      backgroundColor: '#10b981',
-      color: 'white',
-      fontSize: '14px',
-      fontWeight: '500',
-      cursor: 'pointer',
-      transition: 'background-color 0.2s',
-      fontFamily: "'Times New Roman', Times, serif",
+      flex: 1,
+      padding: "12px",
+      background: "#10b981",
+      color: "white",
+      border: "none",
+      borderRadius: "8px",
+      fontWeight: 600,
+      cursor: "pointer",
+      fontSize: "14px",
     },
-
-    programModal: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: (isMobile || isTablet) ? "1rem" : "2rem",
+    formRow: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: "12px",
+      marginBottom: "20px",
     },
-
-    programModalContent: {
-      backgroundColor: 'white',
-      borderRadius: (isMobile || isTablet) ? "10px" : "12px",
-      padding: (isMobile || isTablet) ? "1.25rem" : "24px",
-      width: '100%',
-      maxWidth: (isMobile || isTablet) ? "100%" : "600px",
-      maxHeight: '90vh',
-      overflowY: 'auto',
-      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
-    programModalHeader: {
-      fontSize: isMobile ? "1.25rem" : "24px",
-      fontWeight: '600',
-      marginBottom: '8px',
-      color: '#111827',
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
-    programModalSubheader: {
-      fontSize: isMobile ? "0.85rem" : "14px",
-      color: '#6b7280',
-      marginBottom: (isMobile || isTablet) ? "1rem" : "24px",
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
-    programFormGroup: {
-      marginBottom: (isMobile || isTablet) ? "1rem" : "20px"
-    },
-
-    programFormRow: {
-      display: 'flex',
-      flexDirection: (isMobile || isTablet) ? "column" : "row",
-      gap: (isMobile || isTablet) ? "1rem" : "16px",
-      marginBottom: (isMobile || isTablet) ? "1rem" : "20px"
-    },
-
-    programFormColumn: {
-      flex: 1
-    },
-
-    programLabel: {
-      display: 'block',
-      fontSize: isMobile ? "0.85rem" : "14px",
-      fontWeight: '500',
-      marginBottom: '8px',
-      color: '#374151',
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
-    programInput: {
-      width: '100%',
-      padding: (isMobile || isTablet) ? "9px 11px" : "10px 12px",
-      border: '1px solid #d1d5db',
-      borderRadius: '8px',
-      fontSize: isMobile ? "0.9rem" : "14px",
-      outline: 'none',
-      transition: 'border-color 0.2s',
-      boxSizing: 'border-box',
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
-    programSelect: {
-      width: '100%',
-      padding: (isMobile || isTablet) ? "9px 11px" : "10px 12px",
-      border: '1px solid #d1d5db',
-      borderRadius: '8px',
-      fontSize: isMobile ? "0.9rem" : "14px",
-      outline: 'none',
-      transition: 'border-color 0.2s',
-      boxSizing: 'border-box',
-      backgroundColor: 'white',
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
-    programModalActions: {
-      display: 'flex',
-      flexDirection: (isMobile || isTablet) ? "column-reverse" : "row",
-      gap: '12px',
-      justifyContent: 'flex-end',
-      marginTop: (isMobile || isTablet) ? "1.25rem" : "24px"
-    },
-
-    programCancelButton: {
-      padding: (isMobile || isTablet) ? "9px 18px" : "10px 20px",
-      border: '1px solid #d1d5db',
-      borderRadius: '8px',
-      backgroundColor: 'white',
-      color: '#374151',
-      fontSize: '14px',
-      fontWeight: '500',
-      cursor: 'pointer',
-      transition: 'background-color 0.2s',
-      fontFamily: "'Times New Roman', Times, serif",
-    },
-
-    programSaveButton: {
-      padding: (isMobile || isTablet) ? "9px 18px" : "10px 20px",
-      border: 'none',
-      borderRadius: '8px',
-      backgroundColor: '#10b981',
-      color: 'white',
-      fontSize: '14px',
-      fontWeight: '500',
-      cursor: 'pointer',
-      transition: 'background-color 0.2s',
-      fontFamily: "'Times New Roman', Times, serif",
-    }
   };
 
-return (
-  <div style={styles.subjectListContainer}>
-
-    <div style={styles.contentWrapper}>
-      {/* Page Header */}
-      <div style={styles.pageHeader}>
-        <h2 style={styles.pageTitle}>Subject List</h2>
+  return (
+    <div style={styles.container}>
+      <header style={styles.header}>
+        <h1 style={styles.headerTitle}>Subject List Management</h1>
         <button 
-          style={styles.addBtn}
+          style={styles.addButton} 
           onClick={() => setShowAddModal(true)}>
-          <Plus size={20} />
-          <span>Add Subject</span>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+          </svg>
+          Add New
         </button>
-      </div>
+      </header>
 
-      {/* Search and Filters */}
-      <div style={styles.filtersCard}>
-        <div style={styles.searchWrapper}>
-          <div style={styles.searchIcon}>
-            <Search size={20} />
-          </div>
-          <input
-            type="text"
-            placeholder="Search subjects by name or code..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={styles.searchInput}
-          />
-        </div>
-
-        {/* Filters */}
-        <div style={styles.filtersRow}>
-          <div style={styles.filterLabel}>
-            <Filter size={18} />
-            <span>Filters:</span>
-          </div>
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            style={styles.filterSelect}
-          >
-            <option value="all">All Status</option>
-            <option value="uploaded">Uploaded</option>
-            <option value="pending">Pending</option>
-          </select>
-
-          <select
-            value={departmentFilter}
-            onChange={(e) => setDepartmentFilter(e.target.value)}
-            style={styles.filterSelect}
-          >
-            <option value="all">All Departments</option>
-            <option value="Computer Science">Computer Science</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Mechanical">Mechanical</option>
-          </select>
-
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            style={styles.filterSelect}
-          >
-            <option value="courseCode">Sort by Code</option>
-            <option value="name">Sort by Name</option>
-          </select>
-
-          <div style={styles.resultCount}>
-            Showing {sortedSubjects.length} of {subjects.length} subjects
-          </div>
-        </div>
-      </div>
-
-      {/* Subject List */}
-      { subjects.length > 0 ? (
-        <div style={styles.subjectsList}>
-          {sortedSubjects.map((subject, index) => (
-            <div key={subject._id} style={styles.subjectCard}>
-              <div style={styles.subjectCardContent}>
-                <div style={styles.subjectInfoSection}>
-                  <div style={styles.subjectAvatar}>
-                    <span>S{index + 1}</span>
-                  </div>
-
-                  <div style={styles.subjectDetails}>
-                    <h3 style={styles.subjectName}>{(subject.Course_Name).toUpperCase()}</h3>
-                    <p style={styles.subjectCode}>Code: {subject.Course_Code}</p>
+      <div style={styles.cardContainer}>
+        {subjects && subjects.length > 0 ? (
+          sortedSubjects.map((subject, index) => (
+            <div key={subject._id} style={styles.card}>
+              <div style={styles.cardHeader}>
+                <div style={styles.cardLeft}>
+                  <div style={styles.profileImage}>S{index + 1}</div>
+                  <div style={styles.cardInfo}>
+                    <h3 style={styles.cardName}>{subject.Course_Name.toUpperCase()}</h3>
+                    <p style={styles.cardEmail}>Code: {subject.Course_Code}</p>
                   </div>
                 </div>
 
-                <div style={styles.subjectActions}>
-                  <span
-                    style={{
-                      ...styles.statusBadge,
-                      ...(subject.Status.toLowerCase() === "uploaded" && styles.statusBadgeUploaded),
-                      ...(subject.Status.toLowerCase() === "pending" && styles.statusBadgePending),
-                    }}
-                  >
-                    {subject.Status
-                      ? subject.Status.charAt(0).toUpperCase() + subject.Status.slice(1).toLowerCase()
-                      : ""}
+                <div style={styles.cardRight}>
+                  <div style={{ textAlign: "right" }}>
+                    <p style={styles.cardStock}>{subject.Course_Department || "N/A"}</p>
+                  </div>
+
+                  <span style={{...styles.statusBadge, ...(subject.Status?.toLowerCase() === "uploaded" && styles.statusApproved), ...(subject.Status?.toLowerCase() === "pending" && styles.statusPending)}}>
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                      {subject.Status?.toLowerCase() === "uploaded" ? (
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      ) : (
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      )}
+                    </svg>
+                    {subject.Status ? subject.Status.charAt(0).toUpperCase() + subject.Status.slice(1).toLowerCase() : "Pending"}
                   </span>
 
                   <span style={styles.programBadge}>
-                    {subject.Programs ? (
-                      <>{subject.Programs.length} {subject.Programs.length === 1 ? 'Program' : 'Programs'}</>
-                    ) : (
-                      '0 Programs'
-                    )}
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                    </svg>
+                    {subject.Programs ? `${subject.Programs.length} ${subject.Programs.length === 1 ? 'Program' : 'Programs'}` : '0 Programs'}
                   </span>
 
-                  <button 
-                    style={{...styles.iconBtn, ...styles.iconBtnAddIcon}}
-                    onClick={() => handleOpenAddProgram(subject)}>
-                    <Plus size={20} />
-                  </button>
-
-                  <button style={{...styles.iconBtn, ...styles.iconBtnEditIcon}}>
-                    <Edit2 size={20} />
-                  </button>
-
-                  <button style={{...styles.iconBtn, ...styles.iconBtnDeleteIcon}}>
-                    <Trash2 size={20} />
-                  </button>
-
-                  <button 
-                    onClick={() => setExpandedSubject(expandedSubject === subject._id ? null : subject._id)}
-                    style={{...styles.iconBtn, ...styles.iconBtnExpandIcon}}
-                  >
-                    <ChevronDown 
-                      size={20} 
-                      style={expandedSubject === subject._id ? styles.rotated : {}}
-                    />
-                  </button>
+                  <div style={styles.actionButtons}>
+                    <button style={{...styles.iconButton, ...styles.addProgramButton}} onClick={() => handleOpenAddProgram(subject)}>
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    <button style={{...styles.iconButton, ...styles.editButton}}>
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                      </svg>
+                    </button>
+                    <button style={{...styles.iconButton, ...styles.deleteButton}}>
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    <button style={{...styles.iconButton, ...styles.expandButton, transform: expandedSubject === subject._id ? "rotate(180deg)" : "rotate(0deg)"}} onClick={() => setExpandedSubject(expandedSubject === subject._id ? null : subject._id)}>
+                      <ChevronDown size={18} />
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {expandedSubject === subject._id && (
-              <div style={styles.expandedContent}>
-                {/* Experiment List Section */}
-                <div style={styles.expandedSection}>
-                  <h3 style={styles.sectionTitle}>Experiment List</h3>
-                  <div style={styles.uploadSection}>
-                    {subject.Experiment_List ? (
-                      <>
-                        <span style={styles.fileName}>{subject.Experiment_List}</span>
-                        <div style={{ display: "flex", gap: "10px" }}>
+                <div style={styles.expandedContent}>
+                  <div style={styles.labAccessSection}>
+                    <span style={styles.labAccessLabel}>
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style={{marginRight: "6px"}}>
+                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                      </svg>
+                      Experiment List
+                    </span>
+                    <div style={styles.uploadSection}>
+                      {subject.Experiment_List ? (
+                        <>
+                          <span style={styles.fileName}>{subject.Experiment_List}</span>
                           <button style={styles.uploadButton} onClick={() => handleFileUpload(subject._id)}>
-                            <Upload size={14} /> Replace
+                            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z" />
+                            </svg>
+                            Replace
                           </button>
-
-                          <button
-                            style={styles.viewButton}
-                            onClick={() => window.open(`/ListOfExperiment_uploads/${subject.Experiment_List}`, "_blank")}
-                          >
-                            View PDF
+                          <button style={styles.viewButton} onClick={() => window.open(`/ListOfExperiment_uploads/${subject.Experiment_List}`, "_blank")}>View PDF</button>
+                        </>
+                      ) : (
+                        <>
+                          <span style={styles.noFileText}>No file uploaded</span>
+                          <button style={styles.uploadButton} onClick={() => handleFileUpload(subject._id)}>
+                            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z" />
+                            </svg>
+                            Upload PDF
                           </button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <span style={styles.noFileText}>No file uploaded</span>
-                        <button style={styles.uploadButton} onClick={() => handleFileUpload(subject._id)}>
-                          <Upload size={14} /> Upload PDF
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* Programs Section */}
-                {subject.Programs && subject.Programs.length > 0 && (
-                  <div style={styles.expandedSection}>
-                    <h3 style={styles.sectionTitle}>Assigned Programs</h3>
-                    <div style={styles.programsGrid}>
-                      {subject.Programs.map((program) => (
-                        <div key={program._id} style={styles.programCard}>
-                          <div style={styles.programHeader}>
-                            <div>
-                              <div style={styles.programName}>{program.Program_Name}</div>
-                                <div style={styles.programMeta1}>
-                                    Batch: {program.Program_Batch}
-                                </div>
-                                <div style={styles.programMeta2}>
-                                  Section {program.Program_Section} • Semester {program.Program_Semester}
-                                </div>
-                                {program.Subject && program.Subject.map((subj, index) => (
-                                  <div key={index}>
-                                    <div style={styles.programMeta1}>
-                                      Faculty: {subj.Faculty_Assigned?.Name || 'Not Assigned'}
-                                    </div>
-                                    <div style={styles.programMeta2}>
-                                      Lab: {subj.Lab_Allocated?.Lab_ID || 'Not Assigned'}
-                                    </div>
-                                  </div>
-                                ))}
-                            </div>
-                            <div>
-                              <span style={styles.programBadgeAlt}>{program.Program_Group}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                        </>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
-            )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p style={styles.noResultsP}>No subjects available. Please add a new subject.</p>
-      )}
 
-      {/* Add Subject Modal */}
+                  {subject.Programs && subject.Programs.length > 0 && (
+                    <div style={styles.programsSection}>
+                      <span style={styles.programsSectionLabel}>
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style={{marginRight: "6px"}}>
+                          <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                        </svg>
+                        Assigned Programs
+                        <span style={styles.labCount}>{subject.Programs.length} program{subject.Programs.length !== 1 ? 's' : ''}</span>
+                      </span>
+                      <div style={styles.programsGrid}>
+                        {subject.Programs.map((program) => (
+                          <div key={program._id} style={styles.programCard}>
+                            <div style={styles.programName}>{program.Program_Name}</div>
+                            <div style={styles.programMeta}>Batch: {program.Program_Batch}</div>
+                            <div style={styles.programMeta}>Section {program.Program_Section} • Semester {program.Program_Semester}</div>
+                            {program.Subject && program.Subject.map((subj, index) => (
+                              <div key={index}>
+                                <div style={styles.programMeta}>Faculty: {subj.Faculty_Assigned?.Name || 'Not Assigned'}</div>
+                                <div style={styles.programMeta}>Lab: {subj.Lab_Allocated?.Lab_ID || 'Not Assigned'}</div>
+                              </div>
+                            ))}
+                            <span style={styles.programBadgeAlt}>{program.Program_Group}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <p style={{color: "#555", fontSize: "1.1rem", fontWeight: 500, textAlign: "center"}}>No subjects found.</p>
+        )}
+      </div>
+
       {showAddModal && (
         <div style={styles.modal} onClick={() => setShowAddModal(false)}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <h2 style={styles.modalHeader}>Add New Subject</h2>
-            
             <div style={styles.formGroup}>
               <label style={styles.label}>Course Name</label>
-              <input 
-                type="text"
-                style={styles.input}
-                value={newSubject.courseName}
-                onChange={(e) => setNewSubject({...newSubject, courseName: e.target.value})}
-                placeholder="Enter course name"
-              />
+              <input type="text" style={styles.input} value={newSubject.courseName} onChange={(e) => setNewSubject({...newSubject, courseName: e.target.value})} placeholder="Enter course name" />
             </div>
-
             <div style={styles.formGroup}>
               <label style={styles.label}>Course Code</label>
-              <input 
-                type="text"
-                style={styles.input}
-                value={newSubject.courseCode}
-                onChange={(e) => setNewSubject({...newSubject, courseCode: e.target.value})}
-                placeholder="Enter course code"
-              />
+              <input type="text" style={styles.input} value={newSubject.courseCode} onChange={(e) => setNewSubject({...newSubject, courseCode: e.target.value})} placeholder="Enter course code" />
             </div>
-
             <div style={styles.formGroup}>
               <label style={styles.label}>Course Department</label>
-              <select
-                style={styles.select}
-                value={newSubject.courseDepartment}
-                onChange={(e) =>
-                  setNewSubject({ ...newSubject, courseDepartment: e.target.value })
-                }>
+              <select style={styles.select} value={newSubject.courseDepartment} onChange={(e) => setNewSubject({...newSubject, courseDepartment: e.target.value})}>
                 <option value="">Select Department</option>
                 <option value="Computer Science">Computer Science</option>
                 <option value="Electrical">Electrical</option>
                 <option value="Mechanical">Mechanical</option>
               </select>
             </div>
-
             <div style={styles.modalActions}>
-              <button 
-                style={styles.cancelButton}
-                onClick={() => {
-                  setShowAddModal(false);
-                  setNewSubject({ courseName: '', courseCode: '', courseDepartment: '' });
-                }}
-              >
-                Cancel
-              </button>
-              <button 
-                style={styles.saveButton}
-                onClick={handleAddSubject}
-              >
-                Add Subject
-              </button>
+              <button style={styles.cancelButton} onClick={() => {setShowAddModal(false); setNewSubject({courseName: '', courseCode: '', courseDepartment: ''});}}>Cancel</button>
+              <button style={styles.saveButton} onClick={handleAddSubject}>Add Subject</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Add Program Modal */}
       {showAddProgramModal && (
-        <div style={styles.programModal} onClick={() => setShowAddProgramModal(false)}>
-          <div style={styles.programModalContent} onClick={(e) => e.stopPropagation()}>
-            <h2 style={styles.programModalHeader}>Add New Program</h2>
-            <p style={styles.programModalSubheader}>
-              Adding program for: <strong>{selectedSubject?.Course_Name}</strong> ({selectedSubject?.Course_Code})
-            </p>
-            
-            <div style={styles.programFormGroup}>
-              <label style={styles.programLabel}>Program Name</label>
-              <input 
-                type="text"
-                style={styles.programInput}
-                value={newProgram.programName}
-                onChange={(e) => setNewProgram({...newProgram, programName: e.target.value})}
-                placeholder="Enter program name"
-              />
+        <div style={styles.modal} onClick={() => setShowAddProgramModal(false)}>
+          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h2 style={styles.modalHeader}>Add New Program</h2>
+            <p style={{fontSize: "14px", color: "#6b7280", marginBottom: "20px"}}>Adding program for: <strong>{selectedSubject?.Course_Name}</strong> ({selectedSubject?.Course_Code})</p>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Program Name</label>
+              <input type="text" style={styles.input} value={newProgram.programName} onChange={(e) => setNewProgram({...newProgram, programName: e.target.value})} placeholder="Enter program name" />
             </div>
-
-            <div style={styles.programFormRow}>
-              <div style={styles.programFormColumn}>
-                <label style={styles.programLabel}>Section</label>
-                <input 
-                  type="text"
-                  style={styles.programInput}
-                  value={newProgram.programSection}
-                  onChange={(e) => setNewProgram({...newProgram, programSection: e.target.value})}
-                  placeholder="Enter section"
-                />
+            <div style={styles.formRow}>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Section</label>
+                <input type="text" style={styles.input} value={newProgram.programSection} onChange={(e) => setNewProgram({...newProgram, programSection: e.target.value})} placeholder="Enter section" />
               </div>
-              <div style={styles.programFormColumn}>
-                <label style={styles.programLabel}>Semester</label>
-                <input 
-                  type="text"
-                  style={styles.programInput}
-                  value={newProgram.programSemester}
-                  onChange={(e) => setNewProgram({...newProgram, programSemester: e.target.value})}
-                  placeholder="Enter semester"
-                />
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Semester</label>
+                <input type="text" style={styles.input} value={newProgram.programSemester} onChange={(e) => setNewProgram({...newProgram, programSemester: e.target.value})} placeholder="Enter semester" />
               </div>
             </div>
-
-            <div style={styles.programFormRow}>
-              <div style={styles.programFormColumn}>
-                <label style={styles.programLabel}>Group</label>
-                <input 
-                  type="text"
-                  style={styles.programInput}
-                  value={newProgram.programGroup}
-                  onChange={(e) => setNewProgram({...newProgram, programGroup: e.target.value})}
-                  placeholder="Enter group"
-                />
+            <div style={styles.formRow}>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Group</label>
+                <input type="text" style={styles.input} value={newProgram.programGroup} onChange={(e) => setNewProgram({...newProgram, programGroup: e.target.value})} placeholder="Enter group" />
               </div>
-              <div style={styles.programFormColumn}>
-                <label style={styles.programLabel}>Batch</label>
-                <input 
-                  type="text"
-                  style={styles.programInput}
-                  value={newProgram.programBatch}
-                  onChange={(e) => setNewProgram({...newProgram, programBatch: e.target.value})}
-                  placeholder="Enter batch"
-                />
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Batch</label>
+                <input type="text" style={styles.input} value={newProgram.programBatch} onChange={(e) => setNewProgram({...newProgram, programBatch: e.target.value})} placeholder="Enter batch" />
               </div>
             </div>
-
-            <div style={styles.programFormGroup}>
-              <label style={styles.programLabel}>Number of Hours</label>
-              <input 
-                type="text"
-                style={styles.programInput}
-                value={newProgram.numberOfHours}
-                onChange={(e) => setNewProgram({...newProgram, numberOfHours: e.target.value})}
-                placeholder="Enter number of hours"
-              />
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Number of Hours</label>
+              <input type="text" style={styles.input} value={newProgram.numberOfHours} onChange={(e) => setNewProgram({...newProgram, numberOfHours: e.target.value})} placeholder="Enter number of hours" />
             </div>
-
-            <div style={styles.programFormGroup}>
-              <label style={styles.programLabel}>Faculty Assigned</label>
-              <select
-                style={styles.programSelect}
-                value={newProgram.facultyAssigned}
-                onChange={(e) => setNewProgram({...newProgram, facultyAssigned: e.target.value})}
-              >
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Faculty Assigned</label>
+              <select style={styles.select} value={newProgram.facultyAssigned} onChange={(e) => setNewProgram({...newProgram, facultyAssigned: e.target.value})}>
                 <option value="">Select Faculty</option>
                 {faculties.map((faculty) => (
-                  <option key={faculty._id} value={faculty._id}>
-                    {faculty.Name} ({faculty.Email})
-                  </option>
+                  <option key={faculty._id} value={faculty._id}>{faculty.Name} ({faculty.Email})</option>
                 ))}
               </select>
             </div>
-
-            <div style={styles.programFormGroup}>
-              <label style={styles.programLabel}>Lab Allocated</label>
-              <select
-                style={styles.programSelect}
-                value={newProgram.labAllocated}
-                onChange={(e) => setNewProgram({...newProgram, labAllocated: e.target.value})}
-              >
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Lab Allocated</label>
+              <select style={styles.select} value={newProgram.labAllocated} onChange={(e) => setNewProgram({...newProgram, labAllocated: e.target.value})}>
                 <option value="">Select Lab</option>
                 {labs.map((lab) => (
-                  <option key={lab._id} value={lab._id}>
-                    {lab.name} ({lab.id})
-                  </option>
+                  <option key={lab._id} value={lab._id}>{lab.name} ({lab.id})</option>
                 ))}
               </select>
             </div>
-
-            <div style={styles.programModalActions}>
-              <button 
-                style={styles.programCancelButton}
-                onClick={() => {
-                  setShowAddProgramModal(false);
-                  setNewProgram({
-                    programName: '',
-                    programSection: '',
-                    programSemester: '',
-                    programGroup: '',
-                    programBatch: '',
-                    numberOfHours: '',
-                    facultyAssigned: '',
-                    labAllocated: ''
-                  });
-                }}
-              >
-                Cancel
-              </button>
-              <button 
-                style={styles.programSaveButton}
-                onClick={handleAddProgram}
-              >
-                Add Program
-              </button>
+            <div style={styles.modalActions}>
+              <button style={styles.cancelButton} onClick={() => {setShowAddProgramModal(false); setNewProgram({programName: '', programSection: '', programSemester: '', programGroup: '', programBatch: '', numberOfHours: '', facultyAssigned: '', labAllocated: ''});}}>Cancel</button>
+              <button style={styles.saveButton} onClick={handleAddProgram}>Add Program</button>
             </div>
           </div>
-        </div> 
-      )}
-
-      {sortedSubjects.length === 0 && subjects.length !== 0 && (
-        <div style={styles.noResults}>
-          <p style={styles.noResultsP}>No subjects found matching your criteria.</p>
         </div>
       )}
     </div>
-  </div>
-  ); 
+  );
 }

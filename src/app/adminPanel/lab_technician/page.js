@@ -11,6 +11,8 @@ export default function LabTechnicianManagement() {
   const [editingUser, setEditingUser] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
   const dropdownRef = useRef(null);
   const [newUser, setNewUser] = useState({
     name: "",
@@ -75,7 +77,20 @@ export default function LabTechnicianManagement() {
     };
 
     fetchLab();
-  }, []);  
+  }, []); 
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width >= 768 && width < 1024);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+ 
 
   const resetForm = () => {
     setNewUser({
@@ -266,13 +281,14 @@ export default function LabTechnicianManagement() {
 
   const styles = {
     container: {
-      width: 'calc(100% - 255px)', 
+      width: (isMobile || isTablet) ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
-      padding: '2rem',
+      padding: (isMobile || isTablet) ? '1rem' : '2rem',
       boxSizing: 'border-box',
-      marginLeft: '255px',
+      marginLeft: (isMobile || isTablet) ? '0' : '255px',
       overflowX: 'hidden',
+      fontFamily: "'Times New Roman', Times, serif",
     },
     header: {
       display: "flex",
@@ -784,6 +800,7 @@ export default function LabTechnicianManagement() {
       borderBottom: '1px solid #eee',
       color: '#666',
     },
+    
   };
 
   return (
