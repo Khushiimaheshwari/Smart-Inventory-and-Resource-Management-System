@@ -10,6 +10,7 @@ const AssetsPage = () => {
   const [selectedType, setSelectedType] = useState("All");
   const [viewingQR, setViewingQR] = useState(null);
   const [editingAsset, setEditingAsset] = useState(null);
+   const [isMobile, setIsMobile] = useState(false);
   const [newAsset, setNewAsset] = useState({
     Asset_Name: "",
     Asset_Type: "Monitor",
@@ -40,6 +41,13 @@ const AssetsPage = () => {
     };
 
     fetchPC();
+  }, []);
+   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    }; checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const filteredAssets = selectedType === "All" 
@@ -151,12 +159,12 @@ const AssetsPage = () => {
   
   const styles = {
     container: {
-      width: 'calc(100% - 255px)', 
+      width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
-      padding: '2rem',
+      padding: isMobile ? '1rem' : '2rem',
       boxSizing: 'border-box',
-      marginLeft: '255px',
+      marginLeft: isMobile ? '0' : '255px',
       overflowX: 'hidden',
     },
     header: {

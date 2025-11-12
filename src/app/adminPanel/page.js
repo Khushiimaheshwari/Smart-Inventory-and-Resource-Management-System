@@ -98,15 +98,15 @@ export default function Dashboard() {
 
   const metricsGridStyle = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-    gap: '0.75rem',
+    gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+    gap: '1rem',
     marginBottom: '1.5rem'
   };
 
   const metricCardStyle = {
     backgroundColor: 'white',
     borderRadius: '12px',
-    padding: '0.875rem',
+    padding: isMobile ? '1rem' : '1.25rem',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
   };
 
@@ -131,7 +131,7 @@ export default function Dashboard() {
   };
   
   const metricChangeStyle = { 
-    fontSize: isMobile ? '0.75rem' : '0.875rem', 
+    fontSize: isMobile ? '0.7rem' : '0.875rem', 
     color: '#6b7280' 
   };
 
@@ -222,7 +222,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={metricValueStyle}>{metrics.totalAssets.toLocaleString()}</div>
-          <div style={metricChangeStyle}>Across all departments</div>
+         
         </div>
 
         <div style={metricCardStyle}>
@@ -248,7 +248,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={metricValueStyle}>{metrics.totalSubjects}</div>
-          <div style={metricChangeStyle}>12 programs</div>
+          
         </div>
 
         <div style={metricCardStyle}>
@@ -261,7 +261,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={metricValueStyle}>{metrics.totalPrograms}</div>
-          <div style={metricChangeStyle}>B.Tech, M.Tech, etc.</div>
+         
         </div>
 
         <div style={metricCardStyle}>
@@ -274,7 +274,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={metricValueStyle}>{metrics.totalTechnicians}</div>
-          <div style={metricChangeStyle}>Active staff</div>
+          
         </div>
 
         <div style={metricCardStyle}>
@@ -287,7 +287,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={metricValueStyle}>{metrics.totalFaculty}</div>
-          <div style={metricChangeStyle}>Teaching staff</div>
+          
         </div>
       </div>
 
