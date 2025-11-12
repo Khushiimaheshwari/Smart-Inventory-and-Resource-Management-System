@@ -6,13 +6,17 @@ export default function AssetManagement() {
   const [pcs, setPCs] = useState([]);
   const [labs, setLabs] = useState([]);
   const [selectedLab, setSelectedLab] = useState("all");
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingPC, setEditingPC] = useState(null);
-  const [newPC, setNewPC] = useState({
-    PC_Name: "",
-    Lab: "",
-    Assets: []
-  });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const fetchPCs = async () => {
@@ -56,8 +60,6 @@ export default function AssetManagement() {
       } catch (err) {
         console.error("Error fetching labs:", err);
         alert("Failed to load labs. Please try again later.");
-      } finally {
-        // setLoadingLabs(false);
       }
     };
 
@@ -68,84 +70,49 @@ export default function AssetManagement() {
     ? pcs 
     : pcs.filter(pc => pc.Lab._id === selectedLab);
 
-  const handleEditPC = (pc) => {
-    setEditingPC(pc);
-    setShowAddModal(true);
-    setNewPC(pc);
-  };
-
-  const handleUpdatePC = () => {
-    setPCs(pcs.map(p => p.id === editingPC.id ? { ...newPC, id: editingPC.id } : p));
-    setShowAddModal(false);
-    setEditingPC(null);
-    resetForm();
-  };
-
-  const handleDeletePC = (pcId) => {
-    if (window.confirm("Are you sure you want to delete this PC?")) {
-      setPCs(pcs.filter(p => p.id !== pcId));
-    }
-  };
-
-  const resetForm = () => {
-    setNewPC({ PC_Name: "", Lab: "", Assets: [] });
-  };
-
   const getLabName = (labData) => {
     if (!labData) return "Unknown Lab";
     return labData.name || labData.Lab_ID || "Unnamed Lab";
-
-}
+  }
 
   const styles = {
     container: {
-      width: 'calc(100% - 220px)', 
+      width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
-      padding: '2rem',
+      padding: isMobile ? '1rem' : '2rem',
       boxSizing: 'border-box',
-      marginLeft: '245px',
+      marginLeft: isMobile ? '0' : '255px',
       overflowX: 'hidden',
     },
     header: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '2rem',
+      marginBottom: isMobile ? '1.5rem' : '2rem',
       background: 'white',
       borderRadius: '12px',
-      padding: '1.5rem 2rem',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
+      padding: isMobile ? '1rem' : '1.5rem 2rem',
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+      flexWrap: isMobile ? 'wrap' : 'nowrap',
+      gap: isMobile ? '1rem' : '0'
     },
     headerTitle: {
-      fontSize: '28px',
+      fontSize: isMobile ? '20px' : '28px',
       fontWeight: 600,
       color: '#2d3748',
-      margin: 0
-    },
-    addButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#10b981',
-      color: 'white',
-      border: 'none',
-      borderRadius: '8px',
-      fontWeight: 600,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      fontSize: '14px',
-      transition: 'background 0.2s ease'
+      margin: 0,
+      width: isMobile ? '100%' : 'auto'
     },
     filterSection: {
       background: 'white',
       borderRadius: '12px',
-      padding: '1.5rem',
-      marginBottom: '2rem',
+      padding: isMobile ? '1rem' : '1.5rem',
+      marginBottom: isMobile ? '1.5rem' : '2rem',
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
     },
     filterLabel: {
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       fontWeight: 600,
       color: '#4a5568',
       marginBottom: '0.75rem',
@@ -157,15 +124,16 @@ export default function AssetManagement() {
       flexWrap: 'wrap'
     },
     filterButton: {
-      padding: '0.5rem 1rem',
+      padding: isMobile ? '0.5rem 0.875rem' : '0.5rem 1rem',
       background: '#f7fafc',
       color: '#4a5568',
-      border: '2px solid #e2e8f0',
+      border: '2px solid',
+      borderColor: '#e2e8f0',
       borderRadius: '8px',
       fontWeight: 500,
       cursor: 'pointer',
-      fontSize: '14px',
-      transition: 'all 0.2s ease'
+      fontSize: isMobile ? '13px' : '14px',
+      transition: 'all 0.2s ease',
     },
     filterButtonActive: {
       background: '#10b981',
@@ -174,30 +142,26 @@ export default function AssetManagement() {
     },
     pcGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-      gap: '1.5rem'
+      gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(280px, 1fr))',
+      gap: isMobile ? '1rem' : '1.5rem'
     },
     pcCard: {
       background: 'white',
       borderRadius: '12px',
-      padding: '1.5rem',
+      padding: isMobile ? '1.25rem' : '1.5rem',
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
       transition: 'transform 0.2s ease, box-shadow 0.2s ease',
       cursor: 'pointer',
       position: 'relative'
     },
-    pcCardHover: {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-    },
     pcName: {
-      fontSize: '18px',
+      fontSize: isMobile ? '16px' : '18px',
       fontWeight: 600,
       color: '#2d3748',
       marginBottom: '0.5rem'
     },
     pcLab: {
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       color: '#718096',
       marginBottom: '1rem',
       display: 'flex',
@@ -208,7 +172,7 @@ export default function AssetManagement() {
       marginBottom: '1rem'
     },
     assetsLabel: {
-      fontSize: '12px',
+      fontSize: isMobile ? '11px' : '12px',
       fontWeight: 600,
       color: '#4a5568',
       marginBottom: '0.5rem',
@@ -216,7 +180,7 @@ export default function AssetManagement() {
       letterSpacing: '0.5px'
     },
     assetsCount: {
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       color: '#718096'
     },
     actionButtons: {
@@ -227,7 +191,7 @@ export default function AssetManagement() {
       borderTop: '1px solid #e2e8f0'
     },
     iconButton: {
-      padding: '0.5rem',
+      padding: isMobile ? '0.625rem' : '0.5rem',
       background: '#f7fafc',
       border: 'none',
       borderRadius: '6px',
@@ -238,101 +202,13 @@ export default function AssetManagement() {
       justifyContent: 'center',
       flex: 1
     },
-    editButton: {
-      color: '#10b981'
-    },
-    deleteButton: {
-      color: '#ef4444'
-    },
     redirectButton: {
       color: '#3b82f6'
     },
-    modal: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000
-    },
-    modalContent: {
-      background: 'white',
-      borderRadius: '12px',
-      padding: '2rem',
-      width: '90%',
-      maxWidth: '500px',
-      maxHeight: '90vh',
-      overflowY: 'auto'
-    },
-    modalHeader: {
-      fontSize: '24px',
-      fontWeight: 600,
-      color: '#2d3748',
-      marginBottom: '1.5rem'
-    },
-    formGroup: {
-      marginBottom: '1.5rem'
-    },
-    label: {
-      display: 'block',
-      fontSize: '14px',
-      fontWeight: 600,
-      color: '#2d3748',
-      marginBottom: '0.5rem'
-    },
-    input: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '2px solid #e2e8f0',
-      borderRadius: '8px',
-      fontSize: '14px',
-      transition: 'border-color 0.2s ease',
-      boxSizing: 'border-box'
-    },
-    select: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '2px solid #e2e8f0',
-      borderRadius: '8px',
-      fontSize: '14px',
-      transition: 'border-color 0.2s ease',
-      boxSizing: 'border-box',
-      background: 'white'
-    },
-    modalActions: {
-      display: 'flex',
-      gap: '0.75rem',
-      marginTop: '2rem'
-    },
-    cancelButton: {
-      flex: 1,
-      padding: '0.75rem',
-      background: 'white',
-      color: '#718096',
-      border: '2px solid #e2e8f0',
-      borderRadius: '8px',
-      fontWeight: 600,
-      cursor: 'pointer',
-      fontSize: '14px'
-    },
-    saveButton: {
-      flex: 1,
-      padding: '0.75rem',
-      background: '#10b981',
-      color: 'white',
-      border: 'none',
-      borderRadius: '8px',
-      fontWeight: 600,
-      cursor: 'pointer',
-      fontSize: '14px'
-    },
     emptyState: {
-      padding: '3rem',
-      color: '#718096'
+      padding: isMobile ? '2rem' : '3rem',
+      color: '#718096',
+      textAlign: 'center'
     }
   };
 
@@ -379,12 +255,16 @@ export default function AssetManagement() {
               key={pc._id}
               style={styles.pcCard}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                if (!isMobile) {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
+                if (!isMobile) {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
+                }
               }}
             >
               <div style={styles.pcName}>{pc.PC_Name}</div>
@@ -397,7 +277,7 @@ export default function AssetManagement() {
               <div style={styles.assetsSection}>
                 <div style={styles.assetsLabel}>Assets</div>
                 <div style={styles.assetsCount}>
-                  {pc.Assets.length} item{pc.Assets.length !== 1 ? 's' : ''} assigned
+                  {pc?.Assets?.length} item{pc?.Assets?.length !== 1 ? 's' : ''} assigned
                 </div>
               </div>
               <div style={styles.actionButtons}>
@@ -411,30 +291,6 @@ export default function AssetManagement() {
                   <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
                     <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
-                  </svg>
-                </button>
-                <button
-                  style={{...styles.iconButton, ...styles.editButton}}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEditPC(pc);
-                  }}
-                  title="Edit PC"
-                >
-                  <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                  </svg>
-                </button>
-                <button
-                  style={{...styles.iconButton, ...styles.deleteButton}}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeletePC(pc.id);
-                  }}
-                  title="Delete PC"
-                >
-                  <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
                   </svg>
                 </button>
               </div>

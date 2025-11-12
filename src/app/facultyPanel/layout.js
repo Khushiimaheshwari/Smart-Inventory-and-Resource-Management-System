@@ -1,40 +1,35 @@
-// app/facultyPanel/layout.js
 "use client";  
 
+import { useState } from "react";
 import Sidebar from "./components/Faculty_Sidebar.js";
+import styles from "./FacultyLayout.module.css"
 import FacultyNavbar from "./components/facultyNavbar.js";
-// import { cookies } from "next/headers";
-// import jwt from "jsonwebtoken";
+import './styles/globals.css';
 
 export default function FacultyPanelLayout({ children }) {
 
-  // const token = cookies().get("token")?.value;
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // if (!token) {
-  //   redirect("/login");
-  // }
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
-  // try {
-  //   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  //   console.log("Decoded Token in Faculty Layout:", decoded);
-    
-  //   if (decoded.role !== "faculty") {
-  //     redirect("/unauthorized");
-  //   }
-  // } catch (err) {
-  //   redirect("/login");
-  // }
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
   
   return (
-    <div className="faculty-panel">
-      <FacultyNavbar />
+    <div className={styles.adminContainer}>
+      {/* Sidebar */}
+      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
 
-      <div style={{ display: "flex", minHeight: "100vh" }}>
-        {/* ✅ Left Sidebar */}
-        <Sidebar />
+      {/* Main Content Area */}
+      <div className={styles.mainContent}>
+        {/* Navbar */}
+        <FacultyNavbar onToggleSidebar={toggleSidebar} />
 
-        {/* ✅ Main Content Area */}
-        <main style={{ flex: 1, padding: "20px", backgroundColor: "#f9fafb" }}>
+        {/* Page Content */}
+        <main className={styles.pageContent}>
           {children}
         </main>
       </div>

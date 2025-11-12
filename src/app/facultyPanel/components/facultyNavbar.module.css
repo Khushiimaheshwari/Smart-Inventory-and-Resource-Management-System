@@ -1,97 +1,32 @@
+/* Navbar - Fixed at top, full width */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px 40px;
   background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 1000;
   width: 100%;
   box-sizing: border-box;
-  font-family: "Times New Roman", Times, serif;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  font-weight: 700;
-  font-size: 1.3rem;
-  color: #1d2b36;
-}
-
-/* Desktop Navigation */
-.desktopNavLinks {
-  list-style: none;
-  display: flex;
-  gap: 25px;
-  align-items: center;
-  margin: 0;
-  padding: 0;
-}
-
-.desktopNavLinks li a {
-  text-decoration: none;
-  color: #333;
-  font-weight: 600;
-  transition: color 0.2s ease;
-}
-
-.desktopNavLinks li a:hover {
-  color: #00b8d9;
-}
-
-/* Desktop Actions */
-.desktopActions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.loginBtn {
-  padding: 8px 16px;
-  background: linear-gradient(90deg, #00c97b, #00b8d9);
-  color: #fff;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: transform 0.2s ease;
-}
-
-.loginBtn:hover {
-  transform: scale(1.05);
-}
-
-.profileLink {
-  display: flex;
-  align-items: center;
-}
-
-.profileImg {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.profileImg:hover {
-  transform: scale(1.1);
-}
-
-/* Mobile Menu Button */
-.mobileMenuBtn {
+/* Hamburger Button - Hidden on Desktop */
+.hamburgerBtn {
   display: none;
   flex-direction: column;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 5px;
-  z-index: 1001;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.hamburgerBtn:hover {
+  background: rgba(0, 201, 123, 0.1);
 }
 
 .hamburger {
@@ -99,106 +34,183 @@
   height: 3px;
   background: #333;
   margin: 3px 0;
-  transition: 0.3s;
+  transition: all 0.3s ease;
+  border-radius: 2px;
 }
 
-/* Mobile Navigation */
-.mobileNavLinks {
-  position: fixed;
-  top: 0;
-  right: -100%;
-  width: 280px;
-  height: 100vh;
-  background: #fff;
-  flex-direction: column;
-  gap: 0;
-  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
-  transition: right 0.3s ease;
-  padding: 80px 0 20px 0;
-  box-sizing: border-box;
-  list-style: none;
-  margin: 0;
-  z-index: 1000;
+/* Logo - Always on Left */
+.logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-.mobileNavLinks.active {
-  right: 0;
+.logo img {
+  height: auto;
 }
 
-.mobileNavLinks li {
-  padding: 15px 30px;
-  width: 100%;
-  border-bottom: 1px solid #f0f0f0;
+/* Desktop Actions - Always on Right */
+.desktopActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
 }
 
-.mobileNavLinks li:last-child {
-  border-bottom: none;
+/* Notification Button */
+.notificationBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(0, 201, 123, 0.1);
+  color: #00c97b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 
-.mobileNavLinks li a {
-  text-decoration: none;
-  color: #333;
-  font-weight: 600;
-  font-size: 16px;
-  display: block;
-  transition: color 0.2s ease;
+.notificationBtn:hover {
+  background: rgba(0, 201, 123, 0.2);
+  transform: scale(1.05);
 }
 
-.mobileNavLinks li a:hover {
-  color: #00b8d9;
+/* Profile Link */
+.profileLink {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 }
 
-/* Mobile Overlay */
-.mobileOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+.profileImg {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
 }
 
-/* Responsive Styles */
+.profileImg:hover {
+  border-color: #00c97b;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+/* Tablet & Below */
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 15px 30px;
+  }
+}
+
+/* Mobile & Tablet Portrait */
 @media (max-width: 768px) {
   .navbar {
-    padding: 15px 20px;
+    padding: 15px 15px;
   }
 
-  .mobileMenuBtn {
+  /* Logo stays on left, touching the edge */
+  .logo {
+    margin-right: auto;
+  }
+
+  /* Show hamburger button on mobile - last item on right */
+  .hamburgerBtn {
     display: flex;
+    order: 3;
   }
 
-  .desktopNavLinks,
+  /* Notification button - middle */
+  .notificationBtn {
+    order: 1;
+    width: 40px;
+    height: 40px;
+  }
+
+  .notificationBtn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Profile - second from right */
+  .profileLink {
+    order: 2;
+  }
+
+  .profileImg {
+    width: 36px;
+    height: 36px;
+  }
+
   .desktopActions {
-    display: none;
-  }
-
-  /* Hamburger Animation */
-  .mobileMenuBtn.active .hamburger:nth-child(1) {
-    transform: rotate(-45deg) translate(-5px, 6px);
-  }
-
-  .mobileMenuBtn.active .hamburger:nth-child(2) {
-    opacity: 0;
-  }
-
-  .mobileMenuBtn.active .hamburger:nth-child(3) {
-    transform: rotate(45deg) translate(-5px, -6px);
+    gap: 0.75rem;
   }
 }
 
+/* Small Mobile */
 @media (max-width: 480px) {
   .navbar {
-    padding: 12px 15px;
+    padding: 12px 12px;
   }
 
-  .mobileNavLinks {
-    width: 100%;
-    right: -100%;
+  .logo img {
+    width: 100px;
+    height: auto;
   }
 
-  .mobileNavLinks.active {
-    right: 0;
+  .notificationBtn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .notificationBtn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .profileImg {
+    width: 34px;
+    height: 34px;
+  }
+
+  .desktopActions {
+    gap: 0.6rem;
+  }
+}
+
+/* Very Small Mobile */
+@media (max-width: 360px) {
+  .navbar {
+    padding: 10px 10px;
+  }
+
+  .logo img {
+    width: 90px;
+  }
+
+  .hamburgerBtn {
+    padding: 6px;
+  }
+
+  .hamburger {
+    width: 22px;
+    height: 2.5px;
+  }
+
+  .desktopActions {
+    gap: 0.5rem;
+  }
+
+  .notificationBtn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .profileImg {
+    width: 32px;
+    height: 32px;
   }
 }
