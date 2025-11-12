@@ -14,8 +14,13 @@ const FacultySchema = new mongoose.Schema({
   AccountStatus: { type: String, enum: ["active", "inactive"], default: "active" },
   Designation: { type: String, default: "" },
   Department: { type: String, default: "" },
-  Subject: [{ type: mongoose.Schema.Types.ObjectId, ref: "SubjectList" }],
   Labs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lab" }],
+  ProgramSubjectPairs: [
+    {
+      Program: { type: mongoose.Schema.Types.ObjectId, ref: "Programs" },
+      Subject: { type: mongoose.Schema.Types.ObjectId, ref: "SubjectList" },
+    },
+  ],
 
 }, { timestamps: true });
 

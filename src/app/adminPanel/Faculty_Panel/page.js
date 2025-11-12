@@ -9,6 +9,10 @@ export default function FacultyManagement() {
     { Department: "SOET", Department_id: 1 },
   ]);
   const [allSubjects, setAllSubjects] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [programSubjectPairs, setProgramSubjectPairs] = useState([
+    { programId: "", subjects: [], filteredSubjects: [] },
+  ]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -18,8 +22,10 @@ export default function FacultyManagement() {
   const [newFaculty, setNewFaculty] = useState({
     name: "",
     email: "",
+    password: "",
     department: "",
     designation: "",
+    program: [],
     subjects: [],
   });
 
@@ -59,6 +65,7 @@ export default function FacultyManagement() {
             Course_Code: sub.Course_Code,
             Course_Department: sub.Course_Department,
           })),
+          programsAssigned: f.Programs_Assigned || [],
         }))
       );
     }catch (err) {
@@ -82,8 +89,9 @@ export default function FacultyManagement() {
 
         setAllSubjects(
           data.subjects.map(s => ({
-           Subject: (s.Course_Name).toUpperCase() + " - " + s.Course_Code,
-           Subject_id: s._id,
+            Subject: (s.Course_Name).toUpperCase() + " - " + s.Course_Code,
+            Subject_id: s._id,
+            Programs: s.Programs || [],  
           }))
         );
       }catch (err) {
@@ -93,37 +101,106 @@ export default function FacultyManagement() {
     fetchSubjects();
   }, []);
 
+  useEffect(() => {
+
+    const fetchPrograms = async () => {
+      try {
+        const res = await fetch("/api/admin/getProgram");
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch programs")
+        };
+
+        const data = await res.json();
+        console.log(data);
+        setPrograms(data.programs);
+
+      } catch (err) {
+        console.error("Error fetching programs:", err);
+      }
+    };
+    fetchPrograms();
+    }, []);
+
   const resetForm = () => {
     setNewFaculty({
       name: "",
       email: "",
-      phoneNumber: "",
-      location: "",
       department: "",
       designation: "",
+      program: [],
       subjects: [],
     });
   };
 
-  const handleSubjectSelect = (selectedSubject) => {
-    setNewFaculty((prev) => {
-      const alreadySelected = prev.subjects.some(
-        (sub) => sub.Subject_id === selectedSubject.Subject_id
-      );
-      return {
-        ...prev,
-        subjects: alreadySelected
-          ? prev.subjects.filter((sub) => sub.Subject_id !== selectedSubject.Subject_id)
-          : [...prev.subjects, selectedSubject],
-      };
+  const handleProgramChange = (index, programId) => {
+    const matchedSubjects = allSubjects.filter((sub) =>
+      sub.Programs?.some((p) => p._id === programId)
+    );
+
+    setProgramSubjectPairs((prev) => {
+      const updated = [...prev];
+      updated[index].programId = programId;
+      updated[index].filteredSubjects = matchedSubjects;
+      updated[index].subjects = []; 
+      return updated;
     });
   };
 
-  const handleRemoveSubject = (subjectIdToRemove) => {
-    setNewFaculty((prev) => ({
+  const getId = (s) => s?._id || s?.Subject_id || s?.id || null;
+
+  const handleSubjectSelect = (pairIndex, selectedSubject) => {
+    setProgramSubjectPairs((prev) => {
+      return prev.map((pair, i) => {
+        if (i !== pairIndex) return pair;
+
+        const subjects = Array.isArray(pair.subjects) ? [...pair.subjects] : [];
+
+        const selectedId = getId(selectedSubject);
+        if (!selectedId) return pair; 
+
+        const already = subjects.some(s => getId(s) === selectedId);
+
+        const newSubjects = already
+          ? subjects.filter(s => getId(s) !== selectedId)
+          : [
+              ...subjects,
+              {
+                _id: selectedId,
+                Subject: selectedSubject.Subject || selectedSubject.Course_Name || "Unknown Subject",
+                Course_Code: selectedSubject.Course_Code || "",
+              },
+            ];
+
+        return {
+          ...pair,
+          subjects: newSubjects,
+        };
+      });
+    });
+  };
+
+  const handleAddProgramSet = () => {
+    setProgramSubjectPairs((prev) => [
       ...prev,
-      subjects: prev.subjects.filter((sub) => sub.Subject_id !== subjectIdToRemove),
-    }));
+      { programId: "", subjects: [], filteredSubjects: [] },
+    ]);
+  };
+
+  const handleRemoveProgramSet = (index) => {
+    setProgramSubjectPairs((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveSubject = (index, subId) => {
+    setProgramSubjectPairs((prev) => {
+      const updated = [...prev];
+      updated[index].subjects = updated[index].subjects.filter(
+        (s) =>
+          (s._id || s.Subject_id) !== subId &&
+          (s.Subject_id || s._id) !== subId
+      );
+      return updated;
+    });
   };
 
   useEffect(() => {
@@ -152,18 +229,25 @@ export default function FacultyManagement() {
       return;
     }
 
+    const payload = {
+      name: newFaculty.name,
+      email: newFaculty.email,
+      password: newFaculty.password,
+      department: newFaculty.department,
+      designation: newFaculty.designation,
+      programSubjectPairs: programSubjectPairs.flatMap((p) =>
+        (p.subjects || []).map((s) => ({
+          programId: p.programId,
+          subjectId: s._id || s.Subject_id || s.id,
+        }))
+      ),
+    };
+
     try {
       const res = await fetch("/api/admin/addFaculty", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newFaculty.name,
-          email: newFaculty.email,
-          password: newFaculty.password,
-          department: newFaculty.department,
-          designation: newFaculty.designation,
-          subjects: newFaculty.subjects.map(sub => sub.Subject_id),
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -172,6 +256,17 @@ export default function FacultyManagement() {
         alert(data.error || "Something went wrong!");
         return;
       }
+
+      // await emailjs.send(
+      //   "service_2xk0xdb",  
+      //   "template_mq4w3fc",    
+      //   {
+      //     to_name: newFaculty.name,
+      //     to_email: newFaculty.email,
+      //     password: newFaculty.password,
+      //   },
+      //   "JVeTTsN2NUeZ0UlPA"
+      // );
 
       setFaculty([
         ...faculty,
@@ -187,12 +282,15 @@ export default function FacultyManagement() {
       setNewFaculty({
         name: "",
         email: "",
-        phoneNumber: "",
-        location: "",
+        password: "",
         department: "",
         designation: "",
+        program: [],
         subjects: [],
       });
+
+      setProgramSubjectPairs([{ programId: "", subjects: [], filteredSubjects: [] }]);
+
       await fetchFaculty();
     } catch (err) {
       console.error("Add Faculty Error:", err);
@@ -200,81 +298,121 @@ export default function FacultyManagement() {
     }
   };
   
-    const handleEditFaculty = (user) => {
-      setEditingFaculty(user);    
-      setShowAddModal(true);
-      setNewFaculty(user);
+  const handleEditFaculty = (user) => {
+    setEditingFaculty(user);
+    setShowAddModal(true);
+    setNewFaculty(user);
+
+    if (user.programsAssigned && user.programsAssigned.length > 0) {
+      const mappedPairs = user.programsAssigned.map((p) => {
+        const filteredSubs = allSubjects.filter((sub) =>
+          sub.Programs.some(
+            (prog) => prog._id === p.programId || prog.Program_ID === p.programId
+          )
+        );
+
+        return {
+          programId: p.programId,
+          programName: p.programName,
+          subjects: [
+            {
+              _id: p.subjectId,
+              Subject: p.subjectName,
+            },
+          ],
+          filteredSubjects: filteredSubs, 
+        };
+      });
+
+      setProgramSubjectPairs(mappedPairs);
+    } else {
+      setProgramSubjectPairs([{ programId: "", subjects: [], filteredSubjects: [] }]);
+    }
+
+    console.log("Editing Faculty:", user);
+  };
+
+  const handleUpdateFaculty = async () => {
+
+    if (!newFaculty.name || !newFaculty.email) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    const payload = {
+      name: newFaculty.name,
+      email: newFaculty.email,
+      password: newFaculty.password,
+      department: newFaculty.department,
+      designation: newFaculty.designation,
+      programSubjectPairs: programSubjectPairs.flatMap((p) =>
+        (p.subjects || []).map((s) => ({
+          programId: p.programId,
+          subjectId: s._id || s.Subject_id || s.id,
+        }))
+      ),
     };
-  
-    const handleUpdateFaculty = async () => {
-  
-      if (!newFaculty.name || !newFaculty.email) {
-        alert("Please fill all required fields");
+    console.log(payload);
+
+    try {
+      const res = await fetch("/api/admin/editFaculty", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
         return;
       }
-  
-      try {
-        const res = await fetch("/api/admin/editFaculty", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: newFaculty.name,
-            email: newFaculty.email,
-            password: newFaculty.password,
-            department: newFaculty.department,
-            designation: newFaculty.designation,
-            subjects: newFaculty.subjects.map(sub => sub.Subject_id),
-          }),
-        });
-  
-        const data = await res.json();
-  
-        if (!res.ok) {
-          alert(data.error || "Something went wrong!");
-          return;
-        }
-  
-        if (newFaculty.password && newFaculty.password.trim() !== "") {
-          await emailjs.send(
-            "service_2xk0xdb",  
-            "template_mq4w3fc",    
-            {
-              to_name: newFaculty.name,
-              to_email: newFaculty.email,
-              password: newFaculty.password,
-            },
-            "JVeTTsN2NUeZ0UlPA"
-          ); 
-        }
-  
-        setFaculty([
-          ...faculty,
+
+      if (newFaculty.password && newFaculty.password.trim() !== "") {
+        await emailjs.send(
+          "service_2xk0xdb",  
+          "template_mq4w3fc",    
           {
-            id: faculty.length + 1,
-            name: newFaculty.name,
-            email: newFaculty.email,
+            to_name: newFaculty.name,
+            to_email: newFaculty.email,
+            password: newFaculty.password,
           },
-        ]);
-  
-      alert("Faculty updated successfully!");
-      setFaculty(faculty.map((u) => (u.id === editingFaculty.id ? newFaculty : u)));
-      setShowAddModal(false);
-      setEditingFaculty(null);
-      setNewFaculty({
-        name: "",
-        email: "",
-        phoneNumber: "",
-        location: "",
-        department: "",
-        designation: "",
-        subjects: [],
-      });
-      await fetchFaculty();
-    } catch (err) {
-      console.error("Edit Faculty Error:", err);
-      alert("Something went wrong while editing Faculty.");
-    }
-  };
+          "JVeTTsN2NUeZ0UlPA"
+        ); 
+      }
+
+      setFaculty([
+        ...faculty,
+        {
+          id: faculty.length + 1,
+          name: newFaculty.name,
+          email: newFaculty.email,
+        },
+      ]);
+
+    alert("Faculty updated successfully!");
+    setFaculty(faculty.map((u) => (u.id === editingFaculty.id ? newFaculty : u)));
+    setShowAddModal(false);
+    setEditingFaculty(null);
+    setNewFaculty({
+      name: "",
+      email: "",
+      phoneNumber: "",
+      location: "",
+      department: "",
+      designation: "",
+      program: [],
+      subjects: [],
+    });
+
+    setProgramSubjectPairs([{ programId: "", subjects: [], filteredSubjects: [] }]);
+
+    await fetchFaculty();
+  } catch (err) {
+    console.error("Edit Faculty Error:", err);
+    alert("Something went wrong while editing Faculty.");
+  }
+};
 
   const styles = {
     container: {
@@ -852,60 +990,167 @@ export default function FacultyManagement() {
               <input type="text" style={styles.input} value={newFaculty.designation} onChange={(e) => setNewFaculty({ ...newFaculty, designation: e.target.value })} placeholder="e.g., Professor" />
             </div>
 
-            <div style={styles.accessSection} ref={dropdownRef}>
-              <div style={styles.accessTitle}>Subjects</div>
-              <div style={styles.selectorContainer}>
-                <div style={{ ...styles.inputArea, ...(isDropdownOpen ? styles.inputAreaFocused : {}) }} onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-                  {newFaculty.subjects.length === 0 ? (
-                    <span style={styles.placeholder}>Select subjects</span>
-                  ) : (
-                    newFaculty.subjects.map((sub, index) => {
-                      const subName =
-                        sub?.Subject ||
-                        (sub?.Course_Code && sub?.Course_Name
-                          ? `${sub.Course_Code} - ${sub.Course_Name}`
-                          : typeof sub === "string"
-                          ? sub
-                          : "Unknown Subject");
-
-                      const subId =
-                        sub?.Subject_id ||
-                        sub?.Subject_ID ||
-                        sub?._id ||
-                        (typeof sub === "string" ? sub : index);
-                      
-                      return (
-                        <div key={subId} style={styles.chip}>
-                          <span>{subName}</span>
-                          <button style={styles.removeButton} onClick={(e) => { e.stopPropagation(); handleRemoveSubject(subId); }}>
-                            <X size={14} />
-                          </button>
-                        </div>
-                      );
-                    })
-                  )}
+            {programSubjectPairs.map((pair, index) => (
+              <div
+                key={index}
+                // key={pair.programId || `pair-${index}`}
+                style={{
+                  border: "1px solid #ccc",
+                  borderRadius: "12px",
+                  padding: "10px",
+                  marginBottom: "15px",
+                }}
+              >
+                {/* Program Dropdown */}
+                <div style={styles.accessSection}>
+                  <div style={styles.accessTitle}>Program</div>
+                  <select
+                    value={pair.programId}
+                    onChange={(e) => handleProgramChange(index, e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                      fontSize: "14px",
+                      outline: "none",
+                    }}
+                  >
+                    <option value="">Select a Program</option>
+                    {programs.map((prog) => (
+                      <option key={prog._id} value={prog._id}>
+                        {`${prog.Program_Name} - Sec ${prog.Program_Section} - Sem ${prog.Program_Semester} (${prog.Program_Group})`}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                {isDropdownOpen && (
-                  <div style={styles.dropdown}>
-                    {allSubjects.map((subObj) => {
-                      const isSelected = newFaculty.subjects.some((sub) => sub.Subject_id === subObj.Subject_id);
-                      return (
-                        <div key={subObj.Subject_id} style={{ ...styles.dropdownItem, ...(isSelected ? styles.dropdownItemSelected : {}) }} onClick={() => handleSubjectSelect(subObj)}>
-                          {subObj.Subject} {isSelected && "✓"}
-                        </div>
-                      );
-                    })}
+                {/* Subject Selector */}
+                <div style={styles.accessSection} ref={dropdownRef}>
+                  <div style={styles.accessTitle}>Subjects</div>
+                  <div style={styles.selectorContainer}>
+                    <div
+                      style={{
+                        ...styles.inputArea,
+                        ...(isDropdownOpen ? styles.inputAreaFocused : {}),
+                      }}
+                      onClick={() => setIsDropdownOpen(isDropdownOpen === index ? null : index)}
+                    >
+                      {pair.subjects.length === 0 ? (
+                        <span style={styles.placeholder}>Select subjects</span>
+                      ) : (
+                        pair.subjects.map((sub, i) => {
+                          const subName = sub?.Course_Code
+                            ? `${sub.Course_Code} - ${sub.Course_Name}`
+                            : sub?.Subject || "Unknown Subject";
+
+                          const subId =
+                            sub?._id ||
+                            sub.Subject_id ||
+                            sub.Subject_ID ||
+                            sub.id ||
+                            sub.Subject?.Subject_id ||
+                            i;
+
+                          return (
+                            <div key={subId} style={styles.chip}>
+                              <span>{subName}</span>
+                              <button
+                                style={styles.removeButton}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveSubject(index, subId);
+                                }}
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {isDropdownOpen === index && (
+                      console.log("Subject clicked"),
+                      
+                      <div style={styles.dropdown}>
+                        {pair.filteredSubjects.map((subObj, subIdx) => {
+
+                          const isSelected = pair.subjects?.some(
+                            (sub) => getId(sub) === getId(subObj)
+                          );
+                          console.log(isSelected);
+                          
+                          return (
+                            <div
+                              key={getId(subObj) || subIdx}
+                              style={{
+                                ...styles.dropdownItem,
+                                ...(isSelected ? styles.dropdownItemSelected : {}),
+                              }}
+                              onClick={() => handleSubjectSelect(index, subObj)}>
+                              {`${subObj.Subject}`} {isSelected && "✓"}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
+                </div>
+
+                {/* Remove Button (optional) */}
+                {programSubjectPairs.length > 1 && (
+                  <button
+                    onClick={() => handleRemoveProgramSet(index)}
+                    style={{
+                      marginTop: "10px",
+                      color: "red",
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                    }}
+                  >
+                    Remove Program
+                  </button>
                 )}
               </div>
-            </div>
+            ))}
+
+            {/* Add New Program */}
+            <button
+              onClick={handleAddProgramSet}
+              style={{
+                marginTop: "15px",
+                padding: "8px 12px",
+                borderRadius: "8px",
+                border: "1px solid #ccc",
+                background: "#f0f0f0",
+                cursor: "pointer",
+                fontWeight: "500",
+              }}
+            >
+              + Add Another Program
+            </button>
 
             <div style={styles.modalActions}>
-              <button style={styles.cancelButton} onClick={() => { setShowAddModal(false); setEditingFaculty(null); }}>Cancel</button>
+              <button style={styles.cancelButton} onClick={() => { 
+                setShowAddModal(false); 
+                setEditingFaculty(null);
+                setNewFaculty({
+                  name: "",
+                  email: "",
+                  password: "",
+                  department: "",
+                  designation: "",
+                  program: [],
+                  programSubjectPairs: [{ programId: "", subjects: [], filteredSubjects: [] }],
+                  subjects: [],
+                });
+                }}>Cancel</button>
               <button 
                 style={styles.saveButton}
-                onClick={editingFaculty ? handleUpdateFaculty : handleAddFaculty}>
+                onClick={editingFaculty ? handleUpdateFaculty : handleAddFaculty }>
                 {editingFaculty ? "Update Faculty" : "Add Faculty"}
               </button>
             </div>
