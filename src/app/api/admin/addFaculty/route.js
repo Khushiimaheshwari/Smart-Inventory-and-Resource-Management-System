@@ -4,18 +4,18 @@ import { connectDB } from "../../../../app/api/utils/db";
 import Faculty from "../../../../models/Faculty";
 import Programs from "../../../../models/Programs";
 import { User } from "../../../../models/User";
-import mongoose from "mongoose";
+import mongoose from "mongoose"; 
 
 export async function POST(req) {
   try {
     await connectDB();
 
     const body = await req.json();
-    const { name, email, password, department, designation, subjects } = body;
-    console.log(body);
-    
+    const { name, email, password, department, designation, programSubjectPairs } = body;
 
-    if (!name || !email || !password || !department  || !designation) {
+    console.log("ADD FACULTY BODY:", body);
+
+    if (!name || !email || !password || !department || !designation) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
@@ -23,7 +23,10 @@ export async function POST(req) {
     const existingFaculty = await Faculty.findOne({ Email: email });
 
     if (existingUser || existingFaculty) {
-      return NextResponse.json({ error: "User with this email already exists" }, { status: 409 });
+      return NextResponse.json(
+        { error: "User with this email already exists" },
+        { status: 409 }
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -35,9 +38,22 @@ export async function POST(req) {
       Role: "faculty",
     });
 
-    const subjectsIds = Array.isArray(subjects) && subjects.length > 0
-      ? subjects.map((id) => new mongoose.Types.ObjectId(id))
-      : [];
+    const validPairs = (programSubjectPairs || [])
+      .filter(
+        (p) =>
+          p.programId &&
+          p.subjectId &&
+          mongoose.isValidObjectId(p.programId) &&
+          mongoose.isValidObjectId(p.subjectId)
+      )
+      .map((p) => ({
+        Program: new mongoose.Types.ObjectId(p.programId),
+        Subject: new mongoose.Types.ObjectId(p.subjectId),
+      }));
+
+    const uniquePairs = Array.from(
+      new Map(validPairs.map((p) => [p.Program + "_" + p.Subject, p])).values()
+    );
 
     const newFaculty = await Faculty.create({
       Name: name,
@@ -46,14 +62,18 @@ export async function POST(req) {
       Role: "faculty",
       Department: department,
       Designation: designation,
-      Subject: subjectsIds,
+      ProgramSubjectPairs: uniquePairs,
     });
 
-    if (subjectsIds.length > 0) {
-      await Programs.updateMany(
-        { "Subject.Subject_ID": subjectsIds }, 
-        { $set: { "Subject.$[elem].Faculty_Assigned": newFaculty._id } },
-        { arrayFilters: [{ "elem.Subject_ID": subjectsIds }] } 
+    for (const pair of uniquePairs) {
+      await Programs.updateOne(
+        {
+          _id: pair.Program,
+          "Subject.Subject_ID": pair.Subject,
+        },
+        {
+          $set: { "Subject.$.Faculty_Assigned": newFaculty._id },
+        }
       );
     }
 
@@ -65,14 +85,17 @@ export async function POST(req) {
         email: newUser.Email,
         role: newUser.Role,
       },
-      Faculty: {
+      faculty: {
         _id: newFaculty._id,
         name: newFaculty.Name,
-        subject: newFaculty.Subject,
+        email: newFaculty.Email,
+        department: newFaculty.Department,
+        designation: newFaculty.Designation,
+        programSubjectPairs: newFaculty.ProgramSubjectPairs,
       },
     });
   } catch (error) {
     console.error("Error creating Faculty:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

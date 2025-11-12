@@ -2,21 +2,72 @@ import { NextResponse } from "next/server";
 import { connectDB } from "../../utils/db"
 import Faculty from "../../../../models/Faculty"; 
 import SubjectList from "../../../../models/Subject_List";
+import Programs from "../../../../models/Programs";
+
+// export async function GET() {
+//   try {
+//     await connectDB();
+
+//     const faculty = await Faculty.find({}).populate("Subject" ,"Course_Name Course_Code Course_Department Experiment_List Status Programs");
+
+//     return NextResponse.json(
+//       { faculty },
+//     );
+//   } catch (error) {
+//     console.error("Error fetching faculty:", error);
+//     return NextResponse.json(
+//       { success: false, message: "Error fetching faculty", error: error.message },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 export async function GET() {
   try {
     await connectDB();
 
-    const faculty = await Faculty.find({}).populate("Subject" ,"Course_Name Course_Code Course_Department Experiment_List Status Programs");
+    const faculties = await Faculty.find()
+      .populate({
+        path: "ProgramSubjectPairs.Program",
+        select: "Program_Name Program_Semester Program_Batch Program_Group",
+      })
+      .populate({
+        path: "ProgramSubjectPairs.Subject",
+        select: "Course_Name Course_Code Subject",
+      })
+      .lean();
 
-    return NextResponse.json(
-      { faculty },
+    // Clean and structure data for frontend
+    const facultiesWithPairs = faculties.map((faculty) => {
+      const pairs = (faculty.ProgramSubjectPairs || []).map((pair) => ({
+        programId: pair?.Program?._id,
+        programName: pair?.Program?.Program_Name,
+        programSemester: pair?.Program?.Program_Semester,
+        programBatch: pair?.Program?.Program_Batch,
+        programGroup: pair?.Program?.Program_Group,
+        subjectId: pair?.Subject?._id,
+        subjectName:
+          pair?.Subject?.Course_Name || pair?.Subject?.Subject || "Unknown",
+        subjectCode: pair?.Subject?.Course_Code || "",
+      }));
+
+      return {
+        _id: faculty._id,
+        Name: faculty.Name,
+        Email: faculty.Email,
+        Department: faculty.Department,
+        Designation: faculty.Designation,
+        AccountStatus: faculty.AccountStatus,
+        ProgramSubjectPairs: pairs,
+      };
+    });
+
+    return new Response(
+      JSON.stringify({ faculty: facultiesWithPairs }),
+      { status: 200 }
     );
-  } catch (error) {
-    console.error("Error fetching faculty:", error);
-    return NextResponse.json(
-      { success: false, message: "Error fetching faculty", error: error.message },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error("Error fetching faculty:", err);
+    return new Response("Error fetching faculty data", { status: 500 });
   }
 }
