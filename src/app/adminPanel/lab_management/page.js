@@ -21,7 +21,6 @@ export default function LabManagement() {
     incharge: '',
   });
 
-  // Responsive detection
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -223,7 +222,6 @@ export default function LabManagement() {
       marginLeft: isMobile ? '0' : '255px',
       overflowX: 'hidden',
     },
-    
     mainContent: {
       width: '100%',
       maxWidth: '1400px',
@@ -249,20 +247,20 @@ export default function LabManagement() {
       margin: 0
     },
     addButton: {
-      padding: isMobile ? '10px 20px' : '12px 24px',
-      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
+      padding: isMobile ? '0.5rem 1rem' : '0.75rem 1.5rem',
+      background: '#10b981',
       color: 'white',
       border: 'none',
-      borderRadius: '12px',
+      borderRadius: '8px',
       fontWeight: 600,
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
       gap: '8px',
-      fontSize: '14px',
-      transition: 'all 0.3s ease',
-      width: isMobile ? '100%' : 'auto',
+      fontSize: isMobile ? '12px' : '14px',
+      transition: 'background 0.2s ease',
+      width: isMobile ? 'auto' : 'auto',
+      justifyContent: 'center'
     },
     statsGrid: {
       display: 'grid',
@@ -485,7 +483,7 @@ export default function LabManagement() {
     },
     modalActions: {
       display: 'flex',
-      flexDirection: isMobile ? 'column-reverse' : 'row',
+      flexDirection: 'row',
       gap: isMobile ? '0.75rem' : '12px',
       marginTop: isMobile ? '1.25rem' : '1.5rem',
     },
@@ -516,7 +514,6 @@ export default function LabManagement() {
   return (
     <div style={styles.container}>
       <main style={styles.mainContent}>
-        {/* Header */}
         <header style={styles.header}>
           <h1 style={styles.headerTitle}>Lab Management</h1>
           <button style={styles.addButton} onClick={() => setShowAddModal(true)}>
@@ -527,7 +524,6 @@ export default function LabManagement() {
           </button>
         </header>
 
-        {/* Stats Cards */}
         <div style={styles.statsGrid}>
           <div style={styles.statCard}>
             <div style={styles.statLabel}>Total Labs</div>
@@ -543,7 +539,6 @@ export default function LabManagement() {
           </div>
         </div>
 
-        {/* Card List */}
         {labs.length > 0 ? (
           <div style={styles.cardContainer}>
             {labs.map((lab) => (
@@ -558,14 +553,7 @@ export default function LabManagement() {
                     <div style={styles.cardInfo}>
                       <div style={styles.cardIdRow}>
                         <span style={styles.cardId}>#{lab.Lab_Name}</span>
-                        <span
-                          style={{
-                            ...styles.statusBadge,
-                            ...(lab.status === 'Active'
-                              ? styles.statusActive
-                              : styles.statusMaintenance),
-                          }}
-                        >
+                        <span style={{...styles.statusBadge, ...(lab.status === 'Active' ? styles.statusActive : styles.statusMaintenance)}}>
                           {lab.Status}
                         </span>
                       </div>
@@ -608,32 +596,17 @@ export default function LabManagement() {
                     </div>
 
                     <div style={styles.actionButtons}>
-                      <button
-                        style={{ ...styles.iconButton, ...styles.editButton }}
-                        onClick={() => handleEditLab(lab)}
-                      >
+                      <button style={{ ...styles.iconButton, ...styles.editButton }} onClick={() => handleEditLab(lab)}>
                         <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 20 20" fill="currentColor">
                           <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                         </svg>
                       </button>
-                      <button
-                        style={{ ...styles.iconButton, ...styles.deleteButton }}
-                        onClick={() => handleDeleteLab(lab.id)}
-                      >
+                      <button style={{ ...styles.iconButton, ...styles.deleteButton }} onClick={() => handleDeleteLab(lab.id)}>
                         <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 20 20" fill="currentColor">
-                          <path
-                            fillRule="evenodd"
-                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                            clipRule="evenodd"
-                          />
+                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
                       </button>
-                      <button
-                        style={{ ...styles.iconButton, ...styles.viewButton }}
-                        onClick={() => {
-                          window.location.href = `/adminPanel/lab_management/lab/${lab._id}`;
-                        }}
-                      >
+                      <button style={{ ...styles.iconButton, ...styles.viewButton }} onClick={() => { window.location.href = `/adminPanel/lab_management/lab/${lab._id}`; }}>
                         <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
@@ -645,91 +618,47 @@ export default function LabManagement() {
             ))}
           </div>
         ) : (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: isMobile ? '2rem 1rem' : '3rem 2rem',
-            background: 'white',
-            borderRadius: '12px',
-            color: '#718096'
-          }}>
+          <div style={{ textAlign: 'center', padding: isMobile ? '2rem 1rem' : '3rem 2rem', background: 'white', borderRadius: '12px', color: '#718096' }}>
             <p>No labs available. Please add a new lab.</p>
           </div>
         )}
         
-        {/* Add/Edit Lab Modal */}
         {showAddModal && (
-          <div style={styles.modal} onClick={() => {
-            setShowAddModal(false);
-            setEditingLab(null);
-          }}>
+          <div style={styles.modal} onClick={() => { setShowAddModal(false); setEditingLab(null); }}>
             <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
               <h2 style={styles.modalHeader}>{editingLab ? 'Update Lab' : 'Add New Lab'}</h2>
               
               <div style={styles.formGroup}>
                 <label style={styles.label}>Lab ID</label>
-                <input 
-                  type="text"
-                  style={styles.input}
-                  value={newLab.id}
-                  onChange={(e) => setNewLab({...newLab, id: e.target.value})}
-                  placeholder="Enter lab Id"
-                />
+                <input type="text" style={styles.input} value={newLab.id} onChange={(e) => setNewLab({...newLab, id: e.target.value})} placeholder="Enter lab Id" />
               </div>
 
               <div style={styles.formGroup}>
                 <label style={styles.label}>Lab Name</label>
-                <input 
-                  type="text"
-                  style={styles.input}
-                  value={newLab.name}
-                  onChange={(e) => setNewLab({...newLab, name: e.target.value})}
-                  placeholder="Enter lab name"
-                />
+                <input type="text" style={styles.input} value={newLab.name} onChange={(e) => setNewLab({...newLab, name: e.target.value})} placeholder="Enter lab name" />
               </div>
 
               <div style={styles.formGroup}>
                 <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px' }}>
                     <div style={{ flex: 1 }}>
                       <label style={styles.label}>Block</label>
-                      <input 
-                        type="text"
-                        style={styles.input}
-                        value={newLab.block}
-                        onChange={(e) => setNewLab({...newLab, block: e.target.value})}
-                        placeholder="Enter Block"
-                      />
+                      <input type="text" style={styles.input} value={newLab.block} onChange={(e) => setNewLab({...newLab, block: e.target.value})} placeholder="Enter Block" />
                     </div>
                     <div style={{ flex: 1 }}>
                       <label style={styles.label}>Lab Room</label>
-                      <input 
-                        type="text"
-                        style={styles.input}
-                        value={newLab.labRoom}
-                        onChange={(e) => setNewLab({...newLab, labRoom: e.target.value})}
-                        placeholder="Enter labRoom"
-                      />
+                      <input type="text" style={styles.input} value={newLab.labRoom} onChange={(e) => setNewLab({...newLab, labRoom: e.target.value})} placeholder="Enter labRoom" />
                     </div>
                 </div>
               </div>
 
               <div style={styles.formGroup}>
                 <label style={styles.label}>Capacity</label>
-                <input 
-                  type="number"
-                  style={styles.input}
-                  value={newLab.capacity}
-                  onChange={(e) => setNewLab({...newLab, capacity: e.target.value})}
-                  placeholder="Enter capacity"
-                />
+                <input type="number" style={styles.input} value={newLab.capacity} onChange={(e) => setNewLab({...newLab, capacity: e.target.value})} placeholder="Enter capacity" />
               </div>
 
               <div style={styles.formGroup}>
                 <label style={styles.label}>Status</label>
-                <select 
-                  style={styles.select}
-                  value={newLab.status}
-                  onChange={(e) => setNewLab({...newLab, status: e.target.value})}
-                >
+                <select style={styles.select} value={newLab.status} onChange={(e) => setNewLab({...newLab, status: e.target.value})}>
                   <option value="Active">Active</option>
                   <option value="Under Maintenance">Under Maintenance</option>
                 </select>
@@ -737,12 +666,7 @@ export default function LabManagement() {
 
               <div style={styles.formGroup}>
                 <label style={styles.label}>Lab technician</label>
-                <select
-                  style={styles.input}
-                  value={newLab.technician}
-                  onChange={(e) =>
-                    setNewLab({ ...newLab, technician: e.target.value })
-                  }>
+                <select style={styles.input} value={newLab.technician} onChange={(e) => setNewLab({ ...newLab, technician: e.target.value })}>
                   <option value="">Select Lab technician</option>
                   {technicians.map((tech) => (
                     <option key={tech._id} value={tech._id}>
@@ -754,12 +678,7 @@ export default function LabManagement() {
 
               <div style={styles.formGroup}>
                 <label style={styles.label}>Lab incharge</label>
-                <select
-                  style={styles.input}
-                  value={newLab.incharge}
-                  onChange={(e) =>
-                    setNewLab({ ...newLab, incharge: e.target.value })
-                  }>
+                <select style={styles.input} value={newLab.incharge} onChange={(e) => setNewLab({ ...newLab, incharge: e.target.value })}>
                   <option value="">Select Lab incharge</option>
                   {labIncharge.map((incharge) => (
                     <option key={incharge._id} value={incharge._id}>
@@ -770,19 +689,10 @@ export default function LabManagement() {
               </div>
 
               <div style={styles.modalActions}>
-                <button 
-                  style={styles.cancelButton}
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setEditingLab(null);
-                  }}
-                >
+                <button style={styles.cancelButton} onClick={() => { setShowAddModal(false); setEditingLab(null); }}>
                   Cancel
                 </button>
-                <button 
-                  style={styles.saveButton}
-                  onClick={editingLab ? handleUpdateLab : handleAddLab}
-                >
+                <button style={styles.saveButton} onClick={editingLab ? handleUpdateLab : handleAddLab}>
                   {editingLab ? 'Update Lab' : 'Add Lab'}
                 </button>
               </div>

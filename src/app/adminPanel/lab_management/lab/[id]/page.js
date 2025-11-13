@@ -12,6 +12,8 @@ const LabTimetablePage = () => {
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
   const [newInfo, setNewInfo] = useState({
     hardwareSpecs: "",
     softwareSpecs: "",
@@ -87,6 +89,16 @@ const LabTimetablePage = () => {
   useEffect(() => {
       fetchLab();
     }, []);
+    useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024);
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
 
   const addMoreInfo = () => {
@@ -418,12 +430,12 @@ const LabTimetablePage = () => {
 
   const styles = {
     container: {
-      width: 'calc(100% - 255px)', 
+      width: isMobile ? '100%' : isTablet ? 'calc(100% - 200px)' : 'calc(100% - 255px)',
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
-      padding: '2rem',
+      padding: isMobile ? '0.75rem' : isTablet ? '1.5rem' : '2rem',
       boxSizing: 'border-box',
-      marginLeft: '255px',
+      marginLeft: isMobile ? '0' : isTablet ? '200px' : '255px',
       overflowX: 'hidden',
     },
     labInfoCard: {

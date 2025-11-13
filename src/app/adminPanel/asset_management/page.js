@@ -182,7 +182,7 @@ export default function AssetManagement() {
       width: isMobile ? '100%' : 'auto'
     },
     addButton: {
-      padding: isMobile ? '0.625rem 1.25rem' : '0.75rem 1.5rem',
+      padding: isMobile ? '0.5rem 1rem' : '0.75rem 1.5rem',
       background: '#10b981',
       color: 'white',
       border: 'none',
@@ -192,9 +192,9 @@ export default function AssetManagement() {
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
-      fontSize: isMobile ? '13px' : '14px',
+      fontSize: isMobile ? '12px' : '14px',
       transition: 'background 0.2s ease',
-      width: isMobile ? '100%' : 'auto',
+      width: isMobile ? 'auto' : 'auto',
       justifyContent: 'center'
     },
     filterSection: {
@@ -365,7 +365,7 @@ export default function AssetManagement() {
       display: 'flex',
       gap: '0.75rem',
       marginTop: '2rem',
-      flexDirection: isMobile ? 'column' : 'row'
+      flexDirection: 'row'
     },
     cancelButton: {
       flex: 1,
