@@ -59,11 +59,16 @@ export default function FacultyManagement() {
           designation: f.Designation,
           location: f.Location,
           status: f.AccountStatus,
-          subjects: f.Subject?.map(sub => ({
-            Subject_ID: sub._id,
-            Course_Name: sub.Course_Name,
-            Course_Code: sub.Course_Code,
-            Course_Department: sub.Course_Department,
+          programSubjectPairs: f.ProgramSubjectPairs?.map(sub => ({
+            subjectId: sub.subjectId,
+            subjectName: sub.subjectName,
+            subjectCode: sub.subjectCode,
+            programId: sub.programId,
+            programName: sub.programName,
+            programSemester: sub.programSemester,
+            programSection: sub.programSection,
+            programGroup: sub.programGroup,
+            programBatch: sub.programBatch,
           })),
           programsAssigned: f.Programs_Assigned || [],
         }))
@@ -930,9 +935,14 @@ export default function FacultyManagement() {
                       </span>
                     </span>
                     <div style={styles.subjectChipsContainer}>
-                      {member.subjects && member.subjects.length > 0 ? (
-                        member.subjects.map((sub, index) => (
-                          <span key={index} style={styles.subjectChip}>{sub.Course_Name} {sub.Course_Code} </span>
+                      {member.programSubjectPairs && member.programSubjectPairs.length > 0 ? (
+                        member.programSubjectPairs.map((sub, index) => (
+                          <div key={index} style={styles.subjectChip}>
+                            {sub.subjectName} {sub.subjectCode} 
+                            <span>
+                              " {sub.programSection} " {sub.programName} Sem - {sub.programSemester} {sub.programGroup} Batch: {sub.programBatch}  
+                            </span>
+                          </div>
                         ))
                       ) : (
                         <span style={styles.noSubjectChip}>No subjects assigned</span>

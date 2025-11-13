@@ -10,6 +10,7 @@ const AssetsPage = () => {
   const [selectedType, setSelectedType] = useState("All");
   const [viewingQR, setViewingQR] = useState(null);
   const [editingAsset, setEditingAsset] = useState(null);
+   const [isMobile, setIsMobile] = useState(false);
   const [newAsset, setNewAsset] = useState({
     Asset_Name: "",
     Asset_Type: "Monitor",
@@ -41,10 +42,72 @@ const AssetsPage = () => {
 
     fetchPC();
   }, []);
+   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    }; checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const filteredAssets = selectedType === "All" 
     ? assets 
     : assets.filter(asset => asset.Asset_Type === selectedType.toLowerCase());
+
+  const handleAddAsset = async () => {
+    if (!newAsset.Asset_Name || !newAsset.Asset_Type || !newAsset.Assest_Status) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/addAsset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Asset_Name: newAsset.Asset_Name,
+          Asset_Type: newAsset.Asset_Type,
+          Assest_Status: newAsset.Assest_Status,
+          Brand: newAsset.Brand,
+          PC: pcData._id,
+          Lab: pcData.Lab?._id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
+        return;
+      }
+
+      setAssets([
+        ...assets,
+        {
+          id: assets.length + 1,
+          Asset_Name: newAsset.Asset_Name,
+          Asset_Type: newAsset.Asset_Type,
+          Assest_Status: newAsset.Assest_Status,
+          Brand: newAsset.Brand,
+          // Issue_Reported: newAsset.Issue_Reported,
+          // QR_Code: newAsset.QR_Code
+        },
+      ]);
+
+      alert("Asset added successfully!");
+      setShowAddModal(false);
+      setNewAsset({
+        Asset_Name: "",
+        Asset_Type: "",
+        Assest_Status: "",
+        Brand: "",
+      });
+      resetForm();
+    } catch (err) {
+      console.error("Asset Error:", err);
+      alert("Something went wrong while adding user.");
+    }
+  };
 
   const handleEditAsset = (asset) => {
     setEditingAsset(asset);
@@ -96,12 +159,12 @@ const AssetsPage = () => {
   
   const styles = {
     container: {
-      width: 'calc(100% - 220px)', 
+      width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
-      padding: '2rem',
+      padding: isMobile ? '1rem' : '2rem',
       boxSizing: 'border-box',
-      marginLeft: '245px',
+      marginLeft: isMobile ? '0' : '255px',
       overflowX: 'hidden',
     },
     header: {
@@ -173,7 +236,8 @@ const AssetsPage = () => {
       padding: '0.5rem 1rem',
       background: '#f7fafc',
       color: '#4a5568',
-      border: '2px solid #e2e8f0',
+      border: '2px solid',
+      borderColor: '#e2e8f0',
       borderRadius: '8px',
       fontWeight: 500,
       cursor: 'pointer',
@@ -269,106 +333,6 @@ const AssetsPage = () => {
       alignItems: 'center',
       justifyContent: 'center',
       flex: 1
-    },
-    editButton: {
-      color: '#10b981'
-    },
-    deleteButton: {
-      color: '#ef4444'
-    },
-    modal: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000
-    },
-    modalContent: {
-      background: 'white',
-      borderRadius: '12px',
-      padding: '2rem',
-      width: '90%',
-      maxWidth: '500px',
-      maxHeight: '90vh',
-      overflowY: 'auto'
-    },
-    modalHeader: {
-      fontSize: '24px',
-      fontWeight: 600,
-      color: '#2d3748',
-      marginBottom: '1.5rem'
-    },
-    formGroup: {
-      marginBottom: '1.5rem'
-    },
-    label: {
-      display: 'block',
-      fontSize: '14px',
-      fontWeight: 600,
-      color: '#2d3748',
-      marginBottom: '0.5rem'
-    },
-    input: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '2px solid #e2e8f0',
-      borderRadius: '8px',
-      fontSize: '14px',
-      transition: 'border-color 0.2s ease',
-      boxSizing: 'border-box'
-    },
-    select: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '2px solid #e2e8f0',
-      borderRadius: '8px',
-      fontSize: '14px',
-      transition: 'border-color 0.2s ease',
-      boxSizing: 'border-box',
-      background: 'white'
-    },
-    textarea: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '2px solid #e2e8f0',
-      borderRadius: '8px',
-      fontSize: '14px',
-      transition: 'border-color 0.2s ease',
-      boxSizing: 'border-box',
-      minHeight: '80px',
-      resize: 'vertical'
-    },
-    modalActions: {
-      display: 'flex',
-      gap: '0.75rem',
-      marginTop: '2rem'
-    },
-    cancelButton: {
-      flex: 1,
-      padding: '0.75rem',
-      background: 'white',
-      color: '#718096',
-      border: '2px solid #e2e8f0',
-      borderRadius: '8px',
-      fontWeight: 600,
-      cursor: 'pointer',
-      fontSize: '14px'
-    },
-    saveButton: {
-      flex: 1,
-      padding: '0.75rem',
-      background: '#10b981',
-      color: 'white',
-      border: 'none',
-      borderRadius: '8px',
-      fontWeight: 600,
-      cursor: 'pointer',
-      fontSize: '14px'
     },
     emptyState: {
       textAlign: 'center',
@@ -582,27 +546,6 @@ const AssetsPage = () => {
                     />
                   </div>
                 </div>
-
-                <div style={styles.actionButtons}>
-                  <button
-                    style={{...styles.iconButton, ...styles.editButton}}
-                    onClick={() => handleEditAsset(asset)}
-                    title="Edit Asset"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                    </svg>
-                  </button>
-                  <button
-                    style={{...styles.iconButton, ...styles.deleteButton}}
-                    onClick={() => handleDeleteAsset(asset.id)}
-                    title="Delete Asset"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
-                    </svg>
-                  </button>
-                </div>
               </div>
             );
           })
@@ -651,99 +594,6 @@ const AssetsPage = () => {
         </div>
       )}
 
-      {/* Add/Edit Modal */}
-      {showAddModal && (
-        <div style={styles.modal} onClick={() => {
-          setShowAddModal(false);
-          setEditingAsset(null);
-          resetForm();
-        }}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h2 style={styles.modalHeader}>
-              {editingAsset ? "Edit Asset" : "Add New Asset"}
-            </h2>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Asset Name</label>
-              <input
-                type="text"
-                style={styles.input}
-                value={newAsset.Asset_Name}
-                onChange={(e) => setNewAsset({...newAsset, Asset_Name: e.target.value})}
-                placeholder="Enter asset name"
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Asset Type</label>
-              <select
-                style={styles.select}
-                value={newAsset.Asset_Type}
-                onChange={(e) => setNewAsset({...newAsset, Asset_Type: e.target.value})}
-              >
-                {assetTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Brand Name</label>
-              <input
-                type="text"
-                style={styles.input}
-                value={newAsset.Brand}
-                onChange={(e) => setNewAsset({...newAsset, Brand: e.target.value})}
-                placeholder="Enter brand name"
-              />
-            </div>
-
-
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Asset Status</label>
-              <select
-                style={styles.select}
-                value={newAsset.Assest_Status}
-                onChange={(e) => setNewAsset({...newAsset, Assest_Status: e.target.value})}
-              >
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label}>QR Code</label>
-              <input
-                type="text"
-                style={styles.input}
-                value={newAsset.QR_Code}
-                onChange={(e) => setNewAsset({...newAsset, QR_Code: e.target.value})}
-                placeholder="Enter QR code"
-              />
-            </div>
-
-            <div style={styles.modalActions}>
-              <button
-                style={styles.cancelButton}
-                onClick={() => {
-                  setShowAddModal(false);
-                  setEditingAsset(null);
-                  resetForm();
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                style={styles.saveButton}
-                onClick={editingAsset ? handleUpdateAsset : handleAddAsset}
-              >
-                {editingAsset ? "Update Asset" : "Add Asset"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

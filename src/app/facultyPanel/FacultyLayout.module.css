@@ -1,0 +1,61 @@
+/* Admin Container */
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f7fafc;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 260px;
+  transition: margin-left 0.3s ease;
+}
+
+/* Page Content */
+.page-content {
+  flex: 1;
+  padding: 30px 40px;
+  overflow-y: auto;
+  background: #f9fafb;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+/* Tablet & Below */
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 240px;
+  }
+
+  .page-content {
+    padding: 25px 30px;
+  }
+}
+
+/* Mobile & Tablet Portrait */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+  }
+
+  .page-content {
+    padding: 20px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .page-content {
+    padding: 15px;
+  }
+}
+
+/* Very Small Mobile */
+@media (max-width: 360px) {
+  .page-content {
+    padding: 12px;
+  }
+}

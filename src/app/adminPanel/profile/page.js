@@ -7,7 +7,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); 
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
   const router = useRouter();
