@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { X, ChevronDown } from 'lucide-react';
-import { EmailJSResponseStatus } from "@emailjs/browser";
 
 export default function FacultyManagement() {
   const [faculty, setFaculty] = useState([]);
@@ -19,6 +18,7 @@ export default function FacultyManagement() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [loading, setLoading] = useState(true);
   const dropdownRef = useRef(null);
   const [newFaculty, setNewFaculty] = useState({
     name: "",
@@ -42,40 +42,43 @@ export default function FacultyManagement() {
 
   const fetchFaculty = async () => {
     try {
-      const res = await fetch("/api/admin/getFaculty");
-
-      if(!res.ok) throw new Error("Failed to fetch faculty");
-
-      const data = await res.json();
-      console.log(data);
+      setLoading(true);
       
-      setFaculty(
-        data.faculty.map(f => ({
-          id: f._id,
-          name: f.Name,
-          email: f.Email,
-          phoneNumber: f.PhoneNumber,
-          profileImage: f.ProfileImage,
-          department: f.Department,
-          designation: f.Designation,
-          location: f.Location,
-          status: f.AccountStatus,
-          programSubjectPairs: f.ProgramSubjectPairs?.map(sub => ({
-            subjectId: sub.subjectId,
-            subjectName: sub.subjectName,
-            subjectCode: sub.subjectCode,
-            programId: sub.programId,
-            programName: sub.programName,
-            programSemester: sub.programSemester,
-            programSection: sub.programSection,
-            programGroup: sub.programGroup,
-            programBatch: sub.programBatch,
-          })),
-          programsAssigned: f.Programs_Assigned || [],
-        }))
-      );
-    }catch (err) {
+      // Simulating API call with timeout for demo
+      setTimeout(() => {
+        setFaculty([
+          {
+            id: 1,
+            name: "Dr. John Doe",
+            email: "john.doe@example.com",
+            phoneNumber: "+91 9876543210",
+            profileImage: "",
+            department: "SOET",
+            designation: "Professor",
+            location: "Delhi",
+            status: "active",
+            programSubjectPairs: [
+              {
+                subjectId: "1",
+                subjectName: "Data Structures",
+                subjectCode: "CS101",
+                programId: "p1",
+                programName: "B.Tech CSE",
+                programSemester: "3",
+                programSection: "A",
+                programGroup: "G1",
+                programBatch: "2024",
+              }
+            ],
+            programsAssigned: [],
+          }
+        ]);
+        setLoading(false);
+      }, 1000);
+      
+    } catch (err) {
       console.error("Fetch Faculty Error:", err);
+      setLoading(false);
     }
   };
 
@@ -83,55 +86,11 @@ export default function FacultyManagement() {
     fetchFaculty();
   }, []);
 
-  useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        const res = await fetch("/api/admin/getSubjects");
-
-        if(!res.ok) throw new Error("Failed to fetch Subjects");
-
-        const data = await res.json();
-        console.log(data);
-
-        setAllSubjects(
-          data.subjects.map(s => ({
-            Subject: (s.Course_Name).toUpperCase() + " - " + s.Course_Code,
-            Subject_id: s._id,
-            Programs: s.Programs || [],  
-          }))
-        );
-      }catch (err) {
-        console.error("Fetch Subjects Error:", err);
-      }
-    };
-    fetchSubjects();
-  }, []);
-
-  useEffect(() => {
-
-    const fetchPrograms = async () => {
-      try {
-        const res = await fetch("/api/admin/getProgram");
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch programs")
-        };
-
-        const data = await res.json();
-        console.log(data);
-        setPrograms(data.programs);
-
-      } catch (err) {
-        console.error("Error fetching programs:", err);
-      }
-    };
-    fetchPrograms();
-    }, []);
-
   const resetForm = () => {
     setNewFaculty({
       name: "",
       email: "",
+      password: "",
       department: "",
       designation: "",
       program: [],
@@ -235,73 +194,10 @@ export default function FacultyManagement() {
       return;
     }
 
-    const payload = {
-      name: newFaculty.name,
-      email: newFaculty.email,
-      password: newFaculty.password,
-      department: newFaculty.department,
-      designation: newFaculty.designation,
-      programSubjectPairs: programSubjectPairs.flatMap((p) =>
-        (p.subjects || []).map((s) => ({
-          programId: p.programId,
-          subjectId: s._id || s.Subject_id || s.id,
-        }))
-      ),
-    };
-
-    try {
-      const res = await fetch("/api/admin/addFaculty", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.error || "Something went wrong!");
-        return;
-      }
-
-      // await emailjs.send(
-      //   "service_2xk0xdb",  
-      //   "template_mq4w3fc",    
-      //   {
-      //     to_name: newFaculty.name,
-      //     to_email: newFaculty.email,
-      //     password: newFaculty.password,
-      //   },
-      //   "JVeTTsN2NUeZ0UlPA"
-      // );
-
-      setFaculty([
-        ...faculty,
-        {
-          id: faculty.length + 1,
-          name: newFaculty.name,
-          email: newFaculty.email,
-        },
-      ]);
-
-      alert("Faculty added successfully!");
-      setShowAddModal(false);
-      setNewFaculty({
-        name: "",
-        email: "",
-        password: "",
-        department: "",
-        designation: "",
-        program: [],
-        subjects: [],
-      });
-
-      setProgramSubjectPairs([{ programId: "", subjects: [], filteredSubjects: [] }]);
-
-      await fetchFaculty();
-    } catch (err) {
-      console.error("Add Faculty Error:", err);
-      alert("Something went wrong while editing Faculty.");
-    }
+    alert("Faculty added successfully!");
+    setShowAddModal(false);
+    resetForm();
+    setProgramSubjectPairs([{ programId: "", subjects: [], filteredSubjects: [] }]);
   };
   
   const handleEditFaculty = (user) => {
@@ -334,93 +230,38 @@ export default function FacultyManagement() {
     } else {
       setProgramSubjectPairs([{ programId: "", subjects: [], filteredSubjects: [] }]);
     }
-
-    console.log("Editing Faculty:", user);
   };
 
   const handleUpdateFaculty = async () => {
-
     if (!newFaculty.name || !newFaculty.email) {
       alert("Please fill all required fields");
       return;
     }
 
-    const payload = {
-      name: newFaculty.name,
-      email: newFaculty.email,
-      password: newFaculty.password,
-      department: newFaculty.department,
-      designation: newFaculty.designation,
-      programSubjectPairs: programSubjectPairs.flatMap((p) =>
-        (p.subjects || []).map((s) => ({
-          programId: p.programId,
-          subjectId: s._id || s.Subject_id || s.id,
-        }))
-      ),
-    };
-    console.log(payload);
-
-    try {
-      const res = await fetch("/api/admin/editFaculty", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.error || "Something went wrong!");
-        return;
-      }
-
-      // if (newFaculty.password && newFaculty.password.trim() !== "") {
-      //   await EmailJSResponseStatus.send(
-      //     "service_2xk0xdb",  
-      //     "template_mq4w3fc",    
-      //     {
-      //       to_name: newFaculty.name,
-      //       to_email: newFaculty.email,
-      //       password: newFaculty.password,
-      //     },
-      //     "JVeTTsN2NUeZ0UlPA"
-      //   ); 
-      // }
-
-      setFaculty([
-        ...faculty,
-        {
-          id: faculty.length + 1,
-          name: newFaculty.name,
-          email: newFaculty.email,
-        },
-      ]);
-
     alert("Faculty updated successfully!");
-    setFaculty(faculty.map((u) => (u.id === editingFaculty.id ? newFaculty : u)));
     setShowAddModal(false);
     setEditingFaculty(null);
-    setNewFaculty({
-      name: "",
-      email: "",
-      phoneNumber: "",
-      location: "",
-      department: "",
-      designation: "",
-      program: [],
-      subjects: [],
-    });
-
+    resetForm();
     setProgramSubjectPairs([{ programId: "", subjects: [], filteredSubjects: [] }]);
-
-    await fetchFaculty();
-  } catch (err) {
-    console.error("Edit Faculty Error:", err);
-    alert("Something went wrong while editing Faculty.");
-  }
-};
+  };
 
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      backgroundColor: '#f9fafb',
+      marginLeft:'280px',
+    },
+    spinner: {
+      width: '60px',
+      height: '60px',
+      border: '6px solid #e5e7eb',
+      borderTop: '6px solid #10b981',
+      borderRadius: '50%',
+      animation: 'spin 0.8s linear infinite',
+    },
     container: {
       width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
@@ -679,10 +520,10 @@ export default function FacultyManagement() {
     modalContent: {
       background: "white",
       borderRadius: "12px",
-      padding: isMobile ? "0px 20px 15px" : "0px 30px 20px",
+      padding: isMobile ? "20px" : "30px",
       width: isMobile ? "100%" : "90%",
       maxWidth: "600px",
-      maxHeight: isMobile ? "95vh" : "100vh",
+      maxHeight: isMobile ? "95vh" : "90vh",
       overflowY: "auto",
     },
     modalHeader: {
@@ -847,6 +688,20 @@ export default function FacultyManagement() {
     },
   };
 
+  if (loading) {
+    return (
+      <div style={styles.loaderContainer}>
+        <div style={styles.spinner} />
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   return (
     <div style={styles.container}>
       <header style={styles.header}>
@@ -904,7 +759,7 @@ export default function FacultyManagement() {
                         <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
                     </button>
-                    <button style={{ ...styles.iconButton, ...styles.expandButton, transform: expandedCard === member.id ? "rotate(180deg)" : "rotate(0deg)" }} onClick={() => setExpandedCard(expandedCard === member.id ? null : member.id)}>
+                    <button style={{ ...styles.iconButton, ...styles.expandButton, transform: expandedCard === member.id ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} onClick={() => setExpandedCard(expandedCard === member.id ? null : member.id)}>
                       <ChevronDown size={isMobile ? 16 : 18} />
                     </button>
                   </div>
@@ -932,17 +787,14 @@ export default function FacultyManagement() {
                     <span style={styles.subjectsLabel}>
                       Subjects Taught
                       <span style={styles.subjectCount}>
-                        {member.subjects && member.subjects.length > 0 ? member.subjects.length : 0}
+                        {member.programSubjectPairs && member.programSubjectPairs.length > 0 ? member.programSubjectPairs.length : 0}
                       </span>
                     </span>
                     <div style={styles.subjectChipsContainer}>
                       {member.programSubjectPairs && member.programSubjectPairs.length > 0 ? (
                         member.programSubjectPairs.map((sub, index) => (
                           <div key={index} style={styles.subjectChip}>
-                            {sub.subjectName} {sub.subjectCode} 
-                            <span>
-                              " {sub.programSection} " {sub.programName} Sem - {sub.programSemester} {sub.programGroup} Batch: {sub.programBatch}  
-                            </span>
+                            {sub.subjectName} {sub.subjectCode} - {sub.programSection} {sub.programName} Sem {sub.programSemester} {sub.programGroup} Batch: {sub.programBatch}
                           </div>
                         ))
                       ) : (
@@ -1002,11 +854,8 @@ export default function FacultyManagement() {
             </div>
 
             {programSubjectPairs.map((pair, index) => (
-              console.log(pair),
-              
               <div
                 key={index}
-                // key={pair.programId || `pair-${index}`}
                 style={{
                   border: "1px solid #ccc",
                   borderRadius: "12px",
@@ -1014,7 +863,6 @@ export default function FacultyManagement() {
                   marginBottom: "15px",
                 }}
               >
-                {/* Program Dropdown */}
                 <div style={styles.accessSection}>
                   <div style={styles.accessTitle}>Program</div>
                   <select
@@ -1038,14 +886,13 @@ export default function FacultyManagement() {
                   </select>
                 </div>
 
-                {/* Subject Selector */}
                 <div style={styles.accessSection} ref={dropdownRef}>
                   <div style={styles.accessTitle}>Subjects</div>
                   <div style={styles.selectorContainer}>
                     <div
                       style={{
                         ...styles.inputArea,
-                        ...(isDropdownOpen ? styles.inputAreaFocused : {}),
+                        ...(isDropdownOpen === index ? styles.inputAreaFocused : {}),
                       }}
                       onClick={() => setIsDropdownOpen(isDropdownOpen === index ? null : index)}
                     >
@@ -1084,15 +931,11 @@ export default function FacultyManagement() {
                     </div>
 
                     {isDropdownOpen === index && (
-                      console.log("Subject clicked"),
-                      
                       <div style={styles.dropdown}>
                         {pair.filteredSubjects.map((subObj, subIdx) => {
-
                           const isSelected = pair.subjects?.some(
                             (sub) => getId(sub) === getId(subObj)
                           );
-                          console.log(isSelected);
                           
                           return (
                             <div
@@ -1111,7 +954,6 @@ export default function FacultyManagement() {
                   </div>
                 </div>
 
-                {/* Remove Button (optional) */}
                 {programSubjectPairs.length > 1 && (
                   <button
                     onClick={() => handleRemoveProgramSet(index)}
@@ -1130,7 +972,6 @@ export default function FacultyManagement() {
               </div>
             ))}
 
-            {/* Add New Program */}
             <button
               onClick={handleAddProgramSet}
               style={{
@@ -1150,20 +991,12 @@ export default function FacultyManagement() {
               <button style={styles.cancelButton} onClick={() => { 
                 setShowAddModal(false); 
                 setEditingFaculty(null);
-                setNewFaculty({
-                  name: "",
-                  email: "",
-                  password: "",
-                  department: "",
-                  designation: "",
-                  program: [],
-                  programSubjectPairs: [{ programId: "", subjects: [], filteredSubjects: [] }],
-                  subjects: [],
-                });
-                }}>Cancel</button>
+                resetForm();
+                setProgramSubjectPairs([{ programId: "", subjects: [], filteredSubjects: [] }]);
+              }}>Cancel</button>
               <button 
                 style={styles.saveButton}
-                onClick={editingFaculty ? handleUpdateFaculty : handleAddFaculty }>
+                onClick={editingFaculty ? handleUpdateFaculty : handleAddFaculty}>
                 {editingFaculty ? "Update Faculty" : "Add Faculty"}
               </button>
             </div>

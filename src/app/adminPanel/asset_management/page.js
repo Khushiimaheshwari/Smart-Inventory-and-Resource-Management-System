@@ -9,6 +9,7 @@ export default function AssetManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingPC, setEditingPC] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [newPC, setNewPC] = useState({
     PC_Name: "",
     Lab: "",
@@ -28,6 +29,7 @@ export default function AssetManagement() {
   useEffect(() => {
     const fetchPCs = async () => {
       try {
+        setLoading(true);
         const res = await fetch('/api/admin/getlabPCs');
 
         if (!res.ok) {
@@ -47,6 +49,8 @@ export default function AssetManagement() {
         );
       } catch (error) {
         console.error("Error fetching PCs:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchPCs();
@@ -153,6 +157,26 @@ export default function AssetManagement() {
   }
 
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      zIndex: 9999,
+    },
+    spinner: {
+      width: isMobile ? '50px' : '60px',
+      height: isMobile ? '50px' : '60px',
+      border: isMobile ? '5px solid #e5e7eb' : '6px solid #e5e7eb',
+      borderTop: isMobile ? '5px solid #10b981' : '6px solid #10b981',
+      borderRadius: '50%',
+      animation: 'spin 0.8s linear infinite',
+    },
     container: {
       width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
@@ -395,6 +419,20 @@ export default function AssetManagement() {
       textAlign: 'center'
     }
   };
+
+  if (loading) {
+    return (
+      <div style={styles.loaderContainer}>
+        <div style={styles.spinner} />
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>

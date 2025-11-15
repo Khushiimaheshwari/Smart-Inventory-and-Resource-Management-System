@@ -1,16 +1,16 @@
-'use client';
-
+"use client"
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
 
-const AssetsPage = () => {
-  const { id } = useParams();
+function AssetsPage(props) {
+  const params = props.params || {};
+  const id = params.id || '1';
   const [pcData, setPcData] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedType, setSelectedType] = useState("All");
   const [viewingQR, setViewingQR] = useState(null);
   const [editingAsset, setEditingAsset] = useState(null);
-   const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [newAsset, setNewAsset] = useState({
     Asset_Name: "",
     Asset_Type: "Monitor",
@@ -37,6 +37,8 @@ const AssetsPage = () => {
         }
       } catch (err) {
         console.error("Error fetching PC:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -158,6 +160,26 @@ const AssetsPage = () => {
   };
   
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      zIndex: 9999,
+    },
+    spinner: {
+      width: isMobile ? '50px' : '60px',
+      height: isMobile ? '50px' : '60px',
+      border: isMobile ? '5px solid #e5e7eb' : '6px solid #e5e7eb',
+      borderTop: isMobile ? '5px solid #00c97b' : '6px solid #00c97b',
+      borderRadius: '50%',
+      animation: 'spin 0.8s linear infinite',
+    },
     container: {
       width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
@@ -507,7 +529,21 @@ const AssetsPage = () => {
       color: '#718096',
       transition: 'background 0.2s ease'
     }
-  };  
+  };
+
+  if (loading) {
+    return (
+      <div style={styles.loaderContainer}>
+        <div style={styles.spinner} />
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>
@@ -769,7 +805,6 @@ const AssetsPage = () => {
                 placeholder="Enter brand name"
               />
             </div>
-
 
             <div style={styles.formGroup}>
               <label style={styles.label}>Asset Status</label>
