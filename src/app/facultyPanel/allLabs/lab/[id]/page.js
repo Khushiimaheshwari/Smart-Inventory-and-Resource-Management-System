@@ -33,7 +33,7 @@ const LabTimetablePage = () => {
       const res = await fetch(`/api/admin/getLabById/${id}`);
       const data = await res.json();
       if (res.ok) {
-        setLabData(data.lab);
+        setLabData(data.lab); 
 
         const labsArray = Array.isArray(data.labs)
           ? data.labs
@@ -85,21 +85,22 @@ const LabTimetablePage = () => {
         const labID = id;
         const res = await fetch(`/api/admin/getLabSubject?labId=${labID}`);
         const data = await res.json();
-        if (res.ok) {
-          setSubjects(data.subjects);
 
-          const allPrograms = data.subjects.flatMap((s) => s.Programs);
+        if (res.ok && Array.isArray(data.subjects)) {
+          const subjects = data.subjects;
+          setSubjects(subjects);
 
+          const allPrograms = subjects.flatMap((s) => s.Programs || []);
           const uniquePrograms = allPrograms.filter(
             (p, i, self) => i === self.findIndex((x) => x._id === p._id)
           );
           setPrograms(uniquePrograms);
 
-          const facultiesArr = data.subjects.flatMap((s) =>
+          const facultiesArr = subjects.flatMap((s) =>
             s.Programs.flatMap((p) =>
-              p.Subject.map((ps) => ({
-                Faculty_ID: ps.Faculty_Assigned || "Not Assigned",
-                Faculty_Name: ps.Faculty_Assigned || "Not Assigned",
+              (p.Subject || []).map((ps) => ({
+                Faculty_ID: ps.Faculty_Assigned?._id || "Not Assigned",
+                Faculty_Name: ps.Faculty_Assigned?.Name || "Not Assigned",
               }))
             )
           );

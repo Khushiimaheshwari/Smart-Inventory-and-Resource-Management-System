@@ -23,48 +23,15 @@ export default function LabManagement() {
   const activeLabs = labs.filter(lab => lab.Status === 'active').length;
   const underMaintenance = labs.filter(lab => lab.Status === 'under maintenance').length;
 
-  useEffect(() => {
-    const fetchTechnicians = async () => {
-      try {
-        const res = await fetch("/api/admin/getlabTechnicians");
-        const data = await res.json();
-        if (res.ok) {
-          setTechnicians(data.technicians);
-        } else {
-          console.error("Failed to fetch technicians:", data.error);
-        }
-      } catch (err) {
-        console.error("Error fetching technicians:", err);
-      }
-    };
-
-    fetchTechnicians();
-  }, []);
-
-  useEffect(() => {
-    const fetchLabIncharge = async () => {
-      try {
-        const res = await fetch("/api/admin/getFaculty");
-        const data = await res.json();
-        if (res.ok) {
-          setLabIncharge(data.faculty);
-        } else {
-          console.error("Failed to fetch faculty:", data.error);
-        }
-      } catch (err) {
-        console.error("Error fetching faculty:", err);
-      }
-    };
-
-    fetchLabIncharge();
-  }, []);
-
   const fetchLab = async () => {
     try {
-      const res = await fetch("/api/admin/getLabs");
+      const res = await fetch("/api/faculty/getLabs/");
       const data = await res.json();
       if (res.ok) {
-        setLabs(data.labs);
+        console.log(data);
+        setLabs(data.labs.map((l) => {
+          return l.lab;
+        }));
       } else {
         console.error("Failed to fetch lab:", data.error);
       }
