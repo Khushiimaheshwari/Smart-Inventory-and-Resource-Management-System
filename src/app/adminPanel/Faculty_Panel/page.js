@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { X, ChevronDown } from 'lucide-react';
+import { EmailJSResponseStatus } from "@emailjs/browser";
 
 export default function FacultyManagement() {
   const [faculty, setFaculty] = useState([]);
@@ -308,8 +309,8 @@ export default function FacultyManagement() {
     setShowAddModal(true);
     setNewFaculty(user);
 
-    if (user.programsAssigned && user.programsAssigned.length > 0) {
-      const mappedPairs = user.programsAssigned.map((p) => {
+    if (user.programSubjectPairs && user.programSubjectPairs.length > 0) {
+      const mappedPairs = user.programSubjectPairs.map((p) => {
         const filteredSubs = allSubjects.filter((sub) =>
           sub.Programs.some(
             (prog) => prog._id === p.programId || prog.Program_ID === p.programId
@@ -373,18 +374,18 @@ export default function FacultyManagement() {
         return;
       }
 
-      if (newFaculty.password && newFaculty.password.trim() !== "") {
-        await emailjs.send(
-          "service_2xk0xdb",  
-          "template_mq4w3fc",    
-          {
-            to_name: newFaculty.name,
-            to_email: newFaculty.email,
-            password: newFaculty.password,
-          },
-          "JVeTTsN2NUeZ0UlPA"
-        ); 
-      }
+      // if (newFaculty.password && newFaculty.password.trim() !== "") {
+      //   await EmailJSResponseStatus.send(
+      //     "service_2xk0xdb",  
+      //     "template_mq4w3fc",    
+      //     {
+      //       to_name: newFaculty.name,
+      //       to_email: newFaculty.email,
+      //       password: newFaculty.password,
+      //     },
+      //     "JVeTTsN2NUeZ0UlPA"
+      //   ); 
+      // }
 
       setFaculty([
         ...faculty,
@@ -1001,6 +1002,8 @@ export default function FacultyManagement() {
             </div>
 
             {programSubjectPairs.map((pair, index) => (
+              console.log(pair),
+              
               <div
                 key={index}
                 // key={pair.programId || `pair-${index}`}

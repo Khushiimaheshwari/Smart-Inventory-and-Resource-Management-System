@@ -5,8 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "./facultyNavbar.module.css";
 
-export default function FacultyNavbar({ onToggleSidebar }) {
+export default function FacultyNavbar({ onToggleSidebar, session }) {
   const [profilePic, setProfilePic] = useState("/profile.png");
+  console.log(session);
 
   useEffect(() => {
     const fetchProfilePic = async () => {
@@ -29,7 +30,7 @@ export default function FacultyNavbar({ onToggleSidebar }) {
     <nav className={styles.navbar}>
       {/* Logo - Left Side */}
       <div className={styles.logo}>
-        <Link href="/adminPanel">
+        <Link href="/facultyPanel">
           <Image
             src="/logo.png"
             alt="Lab360 Logo"
@@ -50,7 +51,7 @@ export default function FacultyNavbar({ onToggleSidebar }) {
         </button>
 
         {/* Profile Link */}
-        <Link href="/adminPanel/profile">
+        <Link href="/facultyPanel/profile">
           <div className={styles.profileLink}>
             <Image
               src={profilePic || "/profile.png"}

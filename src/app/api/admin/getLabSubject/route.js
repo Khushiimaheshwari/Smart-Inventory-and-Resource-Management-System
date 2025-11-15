@@ -40,9 +40,24 @@ export async function GET(req) {
           select: "Name Email",
         },
       ],
+    })
+    .lean();
+
+    const filteredSubjects = subjects.map((subject) => {
+      return {
+        ...subject,
+        Programs: subject.Programs.map((prog) => {
+          return {
+            ...prog,
+            Subject: prog.Subject.filter(
+              (s) => s.Subject_ID?.toString() === subject._id.toString()
+            ),
+          };
+        }),
+      };
     });
 
-    return NextResponse.json({ subjects });
+    return NextResponse.json({ subjects: filteredSubjects  });
   } catch (error) {
     console.error("Error fetching subjects by lab:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
