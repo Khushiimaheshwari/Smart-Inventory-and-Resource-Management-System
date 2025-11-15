@@ -1,5 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 function AssetsPage(props) {
   const params = props.params || {};
@@ -11,6 +12,7 @@ function AssetsPage(props) {
   const [editingAsset, setEditingAsset] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [newAsset, setNewAsset] = useState({
     Asset_Name: "",
     Asset_Type: "Monitor",
@@ -25,13 +27,13 @@ function AssetsPage(props) {
 
   useEffect(() => {
     const fetchPC = async () => {
+      setLoading(true);
       try {
         const res = await fetch(`/api/admin/getPcById/${id}`);
         const data = await res.json();
         if (res.ok) {
           setPcData(data.pc);
-          setAssets(data.pc.Assets);
-          
+          setAssets(data.pc.Assets || []);
         } else {
           console.error("Failed to fetch PC:", data.error);
         }
@@ -43,11 +45,13 @@ function AssetsPage(props) {
     };
 
     fetchPC();
-  }, []);
-   useEffect(() => {
+  }, [id]);
+
+  useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
-    }; checkMobile();
+    };
+    checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
@@ -62,6 +66,7 @@ function AssetsPage(props) {
       return;
     }
 
+    setSaving(true);
     try {
       const res = await fetch("/api/admin/addAsset", {
         method: "POST",
@@ -83,31 +88,21 @@ function AssetsPage(props) {
         return;
       }
 
-      setAssets([
-        ...assets,
-        {
-          id: assets.length + 1,
-          Asset_Name: newAsset.Asset_Name,
-          Asset_Type: newAsset.Asset_Type,
-          Assest_Status: newAsset.Assest_Status,
-          Brand: newAsset.Brand,
-          // Issue_Reported: newAsset.Issue_Reported,
-          // QR_Code: newAsset.QR_Code
-        },
-      ]);
-
       alert("Asset added successfully!");
       setShowAddModal(false);
-      setNewAsset({
-        Asset_Name: "",
-        Asset_Type: "",
-        Assest_Status: "",
-        Brand: "",
-      });
       resetForm();
+      
+      // Refresh PC data to get updated assets
+      const refreshRes = await fetch(`/api/admin/getPcById/${id}`);
+      const refreshData = await refreshRes.json();
+      if (refreshRes.ok) {
+        setAssets(refreshData.pc.Assets || []);
+      }
     } catch (err) {
       console.error("Asset Error:", err);
-      alert("Something went wrong while adding user.");
+      alert("Something went wrong while adding asset.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -117,16 +112,82 @@ function AssetsPage(props) {
     setNewAsset(asset);
   };
 
-  const handleUpdateAsset = () => {
-    setAssets(assets.map(a => a.id === editingAsset.id ? { ...newAsset, id: editingAsset.id } : a));
-    setShowAddModal(false);
-    setEditingAsset(null);
-    resetForm();
+  const handleUpdateAsset = async () => {
+    if (!newAsset.Asset_Name || !newAsset.Asset_Type || !newAsset.Assest_Status) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/updateAsset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingAsset.id || editingAsset._id,
+          Asset_Name: newAsset.Asset_Name,
+          Asset_Type: newAsset.Asset_Type,
+          Assest_Status: newAsset.Assest_Status,
+          Brand: newAsset.Brand,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
+        return;
+      }
+
+      alert("Asset updated successfully!");
+      setShowAddModal(false);
+      setEditingAsset(null);
+      resetForm();
+
+      // Refresh PC data
+      const refreshRes = await fetch(`/api/admin/getPcById/${id}`);
+      const refreshData = await refreshRes.json();
+      if (refreshRes.ok) {
+        setAssets(refreshData.pc.Assets || []);
+      }
+    } catch (err) {
+      console.error("Update Asset Error:", err);
+      alert("Something went wrong while updating asset.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDeleteAsset = (assetId) => {
-    if (window.confirm("Are you sure you want to delete this asset?")) {
-      setAssets(assets.filter(a => a.id !== assetId));
+  const handleDeleteAsset = async (assetId) => {
+    if (!window.confirm("Are you sure you want to delete this asset?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/deleteAsset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: assetId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Failed to delete asset");
+        return;
+      }
+
+      alert("Asset deleted successfully!");
+      
+      // Refresh PC data
+      const refreshRes = await fetch(`/api/admin/getPcById/${id}`);
+      const refreshData = await refreshRes.json();
+      if (refreshRes.ok) {
+        setAssets(refreshData.pc.Assets || []);
+      }
+    } catch (err) {
+      console.error("Delete Asset Error:", err);
+      alert("Something went wrong while deleting asset.");
     }
   };
 
@@ -167,18 +228,13 @@ function AssetsPage(props) {
       minHeight: '100vh',
       width: '100%',
       backgroundColor: '#f9fafb',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      zIndex: 9999,
+      flexDirection: 'column',
+      gap: '1rem',
     },
-    spinner: {
-      width: isMobile ? '50px' : '60px',
-      height: isMobile ? '50px' : '60px',
-      border: isMobile ? '5px solid #e5e7eb' : '6px solid #e5e7eb',
-      borderTop: isMobile ? '5px solid #00c97b' : '6px solid #00c97b',
-      borderRadius: '50%',
-      animation: 'spin 0.8s linear infinite',
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
     },
     container: {
       width: isMobile ? '100%' : 'calc(100% - 255px)',
@@ -197,17 +253,20 @@ function AssetsPage(props) {
       background: 'rgba(255, 255, 255, 0.95)',
       backdropFilter: 'blur(20px)',
       borderRadius: '16px',
-      padding: '20px 25px',
-      boxShadow: '0 4px 20px rgba(0, 201, 123, 0.08)'
+      padding: isMobile ? '15px 20px' : '20px 25px',
+      boxShadow: '0 4px 20px rgba(0, 201, 123, 0.08)',
+      flexWrap: isMobile ? 'wrap' : 'nowrap',
+      gap: isMobile ? '1rem' : '0'
     },
     headerTitle: {
-      fontSize: '28px',
+      fontSize: isMobile ? '20px' : '28px',
       fontWeight: 700,
       color: '#2d3748',
-      margin: 0
+      margin: 0,
+      width: isMobile ? '100%' : 'auto'
     },
     addButton: {
-      padding: '12px 24px',
+      padding: isMobile ? '10px 20px' : '12px 24px',
       background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
       color: 'white',
       border: 'none',
@@ -217,7 +276,7 @@ function AssetsPage(props) {
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       transition: 'all 0.3s ease'
     },
     infoBox: {
@@ -225,25 +284,25 @@ function AssetsPage(props) {
       backdropFilter: 'blur(20px)',
       border: '2px solid #93c5fd',
       borderRadius: '16px',
-      padding: '16px 20px',
+      padding: isMobile ? '12px 16px' : '16px 20px',
       marginBottom: '30px',
       boxShadow: '0 4px 20px rgba(0, 184, 217, 0.08)'
     },
     infoText: {
       color: '#1e3a8a',
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       lineHeight: '1.6',
       margin: 0
     },
     filterSection: {
       background: 'white',
       borderRadius: '12px',
-      padding: '1.5rem',
+      padding: isMobile ? '1rem' : '1.5rem',
       marginBottom: '2rem',
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
     },
     filterLabel: {
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       fontWeight: 600,
       color: '#4a5568',
       marginBottom: '0.75rem',
@@ -255,7 +314,7 @@ function AssetsPage(props) {
       flexWrap: 'wrap'
     },
     filterButton: {
-      padding: '0.5rem 1rem',
+      padding: isMobile ? '0.5rem 0.875rem' : '0.5rem 1rem',
       background: '#f7fafc',
       color: '#4a5568',
       border: '2px solid',
@@ -263,7 +322,7 @@ function AssetsPage(props) {
       borderRadius: '8px',
       fontWeight: 500,
       cursor: 'pointer',
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       transition: 'all 0.2s ease',
       textTransform: 'capitalize'
     },
@@ -274,19 +333,19 @@ function AssetsPage(props) {
     },
     assetGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-      gap: '1.5rem'
+      gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(300px, 1fr))',
+      gap: isMobile ? '1rem' : '1.5rem'
     },
     assetCard: {
       background: 'white',
       borderRadius: '12px',
-      padding: '1.5rem',
+      padding: isMobile ? '1.25rem' : '1.5rem',
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
       transition: 'transform 0.2s ease, box-shadow 0.2s ease',
       position: 'relative'
     },
     assetName: {
-      fontSize: '18px',
+      fontSize: isMobile ? '16px' : '18px',
       fontWeight: 600,
       color: '#2d3748',
       marginBottom: '1rem'
@@ -295,12 +354,12 @@ function AssetsPage(props) {
       display: 'flex',
       alignItems: 'flex-start',
       marginBottom: '0.75rem',
-      fontSize: '14px'
+      fontSize: isMobile ? '13px' : '14px'
     },
     detailLabel: {
       fontWeight: 600,
       color: '#4a5568',
-      minWidth: '120px',
+      minWidth: isMobile ? '100px' : '120px',
       display: 'flex',
       alignItems: 'center',
       gap: '0.5rem'
@@ -345,7 +404,7 @@ function AssetsPage(props) {
       borderTop: '1px solid #e2e8f0'
     },
     iconButton: {
-      padding: '0.5rem',
+      padding: isMobile ? '0.625rem' : '0.5rem',
       background: '#f7fafc',
       border: 'none',
       borderRadius: '6px',
@@ -372,19 +431,20 @@ function AssetsPage(props) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 1000
+      zIndex: 1000,
+      padding: isMobile ? '1rem' : '0'
     },
     modalContent: {
       background: 'white',
       borderRadius: '12px',
-      padding: '2rem',
-      width: '90%',
+      padding: isMobile ? '1.5rem' : '2rem',
+      width: isMobile ? '100%' : '90%',
       maxWidth: '500px',
       maxHeight: '90vh',
       overflowY: 'auto'
     },
     modalHeader: {
-      fontSize: '24px',
+      fontSize: isMobile ? '20px' : '24px',
       fontWeight: 600,
       color: '#2d3748',
       marginBottom: '1.5rem'
@@ -394,14 +454,14 @@ function AssetsPage(props) {
     },
     label: {
       display: 'block',
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       fontWeight: 600,
       color: '#2d3748',
       marginBottom: '0.5rem'
     },
     input: {
       width: '100%',
-      padding: '0.75rem',
+      padding: isMobile ? '0.625rem' : '0.75rem',
       border: '2px solid #e2e8f0',
       borderRadius: '8px',
       fontSize: '14px',
@@ -410,7 +470,7 @@ function AssetsPage(props) {
     },
     select: {
       width: '100%',
-      padding: '0.75rem',
+      padding: isMobile ? '0.625rem' : '0.75rem',
       border: '2px solid #e2e8f0',
       borderRadius: '8px',
       fontSize: '14px',
@@ -420,7 +480,7 @@ function AssetsPage(props) {
     },
     textarea: {
       width: '100%',
-      padding: '0.75rem',
+      padding: isMobile ? '0.625rem' : '0.75rem',
       border: '2px solid #e2e8f0',
       borderRadius: '8px',
       fontSize: '14px',
@@ -432,7 +492,8 @@ function AssetsPage(props) {
     modalActions: {
       display: 'flex',
       gap: '0.75rem',
-      marginTop: '2rem'
+      marginTop: '2rem',
+      flexDirection: isMobile ? 'column' : 'row'
     },
     cancelButton: {
       flex: 1,
@@ -448,17 +509,21 @@ function AssetsPage(props) {
     saveButton: {
       flex: 1,
       padding: '0.75rem',
-      background: '#10b981',
+      background: saving ? '#9ca3af' : '#10b981',
       color: 'white',
       border: 'none',
       borderRadius: '8px',
       fontWeight: 600,
-      cursor: 'pointer',
-      fontSize: '14px'
+      cursor: saving ? 'not-allowed' : 'pointer',
+      fontSize: '14px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
     },
     emptyState: {
       textAlign: 'center',
-      padding: '3rem',
+      padding: isMobile ? '2rem' : '3rem',
       color: '#718096',
       gridColumn: '1 / -1'
     },
@@ -472,26 +537,27 @@ function AssetsPage(props) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 2000
+      zIndex: 2000,
+      padding: isMobile ? '1rem' : '0'
     },
     qrModalContent: {
       background: 'white',
       borderRadius: '12px',
-      padding: '2rem',
+      padding: isMobile ? '1.5rem' : '2rem',
       maxWidth: '400px',
-      width: '90%',
+      width: isMobile ? '100%' : '90%',
       textAlign: 'center',
       position: 'relative'
     },
     qrModalHeader: {
-      fontSize: '20px',
+      fontSize: isMobile ? '18px' : '20px',
       fontWeight: 600,
       color: '#2d3748',
       marginBottom: '1.5rem'
     },
     qrModalImage: {
-      width: '250px',
-      height: '250px',
+      width: isMobile ? '200px' : '250px',
+      height: isMobile ? '200px' : '250px',
       margin: '0 auto 1.5rem',
       display: 'block',
       border: '2px solid #e2e8f0',
@@ -533,14 +599,11 @@ function AssetsPage(props) {
 
   if (loading) {
     return (
-      <div style={styles.loaderContainer}>
-        <div style={styles.spinner} />
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading asset data...</p>
+        </div>
       </div>
     );
   }
@@ -605,15 +668,19 @@ function AssetsPage(props) {
             const statusColors = getStatusColor(asset.Assest_Status);
             return (
               <div
-                key={asset.id}
+                key={asset.id || asset._id}
                 style={styles.assetCard}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                  if (!isMobile) {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                  }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
+                  if (!isMobile) {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
+                  }
                 }}
               >
                 <div style={styles.assetName}>{asset.Asset_Name}</div>
@@ -626,7 +693,7 @@ function AssetsPage(props) {
                     Asset Type
                   </div>
                   <div style={{...styles.detailValue, textTransform: 'capitalize', fontWeight: 500}}>
-                    {asset.Asset_Type == "cpu" || asset.Asset_Type == "ups" ? asset.Asset_Type.toUpperCase() : asset.Asset_Type}
+                    {asset.Asset_Type === "cpu" || asset.Asset_Type === "ups" ? asset.Asset_Type.toUpperCase() : asset.Asset_Type}
                   </div>
                 </div>
 
@@ -670,26 +737,28 @@ function AssetsPage(props) {
                   </div>
                 </div>
 
-                <div style={styles.assetDetail}>
-                  <div style={styles.detailLabel}>
-                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style={{color: '#10b981'}}>
-                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zM13 3a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1z" clipRule="evenodd"/>
-                      <path d="M11 4a1 1 0 10-2 0v1a1 1 0 002 0V4zM10 7a1 1 0 011 1v1h2a1 1 0 110 2h-3a1 1 0 01-1-1V8a1 1 0 011-1zM16 9a1 1 0 100 2 1 1 0 000-2zM9 13a1 1 0 011-1h1a1 1 0 110 2v2a1 1 0 11-2 0v-3zM7 11a1 1 0 100-2H4a1 1 0 100 2h3zM17 13a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zM16 17a1 1 0 100-2h-3a1 1 0 100 2h3z"/>
-                    </svg>
-                    QR Code
+                {asset.QR_Code && (
+                  <div style={styles.assetDetail}>
+                    <div style={styles.detailLabel}>
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style={{color: '#10b981'}}>
+                        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zM13 3a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1z" clipRule="evenodd"/>
+                        <path d="M11 4a1 1 0 10-2 0v1a1 1 0 002 0V4zM10 7a1 1 0 011 1v1h2a1 1 0 110 2h-3a1 1 0 01-1-1V8a1 1 0 011-1zM16 9a1 1 0 100 2 1 1 0 000-2zM9 13a1 1 0 011-1h1a1 1 0 110 2v2a1 1 0 11-2 0v-3zM7 11a1 1 0 100-2H4a1 1 0 100 2h3zM17 13a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zM16 17a1 1 0 100-2h-3a1 1 0 100 2h3z"/>
+                      </svg>
+                      QR Code
+                    </div>
+                    <div 
+                      style={{...styles.qrCodeThumbnail, cursor: 'pointer'}}
+                      onClick={() => setViewingQR(asset)}
+                      title="Click to view QR code"
+                    >
+                      <img 
+                        src={asset.QR_Code} 
+                        alt="QR Code"
+                        style={styles.qrImage}
+                      />
+                    </div>
                   </div>
-                  <div 
-                    style={{...styles.qrCodeThumbnail, cursor: 'pointer'}}
-                    onClick={() => setViewingQR(asset)}
-                    title="Click to view QR code"
-                  >
-                    <img 
-                      src={asset.QR_Code} 
-                      alt="QR Code"
-                      style={styles.qrImage}
-                    />
-                  </div>
-                </div>
+                )}
 
                 <div style={styles.actionButtons}>
                   <button
@@ -703,7 +772,7 @@ function AssetsPage(props) {
                   </button>
                   <button
                     style={{...styles.iconButton, ...styles.deleteButton}}
-                    onClick={() => handleDeleteAsset(asset.id)}
+                    onClick={() => handleDeleteAsset(asset.id || asset._id)}
                     title="Delete Asset"
                   >
                     <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
@@ -820,13 +889,13 @@ function AssetsPage(props) {
             </div>
 
             <div style={styles.formGroup}>
-              <label style={styles.label}>QR Code</label>
+              <label style={styles.label}>QR Code URL (Optional)</label>
               <input
                 type="text"
                 style={styles.input}
                 value={newAsset.QR_Code}
                 onChange={(e) => setNewAsset({...newAsset, QR_Code: e.target.value})}
-                placeholder="Enter QR code"
+                placeholder="Enter QR code URL"
               />
             </div>
 
@@ -844,8 +913,16 @@ function AssetsPage(props) {
               <button
                 style={styles.saveButton}
                 onClick={editingAsset ? handleUpdateAsset : handleAddAsset}
+                disabled={saving}
               >
-                {editingAsset ? "Update Asset" : "Add Asset"}
+                {saving ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    {editingAsset ? "Updating..." : "Adding..."}
+                  </>
+                ) : (
+                  editingAsset ? "Update Asset" : "Add Asset"
+                )}
               </button>
             </div>
           </div>

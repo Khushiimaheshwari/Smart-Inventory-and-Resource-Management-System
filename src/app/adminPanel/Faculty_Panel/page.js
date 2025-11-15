@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X, ChevronDown } from 'lucide-react';
+import { X, ChevronDown, Loader2 } from 'lucide-react';
 
 export default function FacultyManagement() {
   const [faculty, setFaculty] = useState([]);
@@ -19,6 +19,7 @@ export default function FacultyManagement() {
   const [expandedCard, setExpandedCard] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const dropdownRef = useRef(null);
   const [newFaculty, setNewFaculty] = useState({
     name: "",
@@ -42,49 +43,87 @@ export default function FacultyManagement() {
 
   const fetchFaculty = async () => {
     try {
-      setLoading(true);
+      const res = await fetch("/api/admin/getFaculty");
+      if(!res.ok) throw new Error("Failed to fetch faculty");
+      const data = await res.json();
       
-      // Simulating API call with timeout for demo
-      setTimeout(() => {
-        setFaculty([
-          {
-            id: 1,
-            name: "Dr. John Doe",
-            email: "john.doe@example.com",
-            phoneNumber: "+91 9876543210",
-            profileImage: "",
-            department: "SOET",
-            designation: "Professor",
-            location: "Delhi",
-            status: "active",
-            programSubjectPairs: [
-              {
-                subjectId: "1",
-                subjectName: "Data Structures",
-                subjectCode: "CS101",
-                programId: "p1",
-                programName: "B.Tech CSE",
-                programSemester: "3",
-                programSection: "A",
-                programGroup: "G1",
-                programBatch: "2024",
-              }
-            ],
-            programsAssigned: [],
-          }
-        ]);
-        setLoading(false);
-      }, 1000);
-      
+      setFaculty(
+        data.faculty.map(f => ({
+          id: f._id,
+          name: f.Name,
+          email: f.Email,
+          phoneNumber: f.PhoneNumber,
+          profileImage: f.ProfileImage,
+          department: f.Department,
+          designation: f.Designation,
+          location: f.Location,
+          status: f.AccountStatus,
+          programSubjectPairs: f.ProgramSubjectPairs?.map(sub => ({
+            subjectId: sub.subjectId,
+            subjectName: sub.subjectName,
+            subjectCode: sub.subjectCode,
+            programId: sub.programId,
+            programName: sub.programName,
+            programSemester: sub.programSemester,
+            programSection: sub.programSection,
+            programGroup: sub.programGroup,
+            programBatch: sub.programBatch,
+          })),
+          programsAssigned: f.Programs_Assigned || [],
+        }))
+      );
     } catch (err) {
       console.error("Fetch Faculty Error:", err);
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchFaculty();
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchFaculty(),
+          fetchSubjects(),
+          fetchPrograms(),
+        ]);
+      } catch (err) {
+        console.error("Error loading data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAllData();
   }, []);
+
+  const fetchSubjects = async () => {
+    try {
+      const res = await fetch("/api/admin/getSubjects");
+      if(!res.ok) throw new Error("Failed to fetch Subjects");
+      const data = await res.json();
+
+      setAllSubjects(
+        data.subjects.map(s => ({
+          Subject: (s.Course_Name).toUpperCase() + " - " + s.Course_Code,
+          Subject_id: s._id,
+          Programs: s.Programs || [],  
+        }))
+      );
+    } catch (err) {
+      console.error("Fetch Subjects Error:", err);
+    }
+  };
+
+  const fetchPrograms = async () => {
+    try {
+      const res = await fetch("/api/admin/getProgram");
+      if (!res.ok) throw new Error("Failed to fetch programs");
+      const data = await res.json();
+      setPrograms(data.programs);
+    } catch (err) {
+      console.error("Error fetching programs:", err);
+    }
+  };
 
   const resetForm = () => {
     setNewFaculty({
@@ -96,6 +135,7 @@ export default function FacultyManagement() {
       program: [],
       subjects: [],
     });
+    setProgramSubjectPairs([{ programId: "", subjects: [], filteredSubjects: [] }]);
   };
 
   const handleProgramChange = (index, programId) => {
@@ -120,12 +160,10 @@ export default function FacultyManagement() {
         if (i !== pairIndex) return pair;
 
         const subjects = Array.isArray(pair.subjects) ? [...pair.subjects] : [];
-
         const selectedId = getId(selectedSubject);
         if (!selectedId) return pair; 
 
         const already = subjects.some(s => getId(s) === selectedId);
-
         const newSubjects = already
           ? subjects.filter(s => getId(s) !== selectedId)
           : [
@@ -137,10 +175,7 @@ export default function FacultyManagement() {
               },
             ];
 
-        return {
-          ...pair,
-          subjects: newSubjects,
-        };
+        return { ...pair, subjects: newSubjects };
       });
     });
   };
@@ -160,9 +195,7 @@ export default function FacultyManagement() {
     setProgramSubjectPairs((prev) => {
       const updated = [...prev];
       updated[index].subjects = updated[index].subjects.filter(
-        (s) =>
-          (s._id || s.Subject_id) !== subId &&
-          (s.Subject_id || s._id) !== subId
+        (s) => (s._id || s.Subject_id) !== subId && (s.Subject_id || s._id) !== subId
       );
       return updated;
     });
@@ -194,10 +227,45 @@ export default function FacultyManagement() {
       return;
     }
 
-    alert("Faculty added successfully!");
-    setShowAddModal(false);
-    resetForm();
-    setProgramSubjectPairs([{ programId: "", subjects: [], filteredSubjects: [] }]);
+    setSaving(true);
+    const payload = {
+      name: newFaculty.name,
+      email: newFaculty.email,
+      password: newFaculty.password,
+      department: newFaculty.department,
+      designation: newFaculty.designation,
+      programSubjectPairs: programSubjectPairs.flatMap((p) =>
+        (p.subjects || []).map((s) => ({
+          programId: p.programId,
+          subjectId: s._id || s.Subject_id || s.id,
+        }))
+      ),
+    };
+
+    try {
+      const res = await fetch("/api/admin/addFaculty", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
+        return;
+      }
+
+      alert("Faculty added successfully!");
+      setShowAddModal(false);
+      resetForm();
+      await fetchFaculty();
+    } catch (err) {
+      console.error("Add Faculty Error:", err);
+      alert("Something went wrong while adding Faculty.");
+    } finally {
+      setSaving(false);
+    }
   };
   
   const handleEditFaculty = (user) => {
@@ -216,12 +284,7 @@ export default function FacultyManagement() {
         return {
           programId: p.programId,
           programName: p.programName,
-          subjects: [
-            {
-              _id: p.subjectId,
-              Subject: p.subjectName,
-            },
-          ],
+          subjects: [{ _id: p.subjectId, Subject: p.subjectName }],
           filteredSubjects: filteredSubs, 
         };
       });
@@ -238,30 +301,49 @@ export default function FacultyManagement() {
       return;
     }
 
-    alert("Faculty updated successfully!");
-    setShowAddModal(false);
-    setEditingFaculty(null);
-    resetForm();
-    setProgramSubjectPairs([{ programId: "", subjects: [], filteredSubjects: [] }]);
+    setSaving(true);
+    const payload = {
+      name: newFaculty.name,
+      email: newFaculty.email,
+      password: newFaculty.password,
+      department: newFaculty.department,
+      designation: newFaculty.designation,
+      programSubjectPairs: programSubjectPairs.flatMap((p) =>
+        (p.subjects || []).map((s) => ({
+          programId: p.programId,
+          subjectId: s._id || s.Subject_id || s.id,
+        }))
+      ),
+    };
+
+    try {
+      const res = await fetch("/api/admin/editFaculty", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
+        return;
+      }
+
+      alert("Faculty updated successfully!");
+      setShowAddModal(false);
+      setEditingFaculty(null);
+      resetForm();
+      await fetchFaculty();
+    } catch (err) {
+      console.error("Edit Faculty Error:", err);
+      alert("Something went wrong while editing Faculty.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const styles = {
-    loaderContainer: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      backgroundColor: '#f9fafb',
-      marginLeft:'280px',
-    },
-    spinner: {
-      width: '60px',
-      height: '60px',
-      border: '6px solid #e5e7eb',
-      borderTop: '6px solid #10b981',
-      borderRadius: '50%',
-      animation: 'spin 0.8s linear infinite',
-    },
     container: {
       width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
@@ -270,6 +352,19 @@ export default function FacultyManagement() {
       boxSizing: 'border-box',
       marginLeft: isMobile ? '0' : '255px',
       overflowX: 'hidden',
+    },
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '60vh',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
     },
     header: {
       display: "flex",
@@ -520,10 +615,10 @@ export default function FacultyManagement() {
     modalContent: {
       background: "white",
       borderRadius: "12px",
-      padding: isMobile ? "20px" : "30px",
+      padding: isMobile ? "0px 20px 15px" : "0px 30px 20px",
       width: isMobile ? "100%" : "90%",
       maxWidth: "600px",
-      maxHeight: isMobile ? "95vh" : "90vh",
+      maxHeight: isMobile ? "95vh" : "100vh",
       overflowY: "auto",
     },
     modalHeader: {
@@ -570,13 +665,17 @@ export default function FacultyManagement() {
     saveButton: {
       flex: 1,
       padding: "12px",
-      background: "#10b981",
+      background: saving ? "#9ca3af" : "#10b981",
       color: "white",
       border: "none",
       borderRadius: "8px",
       fontWeight: 600,
-      cursor: "pointer",
+      cursor: saving ? "not-allowed" : "pointer",
       fontSize: "14px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "8px",
     },
     generateButton: {
       padding: "8px",
@@ -690,14 +789,11 @@ export default function FacultyManagement() {
 
   if (loading) {
     return (
-      <div style={styles.loaderContainer}>
-        <div style={styles.spinner} />
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading faculty data...</p>
+        </div>
       </div>
     );
   }
@@ -759,7 +855,7 @@ export default function FacultyManagement() {
                         <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
                     </button>
-                    <button style={{ ...styles.iconButton, ...styles.expandButton, transform: expandedCard === member.id ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} onClick={() => setExpandedCard(expandedCard === member.id ? null : member.id)}>
+                    <button style={{ ...styles.iconButton, ...styles.expandButton, transform: expandedCard === member.id ? "rotate(180deg)" : "rotate(0deg)" }} onClick={() => setExpandedCard(expandedCard === member.id ? null : member.id)}>
                       <ChevronDown size={isMobile ? 16 : 18} />
                     </button>
                   </div>
@@ -787,14 +883,17 @@ export default function FacultyManagement() {
                     <span style={styles.subjectsLabel}>
                       Subjects Taught
                       <span style={styles.subjectCount}>
-                        {member.programSubjectPairs && member.programSubjectPairs.length > 0 ? member.programSubjectPairs.length : 0}
+                        {member.subjects && member.subjects.length > 0 ? member.subjects.length : 0}
                       </span>
                     </span>
                     <div style={styles.subjectChipsContainer}>
                       {member.programSubjectPairs && member.programSubjectPairs.length > 0 ? (
                         member.programSubjectPairs.map((sub, index) => (
                           <div key={index} style={styles.subjectChip}>
-                            {sub.subjectName} {sub.subjectCode} - {sub.programSection} {sub.programName} Sem {sub.programSemester} {sub.programGroup} Batch: {sub.programBatch}
+                            {sub.subjectName} {sub.subjectCode} 
+                            <span>
+                              " {sub.programSection} " {sub.programName} Sem - {sub.programSemester} {sub.programGroup} Batch: {sub.programBatch}  
+                            </span>
                           </div>
                         ))
                       ) : (
@@ -904,13 +1003,7 @@ export default function FacultyManagement() {
                             ? `${sub.Course_Code} - ${sub.Course_Name}`
                             : sub?.Subject || "Unknown Subject";
 
-                          const subId =
-                            sub?._id ||
-                            sub.Subject_id ||
-                            sub.Subject_ID ||
-                            sub.id ||
-                            sub.Subject?.Subject_id ||
-                            i;
+                          const subId = sub?._id || sub.Subject_id || sub.Subject_ID || sub.id || sub.Subject?.Subject_id || i;
 
                           return (
                             <div key={subId} style={styles.chip}>
@@ -933,9 +1026,7 @@ export default function FacultyManagement() {
                     {isDropdownOpen === index && (
                       <div style={styles.dropdown}>
                         {pair.filteredSubjects.map((subObj, subIdx) => {
-                          const isSelected = pair.subjects?.some(
-                            (sub) => getId(sub) === getId(subObj)
-                          );
+                          const isSelected = pair.subjects?.some((sub) => getId(sub) === getId(subObj));
                           
                           return (
                             <div
@@ -992,12 +1083,20 @@ export default function FacultyManagement() {
                 setShowAddModal(false); 
                 setEditingFaculty(null);
                 resetForm();
-                setProgramSubjectPairs([{ programId: "", subjects: [], filteredSubjects: [] }]);
               }}>Cancel</button>
               <button 
                 style={styles.saveButton}
-                onClick={editingFaculty ? handleUpdateFaculty : handleAddFaculty}>
-                {editingFaculty ? "Update Faculty" : "Add Faculty"}
+                onClick={editingFaculty ? handleUpdateFaculty : handleAddFaculty}
+                disabled={saving}
+              >
+                {saving ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    {editingFaculty ? "Updating..." : "Adding..."}
+                  </>
+                ) : (
+                  editingFaculty ? "Update Faculty" : "Add Faculty"
+                )}
               </button>
             </div>
           </div> 

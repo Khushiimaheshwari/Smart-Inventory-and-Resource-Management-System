@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 export default function LabManagement() {
   const [labs, setLabs] = useState([]);
@@ -10,6 +11,8 @@ export default function LabManagement() {
   const [labIncharge, setLabIncharge] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [newLab, setNewLab] = useState({
     id: '',
     name: '',
@@ -37,40 +40,51 @@ export default function LabManagement() {
   const underMaintenance = labs.filter(lab => lab.Status === 'under maintenance').length;
 
   useEffect(() => {
-    const fetchTechnicians = async () => {
+    const fetchAllData = async () => {
+      setLoading(true);
       try {
-        const res = await fetch("/api/admin/getlabTechnicians");
-        const data = await res.json();
-        if (res.ok) {
-          setTechnicians(data.technicians);
-        } else {
-          console.error("Failed to fetch technicians:", data.error);
-        }
-      } catch (err) {
-        console.error("Error fetching technicians:", err);
+        await Promise.all([
+          fetchLab(),
+          fetchTechnicians(),
+          fetchLabIncharge()
+        ]);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
       }
     };
-
-    fetchTechnicians();
+    
+    fetchAllData();
   }, []);
 
-  useEffect(() => {
-    const fetchLabIncharge = async () => {
-      try {
-        const res = await fetch("/api/admin/getFaculty");
-        const data = await res.json();
-        if (res.ok) {
-          setLabIncharge(data.faculty);
-        } else {
-          console.error("Failed to fetch faculty:", data.error);
-        }
-      } catch (err) {
-        console.error("Error fetching faculty:", err);
+  const fetchTechnicians = async () => {
+    try {
+      const res = await fetch("/api/admin/getlabTechnicians");
+      const data = await res.json();
+      if (res.ok) {
+        setTechnicians(data.technicians);
+      } else {
+        console.error("Failed to fetch technicians:", data.error);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching technicians:", err);
+    }
+  };
 
-    fetchLabIncharge();
-  }, []);
+  const fetchLabIncharge = async () => {
+    try {
+      const res = await fetch("/api/admin/getFaculty");
+      const data = await res.json();
+      if (res.ok) {
+        setLabIncharge(data.faculty);
+      } else {
+        console.error("Failed to fetch faculty:", data.error);
+      }
+    } catch (err) {
+      console.error("Error fetching faculty:", err);
+    }
+  };
 
   const fetchLab = async () => {
     try {
@@ -86,16 +100,13 @@ export default function LabManagement() {
     }
   };
 
-  useEffect(() => {
-    fetchLab();
-  }, []);
-
   const handleAddLab = async () => {
     if (!newLab.name || !newLab.block || !newLab.capacity) {
       alert("Please fill in all required fields!");
       return;
     }
 
+    setSaving(true);
     const payload = {
       labId: newLab.id,
       labName: newLab.name,
@@ -118,16 +129,17 @@ export default function LabManagement() {
 
       if (res.ok) {
         alert("Lab added successfully!");
-        setLabs([...labs, { ...newLab, id: newLab._id }]);
         setShowAddModal(false);
         resetForm();
-        fetchLab();
+        await fetchLab();
       } else {
         alert(data.error || "Failed to add lab");
       }
     } catch (error) {
       console.error("Error adding lab:", error);
       alert("Something went wrong while adding the lab.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -147,6 +159,12 @@ export default function LabManagement() {
   };
 
   const handleUpdateLab = async () => {
+    if (!newLab.name || !newLab.block || !newLab.capacity) {
+      alert("Please fill in all required fields!");
+      return;
+    }
+
+    setSaving(true);
     const payload = {
       Lab_ID: newLab.id,
       Lab_Name: newLab.name,
@@ -168,35 +186,44 @@ export default function LabManagement() {
       const data = await res.json();
 
       if (res.ok) {
-        setLabs((prev) =>
-          prev.map((lab) =>
-            lab._id === editingLab._id ? data.lab : lab
-          )
-        );
+        alert("Lab updated successfully!");
         setShowAddModal(false);
         setEditingLab(null);
-        setNewLab({
-          id: "",
-          name: "",
-          block: "",
-          labRoom: "",
-          capacity: "",
-          status: "Active",
-          technician: "",
-          incharge: "",
-        });
         resetForm();
-        alert("Lab updated successfully!");
+        await fetchLab();
       } else {
         alert(data.error || "Failed to update lab");
       }
     } catch (err) {
       console.error("Error updating lab:", err);
-    }  
+      alert("Something went wrong while updating the lab.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDeleteLab = (labId) => {
-    setLabs(labs.filter(l => l.id !== labId));
+  const handleDeleteLab = async (labId) => {
+    if (!window.confirm("Are you sure you want to delete this lab?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/deleteLab/${labId}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Lab deleted successfully!");
+        await fetchLab();
+      } else {
+        alert(data.error || "Failed to delete lab");
+      }
+    } catch (err) {
+      console.error("Error deleting lab:", err);
+      alert("Something went wrong while deleting the lab.");
+    }
   };
 
   const resetForm = () => {
@@ -213,6 +240,21 @@ export default function LabManagement() {
   };
 
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
+    },
     container: {
       width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
@@ -501,15 +543,30 @@ export default function LabManagement() {
     saveButton: {
       flex: 1,
       padding: isMobile ? '10px' : '12px',
-      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
+      background: saving ? '#9ca3af' : 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
       color: 'white',
       border: 'none',
       borderRadius: '8px',
       fontWeight: 600,
-      cursor: 'pointer',
-      fontSize: '14px'
+      cursor: saving ? 'not-allowed' : 'pointer',
+      fontSize: '14px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
     }
   };
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading lab data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>
@@ -553,7 +610,7 @@ export default function LabManagement() {
                     <div style={styles.cardInfo}>
                       <div style={styles.cardIdRow}>
                         <span style={styles.cardId}>#{lab.Lab_Name}</span>
-                        <span style={{...styles.statusBadge, ...(lab.status === 'Active' ? styles.statusActive : styles.statusMaintenance)}}>
+                        <span style={{...styles.statusBadge, ...(lab.Status === 'Active' ? styles.statusActive : styles.statusMaintenance)}}>
                           {lab.Status}
                         </span>
                       </div>
@@ -601,7 +658,7 @@ export default function LabManagement() {
                           <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                         </svg>
                       </button>
-                      <button style={{ ...styles.iconButton, ...styles.deleteButton }} onClick={() => handleDeleteLab(lab.id)}>
+                      <button style={{ ...styles.iconButton, ...styles.deleteButton }} onClick={() => handleDeleteLab(lab._id)}>
                         <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
@@ -624,7 +681,7 @@ export default function LabManagement() {
         )}
         
         {showAddModal && (
-          <div style={styles.modal} onClick={() => { setShowAddModal(false); setEditingLab(null); }}>
+          <div style={styles.modal} onClick={() => { setShowAddModal(false); setEditingLab(null); resetForm(); }}>
             <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
               <h2 style={styles.modalHeader}>{editingLab ? 'Update Lab' : 'Add New Lab'}</h2>
               
@@ -689,11 +746,22 @@ export default function LabManagement() {
               </div>
 
               <div style={styles.modalActions}>
-                <button style={styles.cancelButton} onClick={() => { setShowAddModal(false); setEditingLab(null); }}>
+                <button style={styles.cancelButton} onClick={() => { setShowAddModal(false); setEditingLab(null); resetForm(); }}>
                   Cancel
                 </button>
-                <button style={styles.saveButton} onClick={editingLab ? handleUpdateLab : handleAddLab}>
-                  {editingLab ? 'Update Lab' : 'Add Lab'}
+                <button 
+                  style={styles.saveButton} 
+                  onClick={editingLab ? handleUpdateLab : handleAddLab}
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      {editingLab ? 'Updating...' : 'Adding...'}
+                    </>
+                  ) : (
+                    editingLab ? 'Update Lab' : 'Add Lab'
+                  )}
                 </button>
               </div>
             </div>

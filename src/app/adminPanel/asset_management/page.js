@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Loader2 } from 'lucide-react';
 
 export default function AssetManagement() {
   const [pcs, setPCs] = useState([]);
@@ -10,6 +11,7 @@ export default function AssetManagement() {
   const [editingPC, setEditingPC] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [newPC, setNewPC] = useState({
     PC_Name: "",
     Lab: "",
@@ -27,55 +29,63 @@ export default function AssetManagement() {
   }, []);
 
   useEffect(() => {
-    const fetchPCs = async () => {
+    const fetchAllData = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const res = await fetch('/api/admin/getlabPCs');
-
-        if (!res.ok) {
-          throw new Error('Failed to fetch PCs');
-        }
-
-        const data = await res.json();
-        console.log(data);
-        
-        setPCs(
-          data.pcs.map(pc => ({
-            id: pc._id,
-            PC_Name: pc.PC_Name,
-            Lab: pc.Lab,
-            Assets: pc.Assets || []
-          }))
-        );
+        await Promise.all([
+          fetchPCs(),
+          fetchLabs()
+        ]);
       } catch (error) {
-        console.error("Error fetching PCs:", error);
+        console.error("Error loading data:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchPCs();
+    
+    fetchAllData();
   }, []);
 
-  useEffect(() => {
-    const fetchLabs = async () => {
-      try {
-        const res = await fetch("/api/admin/getLabs");
-        const data = await res.json();
-        console.log(data);       
+  const fetchPCs = async () => {
+    try {
+      const res = await fetch('/api/admin/getlabPCs');
 
-        if (!res.ok) {
-          throw new Error(data.error || "Failed to fetch labs");
-        }
-
-        setLabs(data.labs);
-      } catch (err) {
-        console.error("Error fetching labs:", err);
-        alert("Failed to load labs. Please try again later.");
+      if (!res.ok) {
+        throw new Error('Failed to fetch PCs');
       }
-    };
 
-    fetchLabs();
-  }, []);
+      const data = await res.json();
+      console.log(data);
+      
+      setPCs(
+        data.pcs.map(pc => ({
+          id: pc._id,
+          PC_Name: pc.PC_Name,
+          Lab: pc.Lab,
+          Assets: pc.Assets || []
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching PCs:", error);
+    }
+  };
+
+  const fetchLabs = async () => {
+    try {
+      const res = await fetch("/api/admin/getLabs");
+      const data = await res.json();
+      console.log(data);       
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to fetch labs");
+      }
+
+      setLabs(data.labs);
+    } catch (err) {
+      console.error("Error fetching labs:", err);
+      alert("Failed to load labs. Please try again later.");
+    }
+  };
 
   const filteredPCs = selectedLab === "all" 
     ? pcs 
@@ -86,8 +96,8 @@ export default function AssetManagement() {
       alert("Please fill all required fields");
       return;
     }
-    console.log(newPC.Lab);  
 
+    setSaving(true);
     try {
       const res = await fetch("/api/admin/addLabPCs", {
         method: "POST",
@@ -105,26 +115,15 @@ export default function AssetManagement() {
         return;
       }
 
-      setPCs([
-        ...pcs,
-        {
-          id: pcs.length + 1,
-          PC_Name: newPC.PC_Name,
-          Lab: newPC.Lab,
-        },
-      ]);
-
-      alert("Lab Technician added successfully!");
+      alert("PC added successfully!");
       setShowAddModal(false);
-      setNewPC({
-        PC_Name: "",
-        Lab: "",
-        Assets: [],
-      });
       resetForm();
+      await fetchPCs();
     } catch (err) {
-      console.error("Add Technician Error:", err);
-      alert("Something went wrong while adding user.");
+      console.error("Add PC Error:", err);
+      alert("Something went wrong while adding PC.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -134,16 +133,68 @@ export default function AssetManagement() {
     setNewPC(pc);
   };
 
-  const handleUpdatePC = () => {
-    setPCs(pcs.map(p => p.id === editingPC.id ? { ...newPC, id: editingPC.id } : p));
-    setShowAddModal(false);
-    setEditingPC(null);
-    resetForm();
+  const handleUpdatePC = async () => {
+    if (!newPC.PC_Name || !newPC.Lab) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/updateLabPC", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingPC.id,
+          PC_Name: newPC.PC_Name,
+          Lab: newPC.Lab,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
+        return;
+      }
+
+      alert("PC updated successfully!");
+      setShowAddModal(false);
+      setEditingPC(null);
+      resetForm();
+      await fetchPCs();
+    } catch (err) {
+      console.error("Update PC Error:", err);
+      alert("Something went wrong while updating PC.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDeletePC = (pcId) => {
-    if (window.confirm("Are you sure you want to delete this PC?")) {
-      setPCs(pcs.filter(p => p.id !== pcId));
+  const handleDeletePC = async (pcId) => {
+    if (!window.confirm("Are you sure you want to delete this PC?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/deleteLabPC", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: pcId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Failed to delete PC");
+        return;
+      }
+
+      alert("PC deleted successfully!");
+      await fetchPCs();
+    } catch (err) {
+      console.error("Delete PC Error:", err);
+      alert("Something went wrong while deleting PC.");
     }
   };
 
@@ -153,8 +204,8 @@ export default function AssetManagement() {
 
   const getLabName = (labData) => {
     if (!labData) return "Unknown Lab";
-    return labData.name || labData.Lab_ID || "Unnamed Lab";
-  }
+    return labData.Lab_ID || labData.name || "Unnamed Lab";
+  };
 
   const styles = {
     loaderContainer: {
@@ -164,18 +215,13 @@ export default function AssetManagement() {
       minHeight: '100vh',
       width: '100%',
       backgroundColor: '#f9fafb',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      zIndex: 9999,
+      flexDirection: 'column',
+      gap: '1rem',
     },
-    spinner: {
-      width: isMobile ? '50px' : '60px',
-      height: isMobile ? '50px' : '60px',
-      border: isMobile ? '5px solid #e5e7eb' : '6px solid #e5e7eb',
-      borderTop: isMobile ? '5px solid #10b981' : '6px solid #10b981',
-      borderRadius: '50%',
-      animation: 'spin 0.8s linear infinite',
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
     },
     container: {
       width: isMobile ? '100%' : 'calc(100% - 255px)',
@@ -405,13 +451,17 @@ export default function AssetManagement() {
     saveButton: {
       flex: 1,
       padding: '0.75rem',
-      background: '#10b981',
+      background: saving ? '#9ca3af' : '#10b981',
       color: 'white',
       border: 'none',
       borderRadius: '8px',
       fontWeight: 600,
-      cursor: 'pointer',
-      fontSize: '14px'
+      cursor: saving ? 'not-allowed' : 'pointer',
+      fontSize: '14px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
     },
     emptyState: {
       padding: isMobile ? '2rem' : '3rem',
@@ -422,14 +472,11 @@ export default function AssetManagement() {
 
   if (loading) {
     return (
-      <div style={styles.loaderContainer}>
-        <div style={styles.spinner} />
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading asset data...</p>
+        </div>
       </div>
     );
   }
@@ -480,7 +527,7 @@ export default function AssetManagement() {
         {filteredPCs.length > 0 ? (
           filteredPCs.map(pc => (
             <div
-              key={pc._id}
+              key={pc.id}
               style={styles.pcCard}
               onMouseEnter={(e) => {
                 if (!isMobile) {
@@ -505,7 +552,7 @@ export default function AssetManagement() {
               <div style={styles.assetsSection}>
                 <div style={styles.assetsLabel}>Assets</div>
                 <div style={styles.assetsCount}>
-                  {pc?.Assets?.length} item{pc?.Assets?.length !== 1 ? 's' : ''} assigned
+                  {pc?.Assets?.length || 0} item{pc?.Assets?.length !== 1 ? 's' : ''} assigned
                 </div>
               </div>
               <div style={styles.actionButtons}>
@@ -608,8 +655,16 @@ export default function AssetManagement() {
               <button
                 style={styles.saveButton}
                 onClick={editingPC ? handleUpdatePC : handleAddPC}
+                disabled={saving}
               >
-                {editingPC ? "Update PC" : "Add PC"}
+                {saving ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    {editingPC ? "Updating..." : "Adding..."}
+                  </>
+                ) : (
+                  editingPC ? "Update PC" : "Add PC"
+                )}
               </button>
             </div>
           </div>
