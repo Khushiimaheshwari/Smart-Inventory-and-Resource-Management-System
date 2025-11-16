@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Loader2 } from 'lucide-react';
 
 export default function SubjectListPage() {
   const [subjects, setSubjects] = useState([]);
@@ -12,6 +12,7 @@ export default function SubjectListPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [sortBy, setSortBy] = useState('courseCode');
+  const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [expandedSubject, setExpandedSubject] = useState(null);
@@ -59,7 +60,18 @@ export default function SubjectListPage() {
   };
 
   useEffect(() => {
-    fetchSubject();
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        await fetchSubject();
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAllData();
   }, []);
 
   const faculties = [
@@ -192,6 +204,21 @@ export default function SubjectListPage() {
   };
 
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
+    },
     container: {
       width: (isMobile || isTablet) ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
@@ -569,6 +596,17 @@ export default function SubjectListPage() {
       marginBottom: "20px",
     },
   };
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading subject data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>

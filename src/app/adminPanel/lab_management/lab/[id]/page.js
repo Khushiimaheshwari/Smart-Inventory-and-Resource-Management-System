@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Upload, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Upload, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 const LabTimetablePage = () => {
@@ -14,6 +14,7 @@ const LabTimetablePage = () => {
   const [editing, setEditing] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [newInfo, setNewInfo] = useState({
     hardwareSpecs: "",
     softwareSpecs: "",
@@ -87,9 +88,24 @@ const LabTimetablePage = () => {
   };
 
   useEffect(() => {
-      fetchLab();
-    }, []);
-    useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchLab(),
+          fetchSubject()
+        ]);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAllData();
+  }, []);
+
+  useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
       setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024);
@@ -153,48 +169,44 @@ const LabTimetablePage = () => {
 
   const handleUpdateInfo = async () => {};
 
-  useEffect(() => {
-    const fetchSubject = async () => {
-      try {
-        const labID = id;
-        const res = await fetch(`/api/admin/getLabSubject?labId=${labID}`);
-        const data = await res.json();
-        if (res.ok) {
-          setSubjects(data.subjects);
+  const fetchSubject = async () => {
+    try {
+      const labID = id;
+      const res = await fetch(`/api/admin/getLabSubject?labId=${labID}`);
+      const data = await res.json();
+      if (res.ok) {
+        setSubjects(data.subjects);
 
-          const allPrograms = data.subjects.flatMap((s) => s.Programs);
+        const allPrograms = data.subjects.flatMap((s) => s.Programs);
 
-          const uniquePrograms = allPrograms.filter(
-            (p, i, self) => i === self.findIndex((x) => x._id === p._id)
-          );
-          setPrograms(uniquePrograms);
+        const uniquePrograms = allPrograms.filter(
+          (p, i, self) => i === self.findIndex((x) => x._id === p._id)
+        );
+        setPrograms(uniquePrograms);
 
-          const facultiesArr = data.subjects.flatMap((s) =>
-            s.Programs.flatMap((p) =>
-              p.Subject.map((ps) => ({
-                Faculty_ID: ps.Faculty_Assigned || "Not Assigned",
-                Faculty_Name: ps.Faculty_Assigned || "Not Assigned",
-              }))
-            )
-          );
+        const facultiesArr = data.subjects.flatMap((s) =>
+          s.Programs.flatMap((p) =>
+            p.Subject.map((ps) => ({
+              Faculty_ID: ps.Faculty_Assigned || "Not Assigned",
+              Faculty_Name: ps.Faculty_Assigned || "Not Assigned",
+            }))
+          )
+        );
 
-          const uniqueFaculties = facultiesArr.filter(
-            (f, i, self) => i === self.findIndex((x) => x.Faculty_ID === f.Faculty_ID)
-          );
+        const uniqueFaculties = facultiesArr.filter(
+          (f, i, self) => i === self.findIndex((x) => x.Faculty_ID === f.Faculty_ID)
+        );
 
-          setFaculties(uniqueFaculties);
-          console.log(data);
-          
-        } else {
-          console.error("Failed to fetch subject:", data.error);
-        }
-      } catch (err) {
-        console.error("Error fetching subject:", err);
+        setFaculties(uniqueFaculties);
+        console.log(data);
+        
+      } else {
+        console.error("Failed to fetch subject:", data.error);
       }
-    };
-
-    fetchSubject();
-  }, []);
+    } catch (err) {
+      console.error("Error fetching subject:", err);
+    }
+  };
 
   const handleProgramChange = (programId) => {
     setFormData({ ...formData, Program: programId });
@@ -429,6 +441,21 @@ const LabTimetablePage = () => {
   };
 
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
+    },
     container: {
       width: isMobile ? '100%' : isTablet ? 'calc(100% - 200px)' : 'calc(100% - 255px)',
       minHeight: '100vh',
@@ -844,6 +871,9 @@ const LabTimetablePage = () => {
     deleteButton: {
       color: "#ef4444",
     },
+    viewButton: {
+      color: "#00b8d9",
+    },
     expandButton: {
       background: "#f3f4f6",
       color: "#4b5563",
@@ -887,7 +917,7 @@ const LabTimetablePage = () => {
       alignItems: 'center',
       gap: '6px'
     },
-    viewButton: {
+    viewButtonStyle: {
       backgroundColor: "#10b981",     
       color: "#fff",
       border: "none",
@@ -1012,23 +1042,9 @@ const LabTimetablePage = () => {
       transition: 'all 0.3s ease'
     },
     toggleButtonActive: {
-      // background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
       backgroundColor: '#e2e8f0',
       color: 'black',
       borderColor: 'transparent'
-    },
-    addButton: {
-      padding: '10px 20px',
-      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
-      color: 'white',
-      border: 'none',
-      borderRadius: '10px',
-      fontWeight: 600,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '6px',
-      fontSize: '14px'
     },
     timetableGrid: {
       display: 'grid',
@@ -1105,34 +1121,23 @@ const LabTimetablePage = () => {
       marginBottom: '1rem',
       textAlign: 'center',
     },
-    select: {
-      width: '100%',
-      padding: '0.5rem',
-      borderRadius: '6px',
-      border: '1px solid #ccc',
-      marginBottom: '1rem',
-    },
     buttonContainer: {
       display: 'flex',
       justifyContent: 'flex-end',
       gap: '0.75rem',
     },
-    cancelButton: {
-      padding: '0.5rem 1rem',
-      backgroundColor: '#f0f0f0',
-      border: '1px solid #ccc',
-      borderRadius: '6px',
-      cursor: 'pointer',
-    },
-    saveButton: {
-      padding: '0.5rem 1rem',
-      backgroundColor: '#00b894',
-      color: '#fff',
-      border: 'none',
-      borderRadius: '6px',
-      cursor: 'pointer',
-    },
   };
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading lab data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>
@@ -1499,9 +1504,9 @@ const LabTimetablePage = () => {
                                   </button>
         
                                   <button
-                                    style={styles.viewButton}
+                                    style={styles.viewButtonStyle}
                                     onMouseEnter={(e) => Object.assign(e.target.style, styles.viewButtonHover)}
-                                    onMouseLeave={(e) => Object.assign(e.target.style, styles.viewButton)}
+                                    onMouseLeave={(e) => Object.assign(e.target.style, styles.viewButtonStyle)}
                                     onClick={() => window.open(`/ListOfExperiment_uploads/${subject.Experiment_List}`, "_blank")}
                                   >
                                     View PDF
@@ -1585,15 +1590,6 @@ const LabTimetablePage = () => {
               >
                 Week
               </button>
-              {/* <button
-                style={{
-                  ...styles.toggleButton,
-                  ...(view === 'day' ? styles.toggleButtonActive : {})
-                }}
-                onClick={() => setView('day')}
-              >
-                Day
-              </button> */}
             </div>
             <button 
               style={styles.addButton}
