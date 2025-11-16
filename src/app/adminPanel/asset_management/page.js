@@ -82,7 +82,6 @@ export default function AssetManagement() {
       alert("Please fill all required fields");
       return;
     }
-    console.log(newPC.Lab);  
 
     try {
       const res = await fetch("/api/admin/addLabPCs", {
@@ -110,7 +109,7 @@ export default function AssetManagement() {
         },
       ]);
 
-      alert("Lab Technician added successfully!");
+      alert("Lab PC added successfully!");
       setShowAddModal(false);
       setNewPC({
         PC_Name: "",
@@ -119,7 +118,7 @@ export default function AssetManagement() {
       });
       resetForm();
     } catch (err) {
-      console.error("Add Technician Error:", err);
+      console.error("Add Lab PC Error:", err);
       alert("Something went wrong while adding user.");
     }
   };

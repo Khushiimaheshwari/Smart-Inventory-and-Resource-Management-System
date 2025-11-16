@@ -602,7 +602,7 @@ const AssetsPage = () => {
                     Brand Name
                   </div>
                   <div style={styles.detailValue}>
-                    {asset.Brand}
+                    {asset.Brand || "Not Specified"}
                   </div>
                 </div>
 

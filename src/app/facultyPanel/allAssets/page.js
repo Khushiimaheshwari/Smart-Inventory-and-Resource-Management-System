@@ -21,7 +21,7 @@ export default function AssetManagement() {
   useEffect(() => {
     const fetchPCs = async () => {
       try {
-        const res = await fetch('/api/admin/getlabPCs');
+        const res = await fetch('/api/faculty/getlabPCs');
 
         if (!res.ok) {
           throw new Error('Failed to fetch PCs');
@@ -31,12 +31,14 @@ export default function AssetManagement() {
         console.log(data);
         
         setPCs(
-          data.pcs.map(pc => ({
-            id: pc._id,
-            PC_Name: pc.PC_Name,
-            Lab: pc.Lab,
-            Assets: pc.Assets || []
-          }))
+          data.pcs.flatMap(item =>
+            item.pcs.map(pc => ({
+              id: pc._id,
+              PC_Name: pc.PC_Name,
+              Lab: item.lab,  
+              Assets: pc.Assets || []
+            }))
+          )
         );
       } catch (error) {
         console.error("Error fetching PCs:", error);
@@ -48,7 +50,7 @@ export default function AssetManagement() {
   useEffect(() => {
     const fetchLabs = async () => {
       try {
-        const res = await fetch("/api/admin/getLabs");
+        const res = await fetch("/api/faculty/getLabs");
         const data = await res.json();
         console.log(data);       
 
@@ -56,7 +58,10 @@ export default function AssetManagement() {
           throw new Error(data.error || "Failed to fetch labs");
         }
 
-        setLabs(data.labs);
+        setLabs(data.labs.map((l) => {
+          return l.lab;
+        }));
+        
       } catch (err) {
         console.error("Error fetching labs:", err);
         alert("Failed to load labs. Please try again later.");
@@ -216,7 +221,7 @@ export default function AssetManagement() {
     <div style={styles.container}>
       {/* Header */}
       <header style={styles.header}>
-        <h1 style={styles.headerTitle}>Asset Management</h1>
+        <h1 style={styles.headerTitle}>My Lab Assets</h1>
       </header>
 
       {/* Filter Section */}

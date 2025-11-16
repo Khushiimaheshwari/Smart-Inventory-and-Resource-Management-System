@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 export default function LabManagement() {
   const [labs, setLabs] = useState([]);
+  const [inchargeLab, setInchargeLab] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
 
@@ -19,9 +20,9 @@ export default function LabManagement() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const totalLabs = labs.length;
-  const activeLabs = labs.filter(lab => lab.Status === 'active').length;
-  const underMaintenance = labs.filter(lab => lab.Status === 'under maintenance').length;
+  const totalLabs = labs.length + inchargeLab.length;
+  const activeLabs = labs.filter(lab => lab.Status === 'active').length + inchargeLab.filter(inchargeLab => inchargeLab.Status === 'active').length;
+  const underMaintenance = labs.filter(lab => lab.Status === 'under maintenance').length + inchargeLab.filter(inchargeLab => inchargeLab.Status === 'under maintenance').length;
 
   const fetchLab = async () => {
     try {
@@ -42,6 +43,25 @@ export default function LabManagement() {
 
   useEffect(() => {
     fetchLab();
+  }, []);
+
+  const fetchInchargeLab = async () => {
+    try {
+      const res = await fetch("/api/faculty/fetchInchargeLab/");
+      const data = await res.json();
+      if (res.ok) {
+        console.log(data);
+        setInchargeLab(data.inchargeLabs)
+      } else {
+        console.error("Failed to fetch lab:", data.error);
+      }
+    } catch (err) {
+      console.error("Error fetching lab:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchInchargeLab();
   }, []);
 
   const styles = {
@@ -79,22 +99,6 @@ export default function LabManagement() {
       color: '#2d3748',
       margin: 0
     },
-    addButton: {
-      padding: isMobile ? '10px 20px' : '12px 24px',
-      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
-      color: 'white',
-      border: 'none',
-      borderRadius: '12px',
-      fontWeight: 600,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '8px',
-      fontSize: '14px',
-      transition: 'all 0.3s ease',
-      width: isMobile ? '100%' : 'auto',
-    },
     statsGrid: {
       display: 'grid',
       gridTemplateColumns: isMobile ? '1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
@@ -117,6 +121,27 @@ export default function LabManagement() {
       fontSize: isMobile ? '28px' : isTablet ? '32px' : '36px',
       fontWeight: 700,
       color: '#2d3748'
+    },
+    cardContainerIncharge: {
+      marginTop: "40px",
+      padding: isMobile ? "20px" : "24px",
+      background: "linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%)",
+      borderRadius: "16px",
+      boxShadow: "0 2px 12px rgba(0, 212, 170, 0.15)",
+    },
+    inchargeHeader: {
+      fontSize: isMobile ? '15px' : isTablet ? '18px' : '20px',
+      fontWeight: 700,
+      display: "inline-flex",
+      alignItems: "center",
+      textAlign: "center",
+      color: '#2d3748',
+      padding: "5px 15px",
+      margin: "0 0 20px 0",
+      background: "#ffffff",
+      borderRadius: "10px",
+      borderLeft: "5px solid #00d4aa",
+      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
     },
     cardContainer: {
       display: "flex",
@@ -344,12 +369,15 @@ export default function LabManagement() {
     }
   };
 
+  console.log(labs);
+  
+
   return (
     <div style={styles.container}>
       <main style={styles.mainContent}>
         {/* Header */}
         <header style={styles.header}>
-          <h1 style={styles.headerTitle}>Lab Management</h1>
+          <h1 style={styles.headerTitle}>My Labs</h1>
         </header>
 
         {/* Stats Cards */}
@@ -456,9 +484,104 @@ export default function LabManagement() {
             borderRadius: '12px',
             color: '#718096'
           }}>
-            <p>No labs available. Please add a new lab.</p>
+            <p>No labs available</p>
           </div>
         )}
+
+        {/* Lab Incharge Card List */}
+        <div style={styles.cardContainerIncharge}>
+          <h2 style={styles.inchargeHeader}>Lab Incharge</h2>
+          {inchargeLab.length > 0 ? (
+            <div style={styles.cardContainer}>
+              {inchargeLab.map((lab) => (
+                <div key={lab._id} style={styles.card}>
+                  <div style={styles.cardHeader}>
+                    <div style={styles.cardLeft}>
+                      <div style={styles.labIcon}>
+                        <svg width={isMobile ? "20" : "24"} height={isMobile ? "20" : "24"} viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                        </svg>
+                      </div>
+                      <div style={styles.cardInfo}>
+                        <div style={styles.cardIdRow}>
+                          <span style={styles.cardId}>#{lab.Lab_Name}</span>
+                          <span
+                            style={{
+                              ...styles.statusBadge,
+                              ...(lab.status === 'Active'
+                                ? styles.statusActive
+                                : styles.statusMaintenance),
+                            }}
+                          >
+                            {lab.Status}
+                          </span>
+                        </div>
+                        <h3 style={styles.cardName}>{lab.Lab_ID}</h3>
+                      </div>
+                    </div>
+
+                    <div style={styles.cardRight}>
+                      <div style={styles.cardDetails}>
+                        <div style={styles.detailItem}>
+                          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
+                            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
+                          </svg>
+                          <span style={styles.detailLabel}>Lab Room:</span>
+                          <span style={styles.detailValue}>{lab.Lab_Room}</span>
+                        </div>
+                        <div style={styles.detailItem}>
+                          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                          </svg>
+                          <span style={styles.detailLabel}>Capacity:</span>
+                          <span style={styles.detailValue}>{lab.Total_Capacity}</span>
+                        </div>
+                        <div style={styles.detailItem}>
+                          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: "6px" }}>
+                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                          </svg>
+                          <span style={styles.detailLabel}>Technician:</span>
+                          {lab?.LabTechnician?.length === 0 ? (
+                            <span style={{ ...styles.detailValue, fontStyle: 'italic', color: '#9ca3af' }}>Not Assigned</span>
+                          ) : (
+                            lab.LabTechnician ? (                            
+                              <span style={styles.detailValue}>{lab?.LabTechnician[0]?.Name}</span>
+                              ) : (
+                              <span style={{ ...styles.detailValue, fontStyle: 'italic', color: '#9ca3af' }}>Not Assigned</span>
+                              )
+                            )
+                          }
+                        </div>
+                      </div>
+
+                      <div style={styles.actionButtons}>
+                        <button
+                          style={{ ...styles.iconButton, ...styles.viewButton }}
+                          onClick={() => {
+                            window.location.href = `/facultyPanel/allLabs/lab/${lab._id}`;
+                          }}>
+                          <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: isMobile ? '2rem 1rem' : '3rem 2rem',
+              background: 'white',
+              borderRadius: '12px',
+              color: '#718096'
+            }}>
+              <p>There are no labs in which you are the Lab Incharge</p>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

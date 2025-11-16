@@ -6,27 +6,16 @@ import { useParams } from 'next/navigation';
 const AssetsPage = () => {
   const { id } = useParams();
   const [pcData, setPcData] = useState([]);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [selectedType, setSelectedType] = useState("All");
   const [viewingQR, setViewingQR] = useState(null);
-  const [editingAsset, setEditingAsset] = useState(null);
-   const [isMobile, setIsMobile] = useState(false);
-  const [newAsset, setNewAsset] = useState({
-    Asset_Name: "",
-    Asset_Type: "Monitor",
-    Assest_Status: "Yes",
-    Brand: "",
-    Issue_Reported: "",
-    QR_Code: ""
-  });
-  const assetTypes = ["Monitor", "Keyboard", "Mouse", "CPU", "UPS", "Other"];
-
+  const [isMobile, setIsMobile] = useState(false);
   const [assets, setAssets] = useState([]);
+  const assetTypes = ["Monitor", "Keyboard", "Mouse", "CPU", "UPS", "Other"];
 
   useEffect(() => {
     const fetchPC = async () => {
       try {
-        const res = await fetch(`/api/admin/getPcById/${id}`);
+        const res = await fetch(`/api/faculty/getPcById/${id}`);
         const data = await res.json();
         if (res.ok) {
           setPcData(data.pc);
@@ -53,91 +42,6 @@ const AssetsPage = () => {
   const filteredAssets = selectedType === "All" 
     ? assets 
     : assets.filter(asset => asset.Asset_Type === selectedType.toLowerCase());
-
-  const handleAddAsset = async () => {
-    if (!newAsset.Asset_Name || !newAsset.Asset_Type || !newAsset.Assest_Status) {
-      alert("Please fill all required fields");
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/admin/addAsset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          Asset_Name: newAsset.Asset_Name,
-          Asset_Type: newAsset.Asset_Type,
-          Assest_Status: newAsset.Assest_Status,
-          Brand: newAsset.Brand,
-          PC: pcData._id,
-          Lab: pcData.Lab?._id,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.error || "Something went wrong!");
-        return;
-      }
-
-      setAssets([
-        ...assets,
-        {
-          id: assets.length + 1,
-          Asset_Name: newAsset.Asset_Name,
-          Asset_Type: newAsset.Asset_Type,
-          Assest_Status: newAsset.Assest_Status,
-          Brand: newAsset.Brand,
-          // Issue_Reported: newAsset.Issue_Reported,
-          // QR_Code: newAsset.QR_Code
-        },
-      ]);
-
-      alert("Asset added successfully!");
-      setShowAddModal(false);
-      setNewAsset({
-        Asset_Name: "",
-        Asset_Type: "",
-        Assest_Status: "",
-        Brand: "",
-      });
-      resetForm();
-    } catch (err) {
-      console.error("Asset Error:", err);
-      alert("Something went wrong while adding user.");
-    }
-  };
-
-  const handleEditAsset = (asset) => {
-    setEditingAsset(asset);
-    setShowAddModal(true);
-    setNewAsset(asset);
-  };
-
-  const handleUpdateAsset = () => {
-    setAssets(assets.map(a => a.id === editingAsset.id ? { ...newAsset, id: editingAsset.id } : a));
-    setShowAddModal(false);
-    setEditingAsset(null);
-    resetForm();
-  };
-
-  const handleDeleteAsset = (assetId) => {
-    if (window.confirm("Are you sure you want to delete this asset?")) {
-      setAssets(assets.filter(a => a.id !== assetId));
-    }
-  };
-
-  const resetForm = () => {
-    setNewAsset({
-      Asset_Name: "",
-      Asset_Type: "Monitor",
-      Assest_Status: "Yes",
-      Brand: "",
-      Issue_Reported: "",
-      QR_Code: ""
-    });
-  };
 
   const handleDownloadQR = (qrCodeUrl, assetName) => {
     const link = document.createElement('a');
@@ -494,7 +398,7 @@ const AssetsPage = () => {
                     Brand Name
                   </div>
                   <div style={styles.detailValue}>
-                    {asset.Brand}
+                    {asset.Brand || "Not Specified"}
                   </div>
                 </div>
 
