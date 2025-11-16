@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Plus, Upload, ChevronDown, ChevronUp, Loader
 import { useParams } from 'next/navigation';
 
 const LabTimetablePage = () => {
-  const { id } = useParams();
+  const { id } = useParams();  
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [view, setView] = useState('week');
   const [labData, setLabData] = useState([]);

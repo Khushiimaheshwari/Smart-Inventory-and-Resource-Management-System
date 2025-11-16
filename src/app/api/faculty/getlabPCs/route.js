@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Faculty from "../../../../models/Faculty";
 import Programs from "../../../../models/Programs";
 import Lab from "../../../../models/Labs";
-import LabTechnician from "../../../../models/Lab_Technician";
+import PCs from "../../../../models/Lab_PCs";
 import { connectDB } from "../../utils/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/authOptions";
@@ -10,7 +10,6 @@ import { authOptions } from "../../auth/[...nextauth]/authOptions";
 export async function GET(req) {
   try {
     await connectDB();
-    
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -46,24 +45,26 @@ export async function GET(req) {
 
         if (matchedSubject?.Lab_Allocated) {
           const lab = await Lab.findById(matchedSubject.Lab_Allocated)
-            .select("Lab_ID Lab_Name Block Lab_Room Total_Capacity Status LabTechnician")
-            .populate("LabTechnician", "Name Email")
+            .select("Lab_ID Lab_Name _id")
+            .lean();
+
+          const labPCs = await PCs.find({ Lab: lab._id })
+            .select("PC_Name Assets _id")
             .lean();
 
           results.push({
-            program: program.Program_Name,
-            subject: matchedSubject.Subject_ID,
-            lab
+            lab,
+            pcs: labPCs
           });
         }
       }
     }
 
-    const uniqueLabs = Array.from(
+    const uniqueLabPCs = Array.from(
       new Map(results.map(item => [item.lab._id.toString(), item])).values()
     );
 
-    return NextResponse.json({ labs: uniqueLabs }, { status: 200 });
+    return NextResponse.json({ pcs: uniqueLabPCs }, { status: 200 });
 
   } catch (error) {
     console.error("Error fetching faculty labs:", error);

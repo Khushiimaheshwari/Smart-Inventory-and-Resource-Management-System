@@ -27,7 +27,7 @@ export default function SubjectListPage() {
 
   const fetchSubject = async () => {
     try {
-      const res = await fetch("/api/admin/getSubjects");
+      const res = await fetch("/api/faculty/getSubjects");
       const data = await res.json();
       if (res.ok) {
         setSubjects(data.subjects);
@@ -487,7 +487,7 @@ export default function SubjectListPage() {
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <h1 style={styles.headerTitle}>Subject List Management</h1>
+        <h1 style={styles.headerTitle}>My Subject List</h1>
       </header>
 
       <div style={styles.cardContainer}>

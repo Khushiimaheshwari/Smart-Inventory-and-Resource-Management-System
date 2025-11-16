@@ -15,6 +15,7 @@ export default function FacultyNavbar({ onToggleSidebar, session }) {
         const res = await fetch("/api/auth/profilePic");
 
         const data = await res.json();
+        console.log(data);
 
         if (res.ok && data.profileImage) {
           setProfilePic(data.profileImage);

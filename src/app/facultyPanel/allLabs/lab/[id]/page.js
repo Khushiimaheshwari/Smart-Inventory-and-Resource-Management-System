@@ -30,7 +30,7 @@ const LabTimetablePage = () => {
 
   const fetchLab = async () => {
     try {
-      const res = await fetch(`/api/admin/getLabById/${id}`);
+      const res = await fetch(`/api/faculty/getLabById/${id}`);
       const data = await res.json();
       if (res.ok) {
         setLabData(data.lab); 
@@ -83,7 +83,7 @@ const LabTimetablePage = () => {
     const fetchSubject = async () => {
       try {
         const labID = id;
-        const res = await fetch(`/api/admin/getLabSubject?labId=${labID}`);
+        const res = await fetch(`/api/faculty/getLabSubject?labId=${labID}`);
         const data = await res.json();
 
         if (res.ok && Array.isArray(data.subjects)) {
@@ -334,7 +334,7 @@ const LabTimetablePage = () => {
     console.log(payload);
 
     try {
-      const res = await fetch("/api/admin/bookTimetableSlot", {
+      const res = await fetch("/api/faculty/bookTimetableSlot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

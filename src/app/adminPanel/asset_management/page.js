@@ -115,7 +115,16 @@ export default function AssetManagement() {
         return;
       }
 
-      alert("PC added successfully!");
+      setPCs([
+        ...pcs,
+        {
+          id: pcs.length + 1,
+          PC_Name: newPC.PC_Name,
+          Lab: newPC.Lab,
+        },
+      ]);
+
+      alert("Lab PC added successfully!");
       setShowAddModal(false);
       resetForm();
       await fetchPCs();
