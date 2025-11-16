@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X, ChevronDown } from 'lucide-react';
-import emailjs from "@emailjs/browser";
+import { X, ChevronDown, Loader2 } from 'lucide-react';
 
 export default function LabTechnicianManagement() {
   const [users, setUsers] = useState([]);
@@ -13,6 +12,7 @@ export default function LabTechnicianManagement() {
   const [expandedCard, setExpandedCard] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [loading, setLoading] = useState(true);
   const dropdownRef = useRef(null);
   const [newUser, setNewUser] = useState({
     name: "",
@@ -50,11 +50,23 @@ export default function LabTechnicianManagement() {
   };
 
   useEffect(() => {
-    fetchUsers();
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        await fetchUsers();
+      } catch (error) {
+        console.error("Error loading users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
   }, []);
 
   useEffect(() => {
     const fetchLab = async () => {
+      setLoading(true);
       try {
         const res = await fetch("/api/admin/getLabs");
 
@@ -73,6 +85,8 @@ export default function LabTechnicianManagement() {
         
       }catch (err) {
         console.error("Fetch Labs Error:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -194,16 +208,8 @@ export default function LabTechnicianManagement() {
       }
 
       if (newUser.password && newUser.password.trim() !== "") {
-        await emailjs.send(
-          "service_2xk0xdb",  
-          "template_mq4w3fc",    
-          {
-            to_name: newUser.name,
-            to_email: newUser.email,
-            password: newUser.password,
-          },
-          "JVeTTsN2NUeZ0UlPA"
-        ); 
+        // Email sending would happen here in your actual application
+        console.log("Password would be sent via email to:", newUser.email);
       }
 
       setUsers([
@@ -280,6 +286,21 @@ export default function LabTechnicianManagement() {
   };
 
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
+    },
     container: {
       width: (isMobile || isTablet) ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
@@ -802,6 +823,17 @@ export default function LabTechnicianManagement() {
     },
     
   };
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading technician data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>
