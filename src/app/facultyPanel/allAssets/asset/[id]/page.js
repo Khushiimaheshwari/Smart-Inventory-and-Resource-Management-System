@@ -2,15 +2,36 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useSession } from "next-auth/react";
 
 const AssetsPage = () => {
   const { id } = useParams();
+  const { data: session } = useSession();
+  const [faculty, setFaculty] = useState([]);
   const [pcData, setPcData] = useState([]);
   const [selectedType, setSelectedType] = useState("All");
   const [viewingQR, setViewingQR] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [assets, setAssets] = useState([]);
+  const [viewingIssue, setViewingIssue] = useState(null);
+  const [addingIssue, setAddingIssue] = useState(null);
+  const [currentIssueIndex, setCurrentIssueIndex] = useState(0);
+  const [issueForm, setIssueForm] = useState({
+    assetId: '',
+    facultyId: '',
+    issueDescription: ''
+  });
   const assetTypes = ["Monitor", "Keyboard", "Mouse", "CPU", "UPS", "Other"];
+
+  useEffect(() => {
+    if (session) {
+      setFaculty(prev => ({
+        ...prev,
+        facultyName: session.user.name,
+        facultyId: session.user.id
+      }));
+    }
+  }, [session]);
 
   useEffect(() => {
     const fetchPC = async () => {
@@ -20,6 +41,7 @@ const AssetsPage = () => {
         if (res.ok) {
           setPcData(data.pc);
           setAssets(data.pc.Assets);
+          console.log(data.pc.Assets);
           
         } else {
           console.error("Failed to fetch PC:", data.error);
@@ -31,7 +53,8 @@ const AssetsPage = () => {
 
     fetchPC();
   }, []);
-   useEffect(() => {
+
+  useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     }; checkMobile();
@@ -43,6 +66,75 @@ const AssetsPage = () => {
     ? assets 
     : assets.filter(asset => asset.Asset_Type === selectedType.toLowerCase());
 
+  const handleRaiseIssue = async () => {
+    
+    if ( !issueForm.assetId || !issueForm.facultyId || !issueForm.issueDescription ) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    const payload = {
+      assetId: issueForm.assetId,
+      facultyId: issueForm.facultyId,
+      description: issueForm.issueDescription,
+    };
+    console.log(payload);
+    
+    try {
+      const res = await fetch("/api/faculty/raiseIssue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
+        return;
+      }
+
+      alert("Issue raised successfully!");
+      setAddingIssue(null);
+      setIssueForm({ facultyId: '', issueDescription: '' });
+
+    } catch (err) {
+      console.error("Raise Issue Error:", err);
+      alert("Something went wrong while adding Faculty.");
+    }
+  };
+
+  const openIssueModal = (issue) => {
+    setViewingIssue(issue);
+    setCurrentIssueIndex(0);
+  };
+
+  const nextIssue = () => {
+    if (!viewingIssue) return;
+    setCurrentIssueIndex((prev) => 
+      prev + 1 < viewingIssue.Issue_Reported.length ? prev + 1 : prev
+    );
+  };
+
+  const prevIssue = () => {
+    if (!viewingIssue) return;
+    setCurrentIssueIndex((prev) =>
+      prev - 1 >= 0 ? prev - 1 : prev
+    );
+  };
+
+  function formatStatus(status) {
+    if (!status) return "Pending";
+
+    const map = {
+      "pending": "Pending",
+      "resolved by technician": "Resolved By Technician",
+      "accepted": "Accepted"
+    };
+
+    return map[status] || status;
+  }
+
   const handleDownloadQR = (qrCodeUrl, assetName) => {
     const link = document.createElement('a');
     link.href = qrCodeUrl;
@@ -50,6 +142,15 @@ const AssetsPage = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const getIssueStatusColor = (status) => {
+    switch(status) {      
+      case "pending": return { backgroundColor: '#fef3c7', color: '#92400e' };
+      case "resolved by technician": return { backgroundColor: '#d1fae5', color: '#065f46' };
+      case "accepted": return { backgroundColor: '#fee2e2', color: '#991b1b' };
+      default: return { backgroundColor: '#e5e7eb', color: '#374151' };
+    }
   };
 
   const getStatusColor = (status) => {
@@ -191,6 +292,172 @@ const AssetsPage = () => {
       color: '#718096',
       flex: 1
     },
+    issueContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      // gap: '0.5rem',
+      flex: 1
+    },
+    issueBlock: {
+      backgroundColor: '#fef3c7',
+      border: '1px solid #fbbf24',
+      borderRadius: '6px',
+      padding: '2px 10px',
+      cursor: 'pointer',
+      fontSize: '13px',
+      color: '#92400e',
+      transition: 'all 0.2s',
+      display: 'inline-block',
+      width: "auto"
+    },
+    noIssueText: {
+      color: '#718096',
+      fontWeight: 500,
+      flex: 1
+    },
+    addIssueBtn: {
+      backgroundColor: '#10b981',
+      color: 'white',
+      border: 'none',
+      borderRadius: '6px',
+      padding: '4px 10px',
+      fontSize: '12px',
+      cursor: 'pointer',
+      fontWeight: 500,
+      transition: 'all 0.2s',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '4px'
+    },
+    modalOverlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000
+    },
+    modal: {
+      backgroundColor: 'white',
+      borderRadius: '12px',
+      padding: '24px',
+      maxWidth: '500px',
+      width: '90%',
+      maxHeight: '80vh',
+      overflow: 'auto',
+      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+    },
+    modalHeader: {
+      fontSize: '20px',
+      fontWeight: 700,
+      color: '#1f2937',
+      marginBottom: '16px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+    },
+    closeBtn: {
+      background: 'none',
+      border: 'none',
+      fontSize: '24px',
+      cursor: 'pointer',
+      color: '#6b7280',
+      padding: '0',
+      width: '30px',
+      height: '30px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: '6px',
+      transition: 'all 0.2s'
+    },
+    issueDetailRow: {
+      marginBottom: '16px'
+    },
+    issueDetailLabel: {
+      fontSize: '12px',
+      fontWeight: 600,
+      color: '#6b7280',
+      textTransform: 'uppercase',
+      marginBottom: '6px',
+      letterSpacing: '0.5px'
+    },
+    issueDetailValue: {
+      fontSize: '15px',
+      color: '#1f2937',
+      lineHeight: '1.6'
+    },
+    statusBadge: {
+      display: 'inline-block',
+      padding: '4px 12px',
+      borderRadius: '12px',
+      fontSize: '13px',
+      fontWeight: 600
+    },
+    navButtons: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginBottom: '12px'
+    },
+    navBtn: {
+      fontSize: '20px',
+      fontWeight: 'bold',
+      padding: '4px 10px',
+      borderRadius: '6px',
+      border: '1px solid #ddd',
+      cursor: 'pointer',
+      background: 'white'
+    },
+    formGroup: {
+      marginBottom: '16px'
+    },
+    label: {
+      display: 'block',
+      fontSize: '14px',
+      fontWeight: 600,
+      color: '#374151',
+      marginBottom: '6px'
+    },
+    input: {
+      width: '100%',
+      padding: '10px 12px',
+      border: '1px solid #d1d5db',
+      borderRadius: '8px',
+      fontSize: '14px',
+      transition: 'all 0.2s',
+      outline: 'none',
+      boxSizing: 'border-box'
+    },
+    textarea: {
+      width: '100%',
+      padding: '10px 12px',
+      border: '1px solid #d1d5db',
+      borderRadius: '8px',
+      fontSize: '14px',
+      minHeight: '120px',
+      resize: 'vertical',
+      fontFamily: 'inherit',
+      transition: 'all 0.2s',
+      outline: 'none',
+      boxSizing: 'border-box'
+    },
+    submitBtn: {
+      backgroundColor: '#10b981',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      padding: '12px 24px',
+      fontSize: '14px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      width: '100%',
+      transition: 'all 0.2s'
+    },
     statusBadge: {
       display: 'inline-block',
       padding: '2px 8px',
@@ -215,8 +482,8 @@ const AssetsPage = () => {
       transition: 'transform 0.2s ease'
     },
     qrImage: {
-      width: '20px',
-      height: '20px',
+      width: '15px',
+      height: '15px',
       display: 'block',
     },
     actionButtons: {
@@ -361,7 +628,7 @@ const AssetsPage = () => {
       {/* Asset Cards Grid */}
       <div style={styles.assetGrid}>
         {filteredAssets.length > 0 ? (
-          filteredAssets.map(asset => {
+          filteredAssets.map((asset) => {
             const statusColors = getStatusColor(asset.Assest_Status);
             return (
               <div
@@ -425,8 +692,51 @@ const AssetsPage = () => {
                     </svg>
                     Issues
                   </div>
-                  <div style={styles.detailValue}>
-                    {asset.Issue_Reported || "No issues"}
+                  <div style={styles.issueContainer}>
+                    {asset.Issue_Reported.length > 0 ? (
+                      <div 
+                        style={styles.issueBlock}
+                        onClick={() => setViewingIssue(asset)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#fde68a';
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#fef3c7';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                        }}
+                      >
+
+                        {asset.Issue_Reported.length} Issue{asset.Issue_Reported.length !== 1 ? 's' : ''}
+                      </div>
+                    ) : (
+                      <div style={styles.noIssueText}>No Issues</div>
+                    )}
+                    
+                    <button 
+                      style={styles.addIssueBtn}
+                      onClick={() => {
+                        setAddingIssue(asset);
+                        setIssueForm({
+                          assetId: asset._id,
+                          facultyId: faculty.facultyId,
+                          issueDescription: ""
+                        });
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#059669';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#10b981';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
+                      </svg>
+                      Add Issue
+                    </button>
                   </div>
                 </div>
 
@@ -459,6 +769,156 @@ const AssetsPage = () => {
           </div>
         )}
       </div>
+
+      {/* View Issue Modal */}
+      {viewingIssue && (
+        <div style={styles.modalOverlay} onClick={() => setViewingIssue(null)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <span>Issue Details</span>
+              <button 
+                style={styles.closeBtn}
+                onClick={() => setViewingIssue(null)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Multiple issues */}
+            {viewingIssue.Issue_Reported.length > 1 && (
+              <div style={styles.navButtons}>
+                <button 
+                  style={styles.navBtn}
+                  onClick={prevIssue}
+                  disabled={currentIssueIndex === 0}>
+                  ‹
+                </button>
+
+                <button 
+                  style={styles.navBtn}
+                  onClick={nextIssue}
+                  disabled={currentIssueIndex === viewingIssue.Issue_Reported.length - 1}>
+                  ›
+                </button>
+              </div>
+            )}
+
+            {/* Current Issue */}
+            {(() => {
+              const issue = viewingIssue.Issue_Reported[currentIssueIndex];
+              return (
+                <>
+                  <div style={styles.issueDetailRow}>
+                    <div style={styles.issueDetailLabel}>Asset Name</div>
+                    <div style={styles.issueDetailValue}>{viewingIssue.Asset_Name}</div>
+                  </div>
+
+                  <div style={styles.issueDetailRow}>
+                    <div style={styles.issueDetailLabel}>Faculty Name</div>
+                    <div style={styles.issueDetailValue}>{issue.FacultyDetails?.Name || "N/A"}</div>
+                  </div>
+
+                  <div style={styles.issueDetailRow}>
+                    <div style={styles.issueDetailLabel}>Issue Description</div>
+                    <div style={styles.issueDetailValue}>{issue.IssueDescription}</div>
+                  </div>
+
+                  <div style={styles.issueDetailRow}>
+                    <div style={styles.issueDetailLabel}>Status</div>
+                    <span 
+                      style={{
+                        ...styles.statusBadge,
+                        ...getIssueStatusColor(issue.Status)
+                      }}>
+                      {formatStatus(issue.Status)}
+                    </span>
+                  </div>
+                </>
+              );
+            })()}
+            
+          </div>
+        </div>
+      )}
+
+      {/* Add Issue Modal */}
+      {addingIssue && (
+        <div style={styles.modalOverlay} onClick={() => setAddingIssue(null)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <span>Report Issue</span>
+              <button 
+                style={styles.closeBtn}
+                onClick={() => setAddingIssue(null)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={styles.issueDetailRow}>
+              <div style={styles.issueDetailLabel}>Asset</div>
+              <input 
+                type="text"
+                style={styles.input}
+                value={addingIssue.Asset_Name}
+                disabled                      
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Faculty Name *</label>
+              <input 
+                type="text"
+                style={styles.input}
+                value={faculty.facultyName}
+                disabled                      
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Issue Description *</label>
+              <textarea 
+                style={styles.textarea}
+                value={issueForm.issueDescription}
+                onChange={(e) => setIssueForm({...issueForm, issueDescription: e.target.value})}
+                placeholder="Describe the issue in detail..."
+                onFocus={(e) => e.target.style.borderColor = '#10b981'}
+                onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+              />
+            </div>
+
+            <button 
+              style={styles.submitBtn}
+              onClick={handleRaiseIssue}
+              disabled={!issueForm.issueDescription}
+              onMouseEnter={(e) => {
+                if (!e.target.disabled) {
+                  e.currentTarget.style.backgroundColor = '#059669';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#10b981';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              Raise Issue
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* QR Code Viewer Modal */}
       {viewingQR && (

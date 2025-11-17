@@ -64,34 +64,35 @@ export default function LabTechnicianManagement() {
     fetchAllData();
   }, []);
 
-  useEffect(() => {
-    const fetchLab = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch("/api/admin/getLabs");
+  const fetchLab = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/getLabs");
 
-        if(!res.ok) {
-          throw new Error("Failed to fetch Labs");
-        }
-
-        const data = await res.json();
-        setAllLabs(
-          data.labs.map(l => ({
-           Lab: l.Lab_ID,
-           Lab_id: l._id,
-          }))
-        );
-        console.log("Fetched labs",data);
-        
-      }catch (err) {
-        console.error("Fetch Labs Error:", err);
-      } finally {
-        setLoading(false);
+      if(!res.ok) {
+        throw new Error("Failed to fetch Labs");
       }
-    };
 
+      const data = await res.json();
+      setAllLabs(
+        data.labs.map(l => ({
+          Lab: l.Lab_ID,
+          Lab_id: l._id,
+        }))
+      );
+      console.log("Fetched labs",data);
+      
+    }catch (err) {
+      console.error("Fetch Labs Error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchLab();
   }, []); 
+
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
@@ -169,6 +170,7 @@ export default function LabTechnicianManagement() {
         labAccess: [],
       });
       await fetchUsers();
+      await fetchLab();
     } catch (err) {
       console.error("Add Lab Technician Error:", err);
       alert("Something went wrong while editing Lab Technician.");
@@ -232,6 +234,7 @@ export default function LabTechnicianManagement() {
       labAccess: [],
     });
     await fetchUsers();
+    await fetchLab()
   } catch (err) {
     console.error("Edit Lab Technician Error:", err);
     alert("Something went wrong while editing Lab Technician.");
@@ -1017,7 +1020,8 @@ export default function LabTechnicianManagement() {
                             <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
                             </svg>
-                            {lab}
+                            {/* {lab} */}
+                            {typeof lab === "string" ? lab : lab || lab.Lab_ID}
                           </span>
                         ))
                       ) : (
