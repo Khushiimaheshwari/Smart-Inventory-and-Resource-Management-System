@@ -10,7 +10,7 @@ function AssetsPage(props) {
   const [selectedType, setSelectedType] = useState("All");
   const [viewingQR, setViewingQR] = useState(null);
   const [editingAsset, setEditingAsset] = useState(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false); 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [newAsset, setNewAsset] = useState({

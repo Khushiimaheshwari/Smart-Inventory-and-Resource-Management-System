@@ -7,7 +7,6 @@ import styles from "./facultyNavbar.module.css";
 
 export default function FacultyNavbar({ onToggleSidebar, session }) {
   const [profilePic, setProfilePic] = useState("/profile.png");
-  console.log(session);
 
   useEffect(() => {
     const fetchProfilePic = async () => {

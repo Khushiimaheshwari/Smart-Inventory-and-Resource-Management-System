@@ -369,58 +369,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-
-      <div style={detailsSectionStyle}>
-        <div style={chartHeaderStyle}>
-          <div style={chartTitleStyle}>Detailed Asset Breakdown</div>
-          <div style={chartSubtitleStyle}>Assets by category and brand</div>
-        </div>
-        <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
-          <table style={tableStyle}>
-            <thead style={theadStyle}>
-              <tr>
-                <th style={thStyle}>Category</th>
-                <th style={thStyle}>Total</th>
-              
-                <th style={thStyle}>HP</th>
-                <th style={thStyle}>Lenovo</th>
-               
-              </tr>
-            </thead>
-            <tbody>
-              {assetBreakdown.map((item) => (
-                <tr key={item.category} style={{ cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                  <td style={{ ...tdStyle, fontWeight: '600', color: '#1f2937' }}>{item.category}</td>
-                  <td style={{ ...tdStyle, fontWeight: '600', color: '#10b981' }}>{item.total}</td>
-                  
-                  <td style={tdStyle}>{item.hp}</td>
-                  <td style={tdStyle}>{item.lenovo}</td>
-                  
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div style={detailsSectionStyle}>
-        <div style={chartHeaderStyle}>
-          <div style={chartTitleStyle}>Subjects by Program</div>
-          <div style={chartSubtitleStyle}>Subject distribution across batches</div>
-        </div>
-        <div style={programGridStyle}>
-          {subjectsByProgram.map((item) => (
-            <div key={item.program} style={programCardStyle}>
-              <div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.5rem', fontSize: isMobile ? '0.875rem' : '0.9375rem' }}>
-                {item.program}
-              </div>
-              <div style={{ color: '#10b981', fontWeight: '500', fontSize: isMobile ? '0.8125rem' : '0.875rem' }}>
-                {item.subjects} Subjects
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

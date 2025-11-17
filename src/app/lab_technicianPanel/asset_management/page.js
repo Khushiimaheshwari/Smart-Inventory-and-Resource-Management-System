@@ -1,7 +1,7 @@
 "use client";
 
-import { withRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { Loader2 } from 'lucide-react';
 
 export default function AssetManagement() {
   const [pcs, setPCs] = useState([]);
@@ -9,6 +9,9 @@ export default function AssetManagement() {
   const [selectedLab, setSelectedLab] = useState("all");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingPC, setEditingPC] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [newPC, setNewPC] = useState({
     PC_Name: "",
     Lab: "",
@@ -16,54 +19,73 @@ export default function AssetManagement() {
   });
 
   useEffect(() => {
-    const fetchPCs = async () => {
-      try {
-        const res = await fetch('/api/lab_technician/getlabPCs');
-
-        if (!res.ok) {
-          throw new Error('Failed to fetch PCs');
-        }
-
-        const data = await res.json();
-        console.log(data);
-        
-        setPCs(
-          data.pcs.map(pc => ({
-            id: pc._id,
-            PC_Name: pc.PC_Name,
-            Lab: pc.Lab,
-            Assets: pc.Assets || []
-          }))
-        );
-      } catch (error) {
-        console.error("Error fetching PCs:", error);
-      }
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
     };
-    fetchPCs();
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   useEffect(() => {
-    const fetchLabs = async () => {
+    const fetchAllData = async () => {
+      setLoading(true);
       try {
-        const res = await fetch("/api/lab_technician/getLabs");
-        const data = await res.json();
-        console.log(data);       
-
-        if (!res.ok) {
-          throw new Error(data.error || "Failed to fetch labs");
-        }
-
-        setLabs(data.labs);
-      } catch (err) {
-        console.error("Error fetching labs:", err);
-        alert("Failed to load labs. Please try again later.");
+        await Promise.all([
+          fetchPCs(),
+          fetchLabs()
+        ]);
+      } catch (error) {
+        console.error("Error loading data:", error);
       } finally {
-        // setLoadingLabs(false);
+        setLoading(false);
       }
     };
-
-    fetchLabs();
+    
+    fetchAllData();
   }, []);
+
+  const fetchPCs = async () => {
+    try {
+      const res = await fetch('/api/admin/getlabPCs');
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch PCs');
+      }
+
+      const data = await res.json();
+      console.log(data);
+      
+      setPCs(
+        data.pcs.map(pc => ({
+          id: pc._id,
+          PC_Name: pc.PC_Name,
+          Lab: pc.Lab,
+          Assets: pc.Assets || []
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching PCs:", error);
+    }
+  };
+
+  const fetchLabs = async () => {
+    try {
+      const res = await fetch("/api/admin/getLabs");
+      const data = await res.json();
+      console.log(data);       
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to fetch labs");
+      }
+
+      setLabs(data.labs);
+    } catch (err) {
+      console.error("Error fetching labs:", err);
+      alert("Failed to load labs. Please try again later.");
+    }
+  };
 
   const filteredPCs = selectedLab === "all" 
     ? pcs 
@@ -74,10 +96,10 @@ export default function AssetManagement() {
       alert("Please fill all required fields");
       return;
     }
-    console.log(newPC.Lab);  
 
+    setSaving(true);
     try {
-      const res = await fetch("/api/lab_technician/addLabPCs", {
+      const res = await fetch("/api/admin/addLabPCs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -102,17 +124,15 @@ export default function AssetManagement() {
         },
       ]);
 
-      alert("Lab Technician added successfully!");
+      alert("Lab PC added successfully!");
       setShowAddModal(false);
-      setNewPC({
-        PC_Name: "",
-        Lab: "",
-        Assets: [],
-      });
       resetForm();
+      await fetchPCs();
     } catch (err) {
-      console.error("Add Technician Error:", err);
-      alert("Something went wrong while adding user.");
+      console.error("Add PC Error:", err);
+      alert("Something went wrong while adding PC.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -122,16 +142,68 @@ export default function AssetManagement() {
     setNewPC(pc);
   };
 
-  const handleUpdatePC = () => {
-    setPCs(pcs.map(p => p.id === editingPC.id ? { ...newPC, id: editingPC.id } : p));
-    setShowAddModal(false);
-    setEditingPC(null);
-    resetForm();
+  const handleUpdatePC = async () => {
+    if (!newPC.PC_Name || !newPC.Lab) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/updateLabPC", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingPC.id,
+          PC_Name: newPC.PC_Name,
+          Lab: newPC.Lab,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
+        return;
+      }
+
+      alert("PC updated successfully!");
+      setShowAddModal(false);
+      setEditingPC(null);
+      resetForm();
+      await fetchPCs();
+    } catch (err) {
+      console.error("Update PC Error:", err);
+      alert("Something went wrong while updating PC.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDeletePC = (pcId) => {
-    if (window.confirm("Are you sure you want to delete this PC?")) {
-      setPCs(pcs.filter(p => p.id !== pcId));
+  const handleDeletePC = async (pcId) => {
+    if (!window.confirm("Are you sure you want to delete this PC?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/deleteLabPC", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: pcId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Failed to delete PC");
+        return;
+      }
+
+      alert("PC deleted successfully!");
+      await fetchPCs();
+    } catch (err) {
+      console.error("Delete PC Error:", err);
+      alert("Something went wrong while deleting PC.");
     }
   };
 
@@ -141,38 +213,55 @@ export default function AssetManagement() {
 
   const getLabName = (labData) => {
     if (!labData) return "Unknown Lab";
-    return labData.name || labData.Lab_ID || "Unnamed Lab";
-
-}
+    return labData.Lab_ID || labData.name || "Unnamed Lab";
+  };
 
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
+    },
     container: {
-      width: 'calc(100% - 220px)', 
+      width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
       backgroundColor: '#f9fafb',
-      padding: '2rem',
+      padding: isMobile ? '1rem' : '2rem',
       boxSizing: 'border-box',
-      marginLeft: '245px',
+      marginLeft: isMobile ? '0' : '255px',
       overflowX: 'hidden',
     },
     header: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '2rem',
+      marginBottom: isMobile ? '1.5rem' : '2rem',
       background: 'white',
       borderRadius: '12px',
-      padding: '1.5rem 2rem',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
+      padding: isMobile ? '1rem' : '1.5rem 2rem',
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+      flexWrap: isMobile ? 'wrap' : 'nowrap',
+      gap: isMobile ? '1rem' : '0'
     },
     headerTitle: {
-      fontSize: '28px',
+      fontSize: isMobile ? '20px' : '28px',
       fontWeight: 600,
       color: '#2d3748',
-      margin: 0
+      margin: 0,
+      width: isMobile ? '100%' : 'auto'
     },
     addButton: {
-      padding: '0.75rem 1.5rem',
+      padding: isMobile ? '0.5rem 1rem' : '0.75rem 1.5rem',
       background: '#10b981',
       color: 'white',
       border: 'none',
@@ -182,18 +271,20 @@ export default function AssetManagement() {
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
-      fontSize: '14px',
-      transition: 'background 0.2s ease'
+      fontSize: isMobile ? '12px' : '14px',
+      transition: 'background 0.2s ease',
+      width: isMobile ? 'auto' : 'auto',
+      justifyContent: 'center'
     },
     filterSection: {
       background: 'white',
       borderRadius: '12px',
-      padding: '1.5rem',
-      marginBottom: '2rem',
+      padding: isMobile ? '1rem' : '1.5rem',
+      marginBottom: isMobile ? '1.5rem' : '2rem',
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
     },
     filterLabel: {
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       fontWeight: 600,
       color: '#4a5568',
       marginBottom: '0.75rem',
@@ -205,15 +296,16 @@ export default function AssetManagement() {
       flexWrap: 'wrap'
     },
     filterButton: {
-      padding: '0.5rem 1rem',
+      padding: isMobile ? '0.5rem 0.875rem' : '0.5rem 1rem',
       background: '#f7fafc',
       color: '#4a5568',
-      border: '2px solid #e2e8f0',
+      border: '2px solid',
+      borderColor: '#e2e8f0',
       borderRadius: '8px',
       fontWeight: 500,
       cursor: 'pointer',
-      fontSize: '14px',
-      transition: 'all 0.2s ease'
+      fontSize: isMobile ? '13px' : '14px',
+      transition: 'all 0.2s ease',
     },
     filterButtonActive: {
       background: '#10b981',
@@ -222,30 +314,26 @@ export default function AssetManagement() {
     },
     pcGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-      gap: '1.5rem'
+      gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(280px, 1fr))',
+      gap: isMobile ? '1rem' : '1.5rem'
     },
     pcCard: {
       background: 'white',
       borderRadius: '12px',
-      padding: '1.5rem',
+      padding: isMobile ? '1.25rem' : '1.5rem',
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
       transition: 'transform 0.2s ease, box-shadow 0.2s ease',
       cursor: 'pointer',
       position: 'relative'
     },
-    pcCardHover: {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-    },
     pcName: {
-      fontSize: '18px',
+      fontSize: isMobile ? '16px' : '18px',
       fontWeight: 600,
       color: '#2d3748',
       marginBottom: '0.5rem'
     },
     pcLab: {
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       color: '#718096',
       marginBottom: '1rem',
       display: 'flex',
@@ -256,7 +344,7 @@ export default function AssetManagement() {
       marginBottom: '1rem'
     },
     assetsLabel: {
-      fontSize: '12px',
+      fontSize: isMobile ? '11px' : '12px',
       fontWeight: 600,
       color: '#4a5568',
       marginBottom: '0.5rem',
@@ -264,7 +352,7 @@ export default function AssetManagement() {
       letterSpacing: '0.5px'
     },
     assetsCount: {
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       color: '#718096'
     },
     actionButtons: {
@@ -275,7 +363,7 @@ export default function AssetManagement() {
       borderTop: '1px solid #e2e8f0'
     },
     iconButton: {
-      padding: '0.5rem',
+      padding: isMobile ? '0.625rem' : '0.5rem',
       background: '#f7fafc',
       border: 'none',
       borderRadius: '6px',
@@ -305,19 +393,20 @@ export default function AssetManagement() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 1000
+      zIndex: 1000,
+      padding: isMobile ? '1rem' : '0'
     },
     modalContent: {
       background: 'white',
       borderRadius: '12px',
-      padding: '2rem',
-      width: '90%',
+      padding: isMobile ? '1.5rem' : '2rem',
+      width: isMobile ? '100%' : '90%',
       maxWidth: '500px',
       maxHeight: '90vh',
       overflowY: 'auto'
     },
     modalHeader: {
-      fontSize: '24px',
+      fontSize: isMobile ? '20px' : '24px',
       fontWeight: 600,
       color: '#2d3748',
       marginBottom: '1.5rem'
@@ -327,26 +416,26 @@ export default function AssetManagement() {
     },
     label: {
       display: 'block',
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       fontWeight: 600,
       color: '#2d3748',
       marginBottom: '0.5rem'
     },
     input: {
       width: '100%',
-      padding: '0.75rem',
+      padding: isMobile ? '0.625rem' : '0.75rem',
       border: '2px solid #e2e8f0',
       borderRadius: '8px',
-      fontSize: '14px',
+      fontSize: isMobile ? '14px' : '14px',
       transition: 'border-color 0.2s ease',
       boxSizing: 'border-box'
     },
     select: {
       width: '100%',
-      padding: '0.75rem',
+      padding: isMobile ? '0.625rem' : '0.75rem',
       border: '2px solid #e2e8f0',
       borderRadius: '8px',
-      fontSize: '14px',
+      fontSize: isMobile ? '14px' : '14px',
       transition: 'border-color 0.2s ease',
       boxSizing: 'border-box',
       background: 'white'
@@ -354,7 +443,8 @@ export default function AssetManagement() {
     modalActions: {
       display: 'flex',
       gap: '0.75rem',
-      marginTop: '2rem'
+      marginTop: '2rem',
+      flexDirection: 'row'
     },
     cancelButton: {
       flex: 1,
@@ -370,19 +460,35 @@ export default function AssetManagement() {
     saveButton: {
       flex: 1,
       padding: '0.75rem',
-      background: '#10b981',
+      background: saving ? '#9ca3af' : '#10b981',
       color: 'white',
       border: 'none',
       borderRadius: '8px',
       fontWeight: 600,
-      cursor: 'pointer',
-      fontSize: '14px'
+      cursor: saving ? 'not-allowed' : 'pointer',
+      fontSize: '14px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
     },
     emptyState: {
-      padding: '3rem',
-      color: '#718096'
+      padding: isMobile ? '2rem' : '3rem',
+      color: '#718096',
+      textAlign: 'center'
     }
   };
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading asset data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>
@@ -430,15 +536,19 @@ export default function AssetManagement() {
         {filteredPCs.length > 0 ? (
           filteredPCs.map(pc => (
             <div
-              key={pc._id}
+              key={pc.id}
               style={styles.pcCard}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                if (!isMobile) {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
+                if (!isMobile) {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
+                }
               }}
             >
               <div style={styles.pcName}>{pc.PC_Name}</div>
@@ -451,7 +561,7 @@ export default function AssetManagement() {
               <div style={styles.assetsSection}>
                 <div style={styles.assetsLabel}>Assets</div>
                 <div style={styles.assetsCount}>
-                  {pc.Assets.length} item{pc.Assets.length !== 1 ? 's' : ''} assigned
+                  {pc?.Assets?.length || 0} item{pc?.Assets?.length !== 1 ? 's' : ''} assigned
                 </div>
               </div>
               <div style={styles.actionButtons}>
@@ -554,8 +664,16 @@ export default function AssetManagement() {
               <button
                 style={styles.saveButton}
                 onClick={editingPC ? handleUpdatePC : handleAddPC}
+                disabled={saving}
               >
-                {editingPC ? "Update PC" : "Add PC"}
+                {saving ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    {editingPC ? "Updating..." : "Adding..."}
+                  </>
+                ) : (
+                  editingPC ? "Update PC" : "Add PC"
+                )}
               </button>
             </div>
           </div>
