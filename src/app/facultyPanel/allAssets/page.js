@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react"; 
+import { useEffect, useState } from "react";
+import { Loader2 } from 'lucide-react';
 
 export default function AssetManagement() {
   const [pcs, setPCs] = useState([]);
   const [labs, setLabs] = useState([]);
   const [selectedLab, setSelectedLab] = useState("all");
   const [isMobile, setIsMobile] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -19,57 +21,68 @@ export default function AssetManagement() {
   }, []);
 
   useEffect(() => {
-    const fetchPCs = async () => {
+    const fetchAllData = async () => {
+      setLoading(true);
       try {
-        const res = await fetch('/api/faculty/getlabPCs');
-
-        if (!res.ok) {
-          throw new Error('Failed to fetch PCs');
-        }
-
-        const data = await res.json();
-        console.log(data);
-        
-        setPCs(
-          data.pcs.flatMap(item =>
-            item.pcs.map(pc => ({
-              id: pc._id,
-              PC_Name: pc.PC_Name,
-              Lab: item.lab,  
-              Assets: pc.Assets || []
-            }))
-          )
-        );
+        await Promise.all([
+          fetchPCs(),
+          fetchLabs()
+        ]);
       } catch (error) {
-        console.error("Error fetching PCs:", error);
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchPCs();
+    
+    fetchAllData();
   }, []);
 
-  useEffect(() => {
-    const fetchLabs = async () => {
-      try {
-        const res = await fetch("/api/faculty/getLabs");
-        const data = await res.json();
-        console.log(data);       
+  const fetchPCs = async () => {
+    try {
+      const res = await fetch('/api/faculty/getlabPCs');
 
-        if (!res.ok) {
-          throw new Error(data.error || "Failed to fetch labs");
-        }
-
-        setLabs(data.labs.map((l) => {
-          return l.lab;
-        }));
-        
-      } catch (err) {
-        console.error("Error fetching labs:", err);
-        alert("Failed to load labs. Please try again later.");
+      if (!res.ok) {
+        throw new Error('Failed to fetch PCs');
       }
-    };
 
-    fetchLabs();
-  }, []);
+      const data = await res.json();
+      console.log(data);
+      
+      setPCs(
+        data.pcs.flatMap(item =>
+          item.pcs.map(pc => ({
+            id: pc._id,
+            PC_Name: pc.PC_Name,
+            Lab: item.lab,  
+            Assets: pc.Assets || []
+          }))
+        )
+      );
+    } catch (error) {
+      console.error("Error fetching PCs:", error);
+    }
+  };
+
+  const fetchLabs = async () => {
+    try {
+      const res = await fetch("/api/faculty/getLabs");
+      const data = await res.json();
+      console.log(data);       
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to fetch labs");
+      }
+
+      setLabs(data.labs.map((l) => {
+        return l.lab;
+      }));
+      
+    } catch (err) {
+      console.error("Error fetching labs:", err);
+      alert("Failed to load labs. Please try again later.");
+    }
+  };
 
   const filteredPCs = selectedLab === "all" 
     ? pcs 
@@ -81,6 +94,21 @@ export default function AssetManagement() {
   }
 
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
+    },
     container: {
       width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
@@ -216,6 +244,17 @@ export default function AssetManagement() {
       textAlign: 'center'
     }
   };
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading asset data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>

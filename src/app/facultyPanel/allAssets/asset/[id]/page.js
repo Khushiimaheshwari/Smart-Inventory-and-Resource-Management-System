@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useSession } from "next-auth/react";
+import { Loader2 } from 'lucide-react';
 
 const AssetsPage = () => {
   const { id } = useParams();
@@ -16,6 +17,7 @@ const AssetsPage = () => {
   const [viewingIssue, setViewingIssue] = useState(null);
   const [addingIssue, setAddingIssue] = useState(null);
   const [currentIssueIndex, setCurrentIssueIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [issueForm, setIssueForm] = useState({
     assetId: '',
     facultyId: '',
@@ -35,6 +37,7 @@ const AssetsPage = () => {
 
   useEffect(() => {
     const fetchPC = async () => {
+      setLoading(true);
       try {
         const res = await fetch(`/api/faculty/getPcById/${id}`);
         const data = await res.json();
@@ -48,6 +51,8 @@ const AssetsPage = () => {
         }
       } catch (err) {
         console.error("Error fetching PC:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -163,6 +168,21 @@ const AssetsPage = () => {
   };
   
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
+    },
     container: {
       width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
@@ -579,6 +599,17 @@ const AssetsPage = () => {
       transition: 'background 0.2s ease'
     }
   };  
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading asset data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>
