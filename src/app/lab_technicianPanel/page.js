@@ -1,75 +1,63 @@
 "use client";
-
-import { useState } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useState, useEffect } from "react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function Dashboard() {
   const [metrics] = useState({
-    totalAssets: 1247,
-    activeAssets: 892,
-    inactiveAssets: 355,
-    utilization: 71.5,
+    totalAssets: 3245,
+    totalLabs:19,
+    totalSubjects:73,
+    totalPrograms: 12,
+    totalTechnicians:29,
+    totalFaculty:72,
   });
 
-  // Line Chart Data
-  const lineChartData = [
-    { month: 'Jan', assets: 950, active: 720, inactive: 230 },
-    { month: 'Feb', assets: 1020, active: 780, inactive: 240 },
-    { month: 'Mar', assets: 1100, active: 830, inactive: 270 },
-    { month: 'Apr', assets: 1050, active: 800, inactive: 250 },
-    { month: 'May', assets: 1150, active: 850, inactive: 300 },
-    { month: 'Jun', assets: 1180, active: 870, inactive: 310 },
-    { month: 'Jul', assets: 1200, active: 880, inactive: 320 },
-    { month: 'Aug', assets: 1220, active: 885, inactive: 335 },
-    { month: 'Sep', assets: 1230, active: 890, inactive: 340 },
-    { month: 'Oct', assets: 1240, active: 890, inactive: 350 },
-    { month: 'Nov', assets: 1245, active: 891, inactive: 354 },
-    { month: 'Dec', assets: 1247, active: 892, inactive: 355 },
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const assetCategoryData = [
+    { name: 'Technical', value:19, color: '#10b981' },
+    { name: 'Non-Technical', value:0, color: '#3b82f6' },
   ];
 
-  // Donut Chart Data
-  const donutChartData = [
-    { name: 'Digital', value: 45, color: '#10b981' },
-    { name: 'Physical', value: 35, color: '#3b82f6' },
-    { name: 'Software', value: 20, color: '#f59e0b' },
+  const labDistributionData = [
+    { name: 'Computer Science', value:19, color: '#10b981' },
+    { name: 'Chemistry', value:0, color: '#3b82f6' },
+    { name: 'Mechanics', value:0, color: '#f59e0b' },
+    { name: 'Electronics', value:0, color: '#8b5cf6' },
+    { name: 'Others', value:0, color: '#ec4899' },
   ];
 
-  const [activities] = useState([
-    {
-      id: 1,
-      text: 'New digital asset "Server-001" added by John Doe',
-      time: "2 minutes ago",
-    },
-    {
-      id: 2,
-      text: 'Asset maintenance scheduled for "Laptop-HPE-45"',
-      time: "15 minutes ago",
-    },
-    {
-      id: 3,
-      text: "Asset audit completed for Q3 2024",
-      time: "1 hour ago",
-    },
-    {
-      id: 4,
-      text: 'Software license "Adobe Creative Suite" renewed',
-      time: "3 hours ago",
-    },
-  ]);
+  const facultyDistributionData = [
+    { name: 'Professors', value:3, color: '#10b981' },
+    { name: 'Assistant Professors', value:54, color: '#3b82f6' },
+    { name: 'Visiting Faculty', value:29, color: '#f59e0b' },
+  ];
 
-  const handleAddAsset = () => {
-    alert("Add new asset clicked 🚀");
-  };
+  const assetBreakdown = [
+    { category: 'Keyboards', total:851, iMaC:18, hp:200, lenovo:633},
+    { category: 'Mouse', total:851, iMaC:18, hp:200, lenovo:633 },
+    { category: 'PCs/Desktops', total:851, iMaC:18, hp:200, lenovo:633 },
+  ]
 
-  const handleGenerateReport = () => {
-    alert("Generate report clicked 📊");
-  };
+  const subjectsByProgram = [
+    { program: 'B.Tech CSE (AI & ML) - Batch 2025', subjects: 7 },
+    { program: 'B.Tech CSE (Data Science) - Batch 2025', subjects: 7 },
+    { program: 'B.Tech CSE (AI & Robotics) - Batch 2025', subjects: 7 },
+    { program: 'B.Tech Cyber Security - Batch 2025', subjects: 7 },
+    { program: 'B.Tech CSE ( UI & UX) - Batch 2025', subjects: 7 },
+    { program: 'Others', subjects: 17 },
+  ];
 
-  const handleExportData = () => {
-    alert("Export data clicked 📂");
-  };
-
-  // Custom label for donut chart
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -80,489 +68,313 @@ export default function Dashboard() {
       <text 
         x={x} 
         y={y} 
-        fill="white" 
+        fill="#000000" 
         textAnchor={x > cx ? 'start' : 'end'} 
         dominantBaseline="central"
-        style={{ fontSize: '14px', fontWeight: '600' }}
+        style={{ fontSize: isMobile ? '12px' : '14px', fontWeight: '600' }}
       >
         {`${(percent * 100).toFixed(0)}%`}
       </text>
     );
   };
 
-  const styles = {
-    container: {
-      width: 'calc(100% - 288px)', // Use percentage instead of viewport width
-      minHeight: '100vh',
-      backgroundColor: '#f9fafb',
-      padding: '1.5rem',
-      boxSizing: 'border-box',
-      marginLeft: '245px',
-      overflowX: 'hidden',
-    },
-    mainContent: {
-      width: '100%',
-      maxWidth: '100%',
-      margin: '0',
-    },
-    header: {
-      marginBottom: '1.5rem',
-    },
-    title: {
-      fontSize: '2rem',
-      fontWeight: 'bold',
-      color: '#1f2937',
-      margin: 0,
-    },
-    metricsGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-      gap: '1.25rem',
-      marginBottom: '1.5rem',
-    },
-    metricCard: {
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      padding: '1.25rem',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-      transition: 'box-shadow 0.3s ease',
-    },
-    metricHeader: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
-      marginBottom: '0.75rem',
-    },
-    metricTitle: {
-      color: '#6b7280',
-      fontSize: '0.875rem',
-      fontWeight: '500',
-      textTransform: 'capitalize',
-    },
-    metricIcon: {
-      width: '40px',
-      height: '40px',
-      borderRadius: '10px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexShrink: 0,
-    },
-    iconSuccess: {
-      backgroundColor: '#d1fae5',
-      color: '#10b981',
-    },
-    iconWarning: {
-      backgroundColor: '#fed7aa',
-      color: '#f59e0b',
-    },
-    metricValue: {
-      fontSize: '1.875rem',
-      fontWeight: 'bold',
-      color: '#1f2937',
-      marginBottom: '0.5rem',
-      lineHeight: 1,
-    },
-    metricChange: {
-      fontSize: '0.875rem',
-      fontWeight: '500',
-      color: '#10b981',
-    },
-    metricChangeNegative: {
-      fontSize: '0.875rem',
-      fontWeight: '500',
-      color: '#f59e0b',
-    },
-    progressContainer: {
-      marginTop: '0.75rem',
-    },
-    progressBar: {
-      width: '100%',
-      height: '8px',
-      backgroundColor: '#e5e7eb',
-      borderRadius: '999px',
-      overflow: 'hidden',
-    },
-    progressFill: {
-      height: '100%',
-      backgroundColor: '#10b981',
-      borderRadius: '999px',
-      transition: 'width 1s ease-out',
-    },
-    chartsGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-      gap: '1.25rem',
-      marginBottom: '1.5rem',
-    },
-    chartCard: {
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      padding: '1.25rem',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-      minHeight: '400px',
-    },
-    chartHeader: {
-      marginBottom: '1rem',
-    },
-    chartTitle: {
-      fontSize: '1.125rem',
-      fontWeight: 'bold',
-      color: '#1f2937',
-      marginBottom: '0.25rem',
-    },
-    chartSubtitle: {
-      fontSize: '0.875rem',
-      color: '#6b7280',
-    },
-    actionSection: {
-      marginBottom: '1.5rem',
-    },
-    actionButtons: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '0.75rem',
-    },
-    actionBtn: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      padding: '0.625rem 1.25rem',
-      borderRadius: '8px',
-      fontSize: '0.875rem',
-      fontWeight: '500',
-      border: 'none',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-    },
-    primaryBtn: {
-      backgroundColor: '#10b981',
-      color: 'white',
-    },
-    secondaryBtn: {
-      backgroundColor: 'white',
-      color: '#374151',
-      border: '1px solid #d1d5db',
-    },
-    activitySection: {
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      padding: '1.25rem',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    },
-    activityItem: {
-      display: 'flex',
-      gap: '1rem',
-      padding: '0.875rem',
-      borderRadius: '8px',
-      marginBottom: '0.5rem',
-      transition: 'background-color 0.2s ease',
-    },
-    activityDot: {
-      width: '8px',
-      height: '8px',
-      backgroundColor: '#10b981',
-      borderRadius: '50%',
-      marginTop: '6px',
-      flexShrink: 0,
-    },
-    activityContent: {
-      flex: 1,
-    },
-    activityText: {
-      color: '#1f2937',
-      fontWeight: '500',
-      marginBottom: '0.25rem',
-      fontSize: '0.875rem',
-    },
-    activityTime: {
-      fontSize: '0.8125rem',
-      color: '#6b7280',
-    },
+  const containerStyle = {
+    width: isMobile ? '100%' : 'calc(100% - 255px)',
+    minHeight: '100vh',
+    backgroundColor: '#f9fafb',
+    padding: isMobile ? '1rem' : '2rem',
+    marginLeft: isMobile ? '0' : '255px',
+    boxSizing: 'border-box',
+    transition: 'all 0.3s ease'
   };
 
+  const headerStyle = { marginBottom: '1.5rem' };
+  const titleStyle = { 
+    fontSize: isMobile ? '1.5rem' : '2rem', 
+    fontWeight: 'bold', 
+    color: '#1f2937', 
+    margin: 0 
+  };
+
+  const metricsGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+    gap: '1rem',
+    marginBottom: '1.5rem'
+  };
+
+  const metricCardStyle = {
+    backgroundColor: 'white',
+    borderRadius: '12px',
+    padding: isMobile ? '1rem' : '1.25rem',
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+  };
+
+  const metricHeaderStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '0.75rem'
+  };
+
+  const metricTitleStyle = { 
+    color: '#6b7280', 
+    fontSize: isMobile ? '0.75rem' : '0.875rem', 
+    fontWeight: '500' 
+  };
+  
+  const metricValueStyle = { 
+    fontSize: isMobile ? '1.5rem' : '1.875rem', 
+    fontWeight: 'bold', 
+    color: '#1f2937', 
+    marginBottom: '0.5rem' 
+  };
+  
+  const metricChangeStyle = { 
+    fontSize: isMobile ? '0.7rem' : '0.875rem', 
+    color: '#6b7280' 
+  };
+
+  const chartsGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: '1rem',
+    marginBottom: '1.5rem'
+  };
+
+  const chartCardStyle = {
+    backgroundColor: 'white',
+    borderRadius: '12px',
+    padding: isMobile ? '1rem' : '1.25rem',
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+    minHeight: isMobile ? '320px' : '400px'
+  };
+
+  const chartHeaderStyle = { marginBottom: '1rem' };
+  const chartTitleStyle = { 
+    fontSize: isMobile ? '1rem' : '1.125rem', 
+    fontWeight: 'bold', 
+    color: '#1f2937', 
+    marginBottom: '0.25rem' 
+  };
+  const chartSubtitleStyle = { 
+    fontSize: isMobile ? '0.75rem' : '0.875rem', 
+    color: '#6b7280' 
+  };
+
+  const detailsSectionStyle = {
+    backgroundColor: 'white',
+    borderRadius: '12px',
+    padding: isMobile ? '1rem' : '1.25rem',
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+    marginBottom: '1.5rem'
+  };
+
+  const tableStyle = { 
+    width: '100%', 
+    borderCollapse: 'collapse', 
+    fontSize: isMobile ? '0.75rem' : '0.875rem' 
+  };
+  const theadStyle = { backgroundColor: '#f9fafb' };
+  const thStyle = { 
+    padding: isMobile ? '0.5rem' : '0.75rem 1rem', 
+    textAlign: 'left', 
+    fontWeight: '600', 
+    color: '#374151', 
+    borderBottom: '2px solid #e5e7eb' 
+  };
+  const tdStyle = { 
+    padding: isMobile ? '0.5rem' : '0.75rem 1rem', 
+    color: '#6b7280', 
+    borderBottom: '1px solid #f3f4f6' 
+  };
+
+  const programGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+    gap: '1rem',
+    marginTop: '1rem'
+  };
+
+  const programCardStyle = {
+    backgroundColor: '#f9fafb',
+    borderRadius: '8px',
+    padding: '1rem',
+    borderLeft: '4px solid #10b981'
+  };
+
+  const iconSize = isMobile ? '32px' : '40px';
+
   return (
-    <div style={styles.container}>
-      <main style={styles.mainContent}>
-        {/* Header */}
-        <header style={styles.header}>
-          <h1 style={styles.title}>Overview</h1>
-        </header>
+    <div style={containerStyle}>
+      <header style={headerStyle}>
+        <h1 style={titleStyle}>Overview</h1>
+      </header>
 
-        {/* Metrics */}
-        <div style={styles.metricsGrid}>
-          {/* Total Assets */}
-          <div style={styles.metricCard}>
-            <div style={styles.metricHeader}>
-              <div style={styles.metricTitle}>Total Assets</div>
-              <div style={{...styles.metricIcon, ...styles.iconSuccess}}>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div style={styles.metricValue}>
-              {metrics.totalAssets.toLocaleString()}
-            </div>
-            <div style={styles.metricChange}>+12% from last month</div>
-          </div>
-
-          {/* Active Assets */}
-          <div style={styles.metricCard}>
-            <div style={styles.metricHeader}>
-              <div style={styles.metricTitle}>Active Assets</div>
-              <div style={{...styles.metricIcon, ...styles.iconSuccess}}>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div style={styles.metricValue}>
-              {metrics.activeAssets.toLocaleString()}
-            </div>
-            <div style={styles.metricChange}>+8% from last month</div>
-          </div>
-
-          {/* Inactive Assets */}
-          <div style={styles.metricCard}>
-            <div style={styles.metricHeader}>
-              <div style={styles.metricTitle}>Inactive Assets</div>
-              <div style={{...styles.metricIcon, ...styles.iconWarning}}>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path
-                    fillRule="evenodd"
-                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div style={styles.metricValue}>
-              {metrics.inactiveAssets.toLocaleString()}
-            </div>
-            <div style={styles.metricChangeNegative}>
-              -3% from last month
+      <div style={metricsGridStyle}>
+        <div style={metricCardStyle}>
+          <div style={metricHeaderStyle}>
+            <div style={metricTitleStyle}>Total Assets</div>
+            <div style={{ width: iconSize, height: iconSize, borderRadius: '10px', backgroundColor: '#d1fae5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v10H5V5z" clipRule="evenodd" />
+              </svg>
             </div>
           </div>
+          <div style={metricValueStyle}>{metrics.totalAssets.toLocaleString()}</div>
+         
+        </div>
 
-          {/* Asset Utilization */}
-          <div style={styles.metricCard}>
-            <div style={styles.metricHeader}>
-              <div style={styles.metricTitle}>Asset Utilization</div>
-              <div style={{...styles.metricIcon, ...styles.iconSuccess}}>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path
-                    fillRule="evenodd"
-                    d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+        <div style={metricCardStyle}>
+          <div style={metricHeaderStyle}>
+            <div style={metricTitleStyle}>Total Labs</div>
+            <div style={{ width: iconSize, height: iconSize, borderRadius: '10px', backgroundColor: '#dbeafe', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h6v4H7V5zm8 8v2h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-2h-1a1 1 0 110-2h1V9h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+          <div style={metricValueStyle}>{metrics.totalLabs}</div>
+          <div style={metricChangeStyle}>5 departments</div>
+        </div>
+
+        <div style={metricCardStyle}>
+          <div style={metricHeaderStyle}>
+            <div style={metricTitleStyle}>Total Subjects</div>
+            <div style={{ width: iconSize, height: iconSize, borderRadius: '10px', backgroundColor: '#ede9fe', color: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 20 20" fill="currentColor">
+                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+              </svg>
+            </div>
+          </div>
+          <div style={metricValueStyle}>{metrics.totalSubjects}</div>
+          
+        </div>
+
+        <div style={metricCardStyle}>
+          <div style={metricHeaderStyle}>
+            <div style={metricTitleStyle}>Total Programs</div>
+            <div style={{ width: iconSize, height: iconSize, borderRadius: '10px', backgroundColor: '#fed7aa', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+              </svg>
+            </div>
+          </div>
+          <div style={metricValueStyle}>{metrics.totalPrograms}</div>
+         
+        </div>
+
+        <div style={metricCardStyle}>
+          <div style={metricHeaderStyle}>
+            <div style={metricTitleStyle}>Lab Technicians</div>
+            <div style={{ width: iconSize, height: iconSize, borderRadius: '10px', backgroundColor: '#d1fae5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 20 20" fill="currentColor">
+                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+              </svg>
+            </div>
+          </div>
+          <div style={metricValueStyle}>{metrics.totalTechnicians}</div>
+          
+        </div>
+
+        <div style={metricCardStyle}>
+          <div style={metricHeaderStyle}>
+            <div style={metricTitleStyle}>Total Faculty</div>
+            <div style={{ width: iconSize, height: iconSize, borderRadius: '10px', backgroundColor: '#dbeafe', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+              </svg>
+            </div>
+          </div>
+          <div style={metricValueStyle}>{metrics.totalFaculty}</div>
+          
+        </div>
+      </div>
+
+      <div style={chartsGridStyle}>
+        <div style={chartCardStyle}>
+          <div style={chartHeaderStyle}>
+            <div style={chartTitleStyle}>Asset Categories</div>
+            <div style={chartSubtitleStyle}>Technical vs Non-Technical Distribution</div>
+          </div>
+          <div style={{ width: '100%', height: isMobile ? '220px' : '280px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={assetCategoryData} cx="50%" cy="50%" labelLine={false} label={renderCustomLabel} outerRadius={isMobile ? 70 : 90} innerRadius={isMobile ? 40 : 55} dataKey="value" animationBegin={0} animationDuration={1500}>
+                  {assetCategoryData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                </Pie>
+                <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', fontSize: '12px' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '8px', flexWrap: 'wrap' }}>
+            {assetCategoryData.map((item) => (
+              <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: item.color }}></div>
+                <span style={{ fontSize: isMobile ? '11px' : '13px', color: '#6b7280' }}>{item.name} ({item.value}%)</span>
               </div>
-            </div>
-            <div style={styles.metricValue}>
-              {metrics.utilization}%
-            </div>
-            <div style={styles.progressContainer}>
-              <div style={styles.progressBar}>
-                <div
-                  style={{...styles.progressFill, width: `${metrics.utilization}%`}}
-                ></div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Charts */}
-        <div style={styles.chartsGrid}>
-          <div style={styles.chartCard}>
-            <div style={styles.chartHeader}>
-              <div style={styles.chartTitle}>Asset Usage Trends</div>
-              <div style={styles.chartSubtitle}>
-                12-month performance overview
-              </div>
-            </div>
-            <div style={{ width: '100%', height: '320px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={lineChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="month" stroke="#6b7280" style={{ fontSize: '11px' }} />
-                  <YAxis stroke="#6b7280" style={{ fontSize: '11px' }} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#fff', 
-                      border: '1px solid #e5e7eb', 
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                      fontSize: '12px'
-                    }} 
-                  />
-                  <Legend 
-                    wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }}
-                    iconType="line"
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="assets" 
-                    stroke="#10b981" 
-                    strokeWidth={2.5}
-                    name="Total Assets"
-                    animationDuration={2000}
-                    dot={{ fill: '#10b981', r: 3 }}
-                    activeDot={{ r: 5 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="active" 
-                    stroke="#3b82f6" 
-                    strokeWidth={2}
-                    name="Active"
-                    animationDuration={2000}
-                    dot={{ fill: '#3b82f6', r: 2.5 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="inactive" 
-                    stroke="#f59e0b" 
-                    strokeWidth={2}
-                    name="Inactive"
-                    animationDuration={2000}
-                    dot={{ fill: '#f59e0b', r: 2.5 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+        <div style={chartCardStyle}>
+          <div style={chartHeaderStyle}>
+            <div style={chartTitleStyle}>Lab Distribution</div>
+            <div style={chartSubtitleStyle}>By Department Categories</div>
           </div>
-
-          <div style={styles.chartCard}>
-            <div style={styles.chartHeader}>
-              <div style={styles.chartTitle}>Asset Categories</div>
-              <div style={styles.chartSubtitle}>
-                Distribution breakdown
+          <div style={{ width: '100%', height: isMobile ? '220px' : '280px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={labDistributionData} cx="50%" cy="50%" labelLine={false} label={renderCustomLabel} outerRadius={isMobile ? 70 : 90} innerRadius={isMobile ? 40 : 55} dataKey="value" animationBegin={0} animationDuration={1500}>
+                  {labDistributionData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                </Pie>
+                <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', fontSize: '12px' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
+            {labDistributionData.map((item) => (
+              <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: item.color }}></div>
+                <span style={{ fontSize: isMobile ? '10px' : '12px', color: '#6b7280' }}>{item.name} ({item.value}%)</span>
               </div>
-            </div>
-            <div style={{ width: '100%', height: '280px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={donutChartData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={renderCustomLabel}
-                    outerRadius={90}
-                    innerRadius={55}
-                    fill="#8884d8"
-                    dataKey="value"
-                    animationBegin={0}
-                    animationDuration={1500}
-                  >
-                    {donutChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#fff', 
-                      border: '1px solid #e5e7eb', 
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                      fontSize: '12px'
-                    }} 
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '8px', flexWrap: 'wrap' }}>
-              {donutChartData.map((item) => (
-                <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: item.color }}></div>
-                  <span style={{ fontSize: '13px', color: '#6b7280' }}>{item.name} ({item.value}%)</span>
-                </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={detailsSectionStyle}>
+        <div style={chartHeaderStyle}>
+          <div style={chartTitleStyle}>Detailed Asset Breakdown</div>
+          <div style={chartSubtitleStyle}>Assets by category and brand</div>
+        </div>
+        <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
+          <table style={tableStyle}>
+            <thead style={theadStyle}>
+              <tr>
+                <th style={thStyle}>Category</th>
+                <th style={thStyle}>Total</th>
+              
+                <th style={thStyle}>HP</th>
+                <th style={thStyle}>Lenovo</th>
+               
+              </tr>
+            </thead>
+            <tbody>
+              {assetBreakdown.map((item) => (
+                <tr key={item.category} style={{ cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                  <td style={{ ...tdStyle, fontWeight: '600', color: '#1f2937' }}>{item.category}</td>
+                  <td style={{ ...tdStyle, fontWeight: '600', color: '#10b981' }}>{item.total}</td>
+                  
+                  <td style={tdStyle}>{item.hp}</td>
+                  <td style={tdStyle}>{item.lenovo}</td>
+                  
+                </tr>
               ))}
-            </div>
-          </div>
+            </tbody>
+          </table>
         </div>
-
-        {/* Actions */}
-        <div style={styles.actionSection}>
-          <div style={styles.actionButtons}>
-            <button
-              style={{...styles.actionBtn, ...styles.primaryBtn}}
-              onClick={handleAddAsset}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#059669'}
-              onMouseOut={(e) => e.target.style.backgroundColor = '#10b981'}
-            >
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Add New Asset
-            </button>
-            <button
-              style={{...styles.actionBtn, ...styles.secondaryBtn}}
-              onClick={handleGenerateReport}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#f9fafb'}
-              onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
-            >
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
-              </svg>
-              Generate Report
-            </button>
-            <button
-              style={{...styles.actionBtn, ...styles.secondaryBtn}}
-              onClick={handleExportData}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#f9fafb'}
-              onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
-            >
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Export Data
-            </button>
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div style={styles.activitySection}>
-          <div style={styles.chartHeader}>
-            <div style={styles.chartTitle}>Recent Activities</div>
-            <div style={styles.chartSubtitle}>
-              Latest system updates and asset changes
-            </div>
-          </div>
-
-          {activities.map((activity) => (
-            <div 
-              key={activity.id} 
-              style={styles.activityItem}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-              <div style={styles.activityDot}></div>
-              <div style={styles.activityContent}>
-                <div style={styles.activityText}>{activity.text}</div>
-                <div style={styles.activityTime}>{activity.time}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
