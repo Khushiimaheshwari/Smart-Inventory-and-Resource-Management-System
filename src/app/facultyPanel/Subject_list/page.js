@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Loader2 } from 'lucide-react';
 
 export default function SubjectListPage() {
   const [subjects, setSubjects] = useState([]);
@@ -12,6 +12,7 @@ export default function SubjectListPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [expandedSubject, setExpandedSubject] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handleResize = () => {
@@ -26,6 +27,7 @@ export default function SubjectListPage() {
   }, []);
 
   const fetchSubject = async () => {
+    setLoading(true);
     try {
       const res = await fetch("/api/faculty/getSubjects");
       const data = await res.json();
@@ -37,6 +39,8 @@ export default function SubjectListPage() {
       }
     } catch (err) {
       console.error("Error fetching subject:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -106,6 +110,21 @@ export default function SubjectListPage() {
   };
 
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
+    },
     container: {
       width: (isMobile || isTablet) ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
@@ -483,6 +502,17 @@ export default function SubjectListPage() {
       marginBottom: "20px",
     },
   };
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading subjects...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>

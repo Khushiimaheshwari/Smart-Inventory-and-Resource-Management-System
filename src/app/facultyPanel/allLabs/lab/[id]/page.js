@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Upload, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Upload, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 const LabTimetablePage = () => {
@@ -16,6 +16,7 @@ const LabTimetablePage = () => {
   const [showForm, setShowForm] = useState(false);
   const [programs, setPrograms] = useState([]);
   const [faculties, setFaculties] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     Subject: "",
     Program: "",
@@ -75,52 +76,56 @@ const LabTimetablePage = () => {
     }
   };
 
-  useEffect(() => {
-      fetchLab();
-    }, []);
+  const fetchSubject = async () => {
+    try {
+      const labID = id;
+      const res = await fetch(`/api/faculty/getLabSubject?labId=${labID}`);
+      const data = await res.json();
+
+      if (res.ok && Array.isArray(data.subjects)) {
+        const subjects = data.subjects;
+        setSubjects(subjects);
+
+        const allPrograms = subjects.flatMap((s) => s.Programs || []);
+        const uniquePrograms = allPrograms.filter(
+          (p, i, self) => i === self.findIndex((x) => x._id === p._id)
+        );
+        setPrograms(uniquePrograms);
+
+        const facultiesArr = subjects.flatMap((s) =>
+          s.Programs.flatMap((p) =>
+            (p.Subject || []).map((ps) => ({
+              Faculty_ID: ps.Faculty_Assigned?._id || "Not Assigned",
+              Faculty_Name: ps.Faculty_Assigned?.Name || "Not Assigned",
+            }))
+          )
+        );
+
+        const uniqueFaculties = facultiesArr.filter(
+          (f, i, self) => i === self.findIndex((x) => x.Faculty_ID === f.Faculty_ID)
+        );
+
+        setFaculties(uniqueFaculties);
+        console.log(data);
+        
+      } else {
+        console.error("Failed to fetch subject:", data.error);
+      }
+    } catch (err) {
+      console.error("Error fetching subject:", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchSubject = async () => {
+    const loadData = async () => {
+      setLoading(true);
       try {
-        const labID = id;
-        const res = await fetch(`/api/faculty/getLabSubject?labId=${labID}`);
-        const data = await res.json();
-
-        if (res.ok && Array.isArray(data.subjects)) {
-          const subjects = data.subjects;
-          setSubjects(subjects);
-
-          const allPrograms = subjects.flatMap((s) => s.Programs || []);
-          const uniquePrograms = allPrograms.filter(
-            (p, i, self) => i === self.findIndex((x) => x._id === p._id)
-          );
-          setPrograms(uniquePrograms);
-
-          const facultiesArr = subjects.flatMap((s) =>
-            s.Programs.flatMap((p) =>
-              (p.Subject || []).map((ps) => ({
-                Faculty_ID: ps.Faculty_Assigned?._id || "Not Assigned",
-                Faculty_Name: ps.Faculty_Assigned?.Name || "Not Assigned",
-              }))
-            )
-          );
-
-          const uniqueFaculties = facultiesArr.filter(
-            (f, i, self) => i === self.findIndex((x) => x.Faculty_ID === f.Faculty_ID)
-          );
-
-          setFaculties(uniqueFaculties);
-          console.log(data);
-          
-        } else {
-          console.error("Failed to fetch subject:", data.error);
-        }
-      } catch (err) {
-        console.error("Error fetching subject:", err);
+        await Promise.all([fetchLab(), fetchSubject()]);
+      } finally {
+        setLoading(false);
       }
     };
-
-    fetchSubject();
+    loadData();
   }, []);
 
   const handleProgramChange = (programId) => {
@@ -356,6 +361,21 @@ const LabTimetablePage = () => {
   };
 
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
+    },
     container: {
       width: 'calc(100% - 255px)', 
       minHeight: '100vh',
@@ -925,7 +945,6 @@ const LabTimetablePage = () => {
       transition: 'all 0.3s ease'
     },
     toggleButtonActive: {
-      // background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
       backgroundColor: '#e2e8f0',
       color: 'black',
       borderColor: 'transparent'
@@ -1018,34 +1037,23 @@ const LabTimetablePage = () => {
       marginBottom: '1rem',
       textAlign: 'center',
     },
-    select: {
-      width: '100%',
-      padding: '0.5rem',
-      borderRadius: '6px',
-      border: '1px solid #ccc',
-      marginBottom: '1rem',
-    },
     buttonContainer: {
       display: 'flex',
       justifyContent: 'flex-end',
       gap: '0.75rem',
     },
-    cancelButton: {
-      padding: '0.5rem 1rem',
-      backgroundColor: '#f0f0f0',
-      border: '1px solid #ccc',
-      borderRadius: '6px',
-      cursor: 'pointer',
-    },
-    saveButton: {
-      padding: '0.5rem 1rem',
-      backgroundColor: '#00b894',
-      color: '#fff',
-      border: 'none',
-      borderRadius: '6px',
-      cursor: 'pointer',
-    },
   };
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading lab details...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>
@@ -1344,15 +1352,6 @@ const LabTimetablePage = () => {
               >
                 Week
               </button>
-              {/* <button
-                style={{
-                  ...styles.toggleButton,
-                  ...(view === 'day' ? styles.toggleButtonActive : {})
-                }}
-                onClick={() => setView('day')}
-              >
-                Day
-              </button> */}
             </div>
             <button 
               style={styles.addButton}

@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 export default function LabManagement() {
   const [labs, setLabs] = useState([]);
   const [inchargeLab, setInchargeLab] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Responsive detection
   useEffect(() => {
@@ -25,6 +27,7 @@ export default function LabManagement() {
   const underMaintenance = labs.filter(lab => lab.Status === 'under maintenance').length + inchargeLab.filter(inchargeLab => inchargeLab.Status === 'under maintenance').length;
 
   const fetchLab = async () => {
+    setLoading(true);
     try {
       const res = await fetch("/api/faculty/getLabs/");
       const data = await res.json();
@@ -38,6 +41,8 @@ export default function LabManagement() {
       }
     } catch (err) {
       console.error("Error fetching lab:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -65,6 +70,21 @@ export default function LabManagement() {
   }, []);
 
   const styles = {
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
+    },
     container: {
       width: isMobile ? '100%' : 'calc(100% - 255px)',
       minHeight: '100vh',
@@ -370,7 +390,17 @@ export default function LabManagement() {
   };
 
   console.log(labs);
-  
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading labs...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>
