@@ -1,10 +1,10 @@
 "use client"
 import React, { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useParams } from "next/navigation"; 
 
-function AssetsPage(props) {
-  const params = props.params || {};
-  const id = params.id || '1';
+function AssetsPage() {
+  const { id } = useParams();
   const [pcData, setPcData] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedType, setSelectedType] = useState("All");
@@ -13,6 +13,8 @@ function AssetsPage(props) {
   const [isMobile, setIsMobile] = useState(false); 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [viewingIssue, setViewingIssue] = useState(null);
+  const [currentIssueIndex, setCurrentIssueIndex] = useState(0);
   const [newAsset, setNewAsset] = useState({
     Asset_Name: "",
     Asset_Type: "Monitor",
@@ -25,25 +27,25 @@ function AssetsPage(props) {
 
   const [assets, setAssets] = useState([]);
 
-  useEffect(() => {
-    const fetchPC = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/admin/getPcById/${id}`);
-        const data = await res.json();
-        if (res.ok) {
-          setPcData(data.pc);
-          setAssets(data.pc.Assets || []);
-        } else {
-          console.error("Failed to fetch PC:", data.error);
-        }
-      } catch (err) {
-        console.error("Error fetching PC:", err);
-      } finally {
-        setLoading(false);
+  const fetchPC = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/getPcById/${id}`);
+      const data = await res.json();
+      if (res.ok) {
+        setPcData(data.pc);
+        setAssets(data.pc.Assets || []);
+      } else {
+        console.error("Failed to fetch PC:", data.error);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching PC:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchPC();
   }, [id]);
 
@@ -91,13 +93,8 @@ function AssetsPage(props) {
       alert("Asset added successfully!");
       setShowAddModal(false);
       resetForm();
+      await fetchPC();
       
-      // Refresh PC data to get updated assets
-      const refreshRes = await fetch(`/api/admin/getPcById/${id}`);
-      const refreshData = await refreshRes.json();
-      if (refreshRes.ok) {
-        setAssets(refreshData.pc.Assets || []);
-      }
     } catch (err) {
       console.error("Asset Error:", err);
       alert("Something went wrong while adding asset.");
@@ -143,13 +140,8 @@ function AssetsPage(props) {
       setShowAddModal(false);
       setEditingAsset(null);
       resetForm();
-
-      // Refresh PC data
-      const refreshRes = await fetch(`/api/admin/getPcById/${id}`);
-      const refreshData = await refreshRes.json();
-      if (refreshRes.ok) {
-        setAssets(refreshData.pc.Assets || []);
-      }
+      await fetchPC();
+      
     } catch (err) {
       console.error("Update Asset Error:", err);
       alert("Something went wrong while updating asset.");
@@ -178,13 +170,8 @@ function AssetsPage(props) {
       }
 
       alert("Asset deleted successfully!");
+      await fetchPC();
       
-      // Refresh PC data
-      const refreshRes = await fetch(`/api/admin/getPcById/${id}`);
-      const refreshData = await refreshRes.json();
-      if (refreshRes.ok) {
-        setAssets(refreshData.pc.Assets || []);
-      }
     } catch (err) {
       console.error("Delete Asset Error:", err);
       alert("Something went wrong while deleting asset.");
@@ -200,6 +187,46 @@ function AssetsPage(props) {
       Issue_Reported: "",
       QR_Code: ""
     });
+  };
+
+  const openIssueModal = (issue) => {
+    setViewingIssue(issue);
+    setCurrentIssueIndex(0);
+  };
+
+  const nextIssue = () => {
+    if (!viewingIssue) return;
+    setCurrentIssueIndex((prev) => 
+      prev + 1 < viewingIssue.Issue_Reported.length ? prev + 1 : prev
+    );
+  };
+
+  const prevIssue = () => {
+    if (!viewingIssue) return;
+    setCurrentIssueIndex((prev) =>
+      prev - 1 >= 0 ? prev - 1 : prev
+    );
+  };
+
+  function formatStatus(status) {
+    if (!status) return "Pending";
+
+    const map = {
+      "pending": "Pending",
+      "resolved by technician": "Resolved By Technician",
+      "approved": "Approved"
+    };
+
+    return map[status] || status;
+  }
+
+  const getIssueStatusColor = (status) => {
+    switch(status) {      
+      case "pending": return { backgroundColor: '#fef3c7', color: '#92400e' };
+      case "resolved by technician": return { backgroundColor: '#d1fae5', color: '#065f46' };
+      case "approved": return { backgroundColor: '#fee2e2', color: '#991b1b' };
+      default: return { backgroundColor: '#e5e7eb', color: '#374151' };
+    }
   };
 
   const handleDownloadQR = (qrCodeUrl, assetName) => {
@@ -368,7 +395,121 @@ function AssetsPage(props) {
       color: '#718096',
       flex: 1
     },
+    issueContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      // gap: '0.5rem',
+      flex: 1
+    },
+    issueBlock: {
+      backgroundColor: '#fef3c7',
+      border: '1px solid #fbbf24',
+      borderRadius: '6px',
+      padding: '2px 10px',
+      cursor: 'pointer',
+      fontSize: '13px',
+      color: '#92400e',
+      transition: 'all 0.2s',
+      display: 'inline-block',
+      width: "auto"
+    },
+    noIssueText: {
+      color: '#718096',
+      fontWeight: 500,
+      flex: 1
+    },
     statusBadge: {
+      display: 'inline-block',
+      padding: '2px 8px',
+      borderRadius: '6px',
+      fontSize: '12px',
+      fontWeight: 600
+    },
+    issueModalOverlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000
+    },
+    issueModal: {
+      backgroundColor: 'white',
+      borderRadius: '12px',
+      padding: '24px',
+      maxWidth: '500px',
+      width: '90%',
+      maxHeight: '80vh',
+      overflow: 'auto',
+      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+    },
+    issueModalHeader: {
+      fontSize: '20px',
+      fontWeight: 700,
+      color: '#1f2937',
+      marginBottom: '16px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+    },
+    closeBtn: {
+      background: 'none',
+      border: 'none',
+      fontSize: '24px',
+      cursor: 'pointer',
+      color: '#6b7280',
+      padding: '0',
+      width: '30px',
+      height: '30px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: '6px',
+      transition: 'all 0.2s'
+    },
+    issueDetailRow: {
+      marginBottom: '16px'
+    },
+    issueDetailLabel: {
+      fontSize: '12px',
+      fontWeight: 600,
+      color: '#6b7280',
+      textTransform: 'uppercase',
+      marginBottom: '6px',
+      letterSpacing: '0.5px'
+    },
+    issueDetailValue: {
+      fontSize: '15px',
+      color: '#1f2937',
+      lineHeight: '1.6'
+    },
+    issueStatusBadge: {
+      display: 'inline-block',
+      padding: '4px 12px',
+      borderRadius: '12px',
+      fontSize: '13px',
+      fontWeight: 600
+    },
+    navButtons: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginBottom: '12px'
+    },
+    navBtn: {
+      fontSize: '20px',
+      fontWeight: 'bold',
+      padding: '4px 10px',
+      borderRadius: '6px',
+      border: '1px solid #ddd',
+      cursor: 'pointer',
+      background: 'white'
+    },
+    issueStatusBadge: {
       display: 'inline-block',
       padding: '2px 8px',
       borderRadius: '6px',
@@ -730,35 +871,52 @@ function AssetsPage(props) {
                     <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style={{color: '#10b981'}}>
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
                     </svg>
-                    Issues
+                    Issues 
                   </div>
-                  <div style={styles.detailValue}>
-                    {asset.Issue_Reported || "No issues"}
+                  <div style={styles.issueContainer}>
+                    {asset.Issue_Reported.length > 0 ? (
+                      <div 
+                        style={styles.issueBlock}
+                        onClick={() => openIssueModal(asset)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#fde68a';
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#fef3c7';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                        }}
+                      >
+
+                        {asset.Issue_Reported.length} Issue{asset.Issue_Reported.length !== 1 ? 's' : ''}
+                      </div>
+                    ) : (
+                      <div style={styles.noIssueText}>No Issues</div>
+                    )}
+                    
                   </div>
                 </div>
 
-                {asset.QR_Code && (
-                  <div style={styles.assetDetail}>
-                    <div style={styles.detailLabel}>
-                      <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style={{color: '#10b981'}}>
-                        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zM13 3a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1z" clipRule="evenodd"/>
-                        <path d="M11 4a1 1 0 10-2 0v1a1 1 0 002 0V4zM10 7a1 1 0 011 1v1h2a1 1 0 110 2h-3a1 1 0 01-1-1V8a1 1 0 011-1zM16 9a1 1 0 100 2 1 1 0 000-2zM9 13a1 1 0 011-1h1a1 1 0 110 2v2a1 1 0 11-2 0v-3zM7 11a1 1 0 100-2H4a1 1 0 100 2h3zM17 13a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zM16 17a1 1 0 100-2h-3a1 1 0 100 2h3z"/>
-                      </svg>
-                      QR Code
-                    </div>
-                    <div 
-                      style={{...styles.qrCodeThumbnail, cursor: 'pointer'}}
-                      onClick={() => setViewingQR(asset)}
-                      title="Click to view QR code"
-                    >
-                      <img 
-                        src={asset.QR_Code} 
-                        alt="QR Code"
-                        style={styles.qrImage}
-                      />
-                    </div>
+                <div style={styles.assetDetail}>
+                  <div style={styles.detailLabel}>
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style={{color: '#10b981'}}>
+                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zM13 3a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1z" clipRule="evenodd"/>
+                      <path d="M11 4a1 1 0 10-2 0v1a1 1 0 002 0V4zM10 7a1 1 0 011 1v1h2a1 1 0 110 2h-3a1 1 0 01-1-1V8a1 1 0 011-1zM16 9a1 1 0 100 2 1 1 0 000-2zM9 13a1 1 0 011-1h1a1 1 0 110 2v2a1 1 0 11-2 0v-3zM7 11a1 1 0 100-2H4a1 1 0 100 2h3zM17 13a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zM16 17a1 1 0 100-2h-3a1 1 0 100 2h3z"/>
+                    </svg>
+                    QR Code
                   </div>
-                )}
+                  <div 
+                    style={{...styles.qrCodeThumbnail, cursor: 'pointer'}}
+                    onClick={() => setViewingQR(asset)}
+                    title="Click to view QR code"
+                  >
+                    <img 
+                      src={asset.QR_Code} 
+                      alt="QR Code"
+                      style={styles.qrImage}
+                    />
+                  </div>
+                </div>
 
                 <div style={styles.actionButtons}>
                   <button
@@ -789,6 +947,92 @@ function AssetsPage(props) {
           </div>
         )}
       </div>
+
+      {/* View Issue Modal */}
+      {viewingIssue && (
+        <div style={styles.issueModalOverlay} onClick={() => setViewingIssue(null)}>
+          <div style={styles.issueModal} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.issueModalHeader}>
+              <span>Issue Details</span>
+              <button 
+                style={styles.closeBtn}
+                onClick={() => setViewingIssue(null)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Multiple issues */}
+            {viewingIssue.Issue_Reported.length > 1 && (
+              <div style={styles.navButtons}>
+                <button 
+                  style={styles.navBtn}
+                  onClick={prevIssue}
+                  disabled={currentIssueIndex === 0}>
+                  ‹
+                </button>
+
+                <button 
+                  style={styles.navBtn}
+                  onClick={nextIssue}
+                  disabled={currentIssueIndex === viewingIssue.Issue_Reported.length - 1}>
+                  ›
+                </button>
+              </div>
+            )}
+
+            {/* Current Issue */}
+            {(() => {
+              const issue = viewingIssue.Issue_Reported[currentIssueIndex];
+              return (
+                <>
+                  <div style={styles.issueDetailRow}>
+                    <div style={styles.issueDetailLabel}>Asset Name</div>
+                    <div style={styles.issueDetailValue}>{viewingIssue.Asset_Name}</div>
+                  </div>
+
+                  <div style={styles.issueDetailRow}>
+                    <div style={styles.issueDetailLabel}>Faculty Name</div>
+                    <div style={styles.issueDetailValue}>{issue.FacultyDetails?.Name || "N/A"}</div>
+                  </div>
+
+                  <div style={styles.issueDetailRow}>
+                    <div style={styles.issueDetailLabel}>Issue Description</div>
+                    <div style={styles.issueDetailValue}>{issue.IssueDescription}</div>
+                  </div>
+
+                  { issue.Status === 'resolved by technician' ? (
+                    <div style={styles.issueDetailRow}>
+                      <div style={styles.issueDetailLabel}>Resolve Description</div>
+                      <div style={styles.issueDetailValue}>{issue.ResolveDescription}</div>
+                    </div>
+                  ) : (
+                    <></>
+                  )}
+
+                  <div style={styles.issueDetailRow}>
+                    <div style={styles.issueDetailLabel}>Status</div>
+                    <span 
+                      style={{
+                        ...styles.issueStatusBadge,
+                        ...getIssueStatusColor(issue.Status)
+                      }}>
+                      {formatStatus(issue.Status)}
+                    </span>
+                  </div>
+                </>
+              );
+            })()}
+            
+          </div>
+        </div>
+      )}
 
       {/* QR Code Viewer Modal */}
       {viewingQR && (

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from 'lucide-react';
 
-export default function AssetManagement() {
+export default function AssetManagement() { 
   const [pcs, setPCs] = useState([]);
   const [labs, setLabs] = useState([]);
   const [selectedLab, setSelectedLab] = useState("all");
@@ -48,7 +48,7 @@ export default function AssetManagement() {
 
   const fetchPCs = async () => {
     try {
-      const res = await fetch('/api/admin/getlabPCs');
+      const res = await fetch('/api/lab_technician/getlabPCs');
 
       if (!res.ok) {
         throw new Error('Failed to fetch PCs');
@@ -72,7 +72,7 @@ export default function AssetManagement() {
 
   const fetchLabs = async () => {
     try {
-      const res = await fetch("/api/admin/getLabs");
+      const res = await fetch("/api/lab_technician/getLabs");
       const data = await res.json();
       console.log(data);       
 
@@ -99,7 +99,7 @@ export default function AssetManagement() {
 
     setSaving(true);
     try {
-      const res = await fetch("/api/admin/addLabPCs", {
+      const res = await fetch("/api/lab_technician/addLabPCs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -150,7 +150,7 @@ export default function AssetManagement() {
 
     setSaving(true);
     try {
-      const res = await fetch("/api/admin/updateLabPC", {
+      const res = await fetch("/api/lab_technician/updateLabPC", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -186,7 +186,7 @@ export default function AssetManagement() {
     }
 
     try {
-      const res = await fetch("/api/admin/deleteLabPC", {
+      const res = await fetch("/api/lab_technician/deleteLabPC", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: pcId }),

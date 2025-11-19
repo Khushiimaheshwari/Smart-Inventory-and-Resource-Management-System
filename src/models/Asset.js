@@ -14,7 +14,8 @@ const AssetSchema = new mongoose.Schema({
     { 
       FacultyDetails: { type: mongoose.Schema.Types.ObjectId, ref: "Faculty" },
       IssueDescription: { type: String, default: "" },
-      Status: { type: String, enum: ["pending", "resolved by technician", "accepted"], default: "pending" },
+      Status: { type: String, enum: ["pending", "resolved by technician", "approved"], default: "pending" },
+      ResolveDescription: { type: String, default: "" },
     }
   ],
 }, { timestamps: true });

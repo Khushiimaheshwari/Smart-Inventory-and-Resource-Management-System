@@ -2,22 +2,24 @@ import { NextResponse } from "next/server";
 import { connectDB } from "../../../../app/api/utils/db";
 import Lab from "../../../../models/Labs";
 import LabTechnician from "../../../../models/Lab_Technician";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/authOptions";
 
-const JWT_SECRET = process.env.JWT_SECRET;
+// Labs
 
-export async function GET() {
+export async function GET() { 
   try {
     await connectDB();
 
-    const token = cookies().get("token")?.value;
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const decoded = jwt.verify(token, JWT_SECRET);    
-    const { email, role } = decoded;
+    const session = await getServerSession(authOptions);
+    console.log(session);
+    
+      if (!session?.user?.email) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+  
+      const email = session.user.email;
+      const role = session.user.role;
 
     if (role !== "lab_technician") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });

@@ -5,24 +5,9 @@ import { Loader2 } from 'lucide-react';
 
 export default function LabManagement() {
   const [labs, setLabs] = useState([]);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingLab, setEditingLab] = useState(null);
-  const [technicians, setTechnicians] = useState([]);
-  const [labIncharge, setLabIncharge] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [newLab, setNewLab] = useState({
-    id: '',
-    name: '',
-    block: '',
-    labRoom: '',
-    capacity: '',
-    status: 'Active',
-    technician: '',
-    incharge: '',
-  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -35,18 +20,12 @@ export default function LabManagement() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const totalLabs = labs.length;
-  const activeLabs = labs.filter(lab => lab.Status === 'active').length;
-  const underMaintenance = labs.filter(lab => lab.Status === 'under maintenance').length;
-
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);
       try {
         await Promise.all([
           fetchLab(),
-          fetchTechnicians(),
-          fetchLabIncharge()
         ]);
       } catch (error) {
         console.error("Error loading data:", error);
@@ -58,37 +37,9 @@ export default function LabManagement() {
     fetchAllData();
   }, []);
 
-  const fetchTechnicians = async () => {
-    try {
-      const res = await fetch("/api/admin/getlabTechnicians");
-      const data = await res.json();
-      if (res.ok) {
-        setTechnicians(data.technicians);
-      } else {
-        console.error("Failed to fetch technicians:", data.error);
-      }
-    } catch (err) {
-      console.error("Error fetching technicians:", err);
-    }
-  };
-
-  const fetchLabIncharge = async () => {
-    try {
-      const res = await fetch("/api/admin/getFaculty");
-      const data = await res.json();
-      if (res.ok) {
-        setLabIncharge(data.faculty);
-      } else {
-        console.error("Failed to fetch faculty:", data.error);
-      }
-    } catch (err) {
-      console.error("Error fetching faculty:", err);
-    }
-  };
-
   const fetchLab = async () => {
     try {
-      const res = await fetch("/api/admin/getLabs");
+      const res = await fetch("/api/lab_technician/getLabs");
       const data = await res.json();
       if (res.ok) {
         setLabs(data.labs);
@@ -100,144 +51,9 @@ export default function LabManagement() {
     }
   };
 
-  const handleAddLab = async () => {
-    if (!newLab.name || !newLab.block || !newLab.capacity) {
-      alert("Please fill in all required fields!");
-      return;
-    }
-
-    setSaving(true);
-    const payload = {
-      labId: newLab.id,
-      labName: newLab.name,
-      block: newLab.block,
-      labRoom: newLab.labRoom,
-      capacity: newLab.capacity,
-      status: newLab.status,
-      technician: newLab.technician,
-      incharge: newLab.incharge,
-    };
-    
-    try {
-      const res = await fetch("/api/admin/addLab", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Lab added successfully!");
-        setShowAddModal(false);
-        resetForm();
-        await fetchLab();
-      } else {
-        alert(data.error || "Failed to add lab");
-      }
-    } catch (error) {
-      console.error("Error adding lab:", error);
-      alert("Something went wrong while adding the lab.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleEditLab = (lab) => {
-    setEditingLab(lab);
-    setShowAddModal(true);
-    setNewLab({
-      id: lab.Lab_ID || "",
-      name: lab.Lab_Name || "",
-      block: lab.Block || "",
-      labRoom: lab.Lab_Room || "",
-      capacity: lab.Total_Capacity || "",
-      status: lab.Status || "Active",
-      technician: lab.LabTechnician?.[0]?._id || "",   
-      incharge: lab.Lab_Incharge?.[0]?._id || "",
-    });
-  };
-
-  const handleUpdateLab = async () => {
-    if (!newLab.name || !newLab.block || !newLab.capacity) {
-      alert("Please fill in all required fields!");
-      return;
-    }
-
-    setSaving(true);
-    const payload = {
-      Lab_ID: newLab.id,
-      Lab_Name: newLab.name,
-      Block: newLab.block,
-      Lab_Room: newLab.labRoom,
-      Total_Capacity: newLab.capacity,
-      Status: newLab.status,
-      LabTechnician: newLab.technician,
-      LabIncharge: newLab.incharge,
-    };
-    
-    try {
-      const res = await fetch(`/api/admin/editLabs/${editingLab._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Lab updated successfully!");
-        setShowAddModal(false);
-        setEditingLab(null);
-        resetForm();
-        await fetchLab();
-      } else {
-        alert(data.error || "Failed to update lab");
-      }
-    } catch (err) {
-      console.error("Error updating lab:", err);
-      alert("Something went wrong while updating the lab.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDeleteLab = async (labId) => {
-    if (!window.confirm("Are you sure you want to delete this lab?")) {
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/admin/deleteLab/${labId}`, {
-        method: "DELETE",
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Lab deleted successfully!");
-        await fetchLab();
-      } else {
-        alert(data.error || "Failed to delete lab");
-      }
-    } catch (err) {
-      console.error("Error deleting lab:", err);
-      alert("Something went wrong while deleting the lab.");
-    }
-  };
-
-  const resetForm = () => {
-    setNewLab({
-      id: '',
-      name: '',
-      block: '',
-      labRoom: '',
-      capacity: '',
-      status: 'Active',
-      technician: '',
-      incharge: '',
-    });
-  };
+  const totalLabs = labs.length;
+  const activeLabs = labs.filter(lab => lab.Status === 'active').length;
+  const underMaintenance = labs.filter(lab => lab.Status === 'under maintenance').length;
 
   const styles = {
     loaderContainer: {
@@ -543,12 +359,12 @@ export default function LabManagement() {
     saveButton: {
       flex: 1,
       padding: isMobile ? '10px' : '12px',
-      background: saving ? '#9ca3af' : 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
+      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
       color: 'white',
       border: 'none',
       borderRadius: '8px',
       fontWeight: 600,
-      cursor: saving ? 'not-allowed' : 'pointer',
+      cursor: 'pointer',
       fontSize: '14px',
       display: 'flex',
       alignItems: 'center',
@@ -573,12 +389,6 @@ export default function LabManagement() {
       <main style={styles.mainContent}>
         <header style={styles.header}>
           <h1 style={styles.headerTitle}>Lab Management</h1>
-          <button style={styles.addButton} onClick={() => setShowAddModal(true)}>
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
-            </svg>
-            Add New Lab
-          </button>
         </header>
 
         <div style={styles.statsGrid}>
@@ -653,16 +463,6 @@ export default function LabManagement() {
                     </div>
 
                     <div style={styles.actionButtons}>
-                      <button style={{ ...styles.iconButton, ...styles.editButton }} onClick={() => handleEditLab(lab)}>
-                        <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                        </svg>
-                      </button>
-                      <button style={{ ...styles.iconButton, ...styles.deleteButton }} onClick={() => handleDeleteLab(lab._id)}>
-                        <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                      </button>
                       <button style={{ ...styles.iconButton, ...styles.viewButton }} onClick={() => { window.location.href = `/lab_technicianPanel/lab_management/lab/${lab._id}`; }}>
                         <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -680,93 +480,6 @@ export default function LabManagement() {
           </div>
         )}
         
-        {showAddModal && (
-          <div style={styles.modal} onClick={() => { setShowAddModal(false); setEditingLab(null); resetForm(); }}>
-            <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-              <h2 style={styles.modalHeader}>{editingLab ? 'Update Lab' : 'Add New Lab'}</h2>
-              
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Lab ID</label>
-                <input type="text" style={styles.input} value={newLab.id} onChange={(e) => setNewLab({...newLab, id: e.target.value})} placeholder="Enter lab Id" />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Lab Name</label>
-                <input type="text" style={styles.input} value={newLab.name} onChange={(e) => setNewLab({...newLab, name: e.target.value})} placeholder="Enter lab name" />
-              </div>
-
-              <div style={styles.formGroup}>
-                <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={styles.label}>Block</label>
-                      <input type="text" style={styles.input} value={newLab.block} onChange={(e) => setNewLab({...newLab, block: e.target.value})} placeholder="Enter Block" />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={styles.label}>Lab Room</label>
-                      <input type="text" style={styles.input} value={newLab.labRoom} onChange={(e) => setNewLab({...newLab, labRoom: e.target.value})} placeholder="Enter labRoom" />
-                    </div>
-                </div>
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Capacity</label>
-                <input type="number" style={styles.input} value={newLab.capacity} onChange={(e) => setNewLab({...newLab, capacity: e.target.value})} placeholder="Enter capacity" />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Status</label>
-                <select style={styles.select} value={newLab.status} onChange={(e) => setNewLab({...newLab, status: e.target.value})}>
-                  <option value="Active">Active</option>
-                  <option value="Under Maintenance">Under Maintenance</option>
-                </select>
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Lab technician</label>
-                <select style={styles.input} value={newLab.technician} onChange={(e) => setNewLab({ ...newLab, technician: e.target.value })}>
-                  <option value="">Select Lab technician</option>
-                  {technicians.map((tech) => (
-                    <option key={tech._id} value={tech._id}>
-                      {tech.Name} ({tech.Email})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Lab incharge</label>
-                <select style={styles.input} value={newLab.incharge} onChange={(e) => setNewLab({ ...newLab, incharge: e.target.value })}>
-                  <option value="">Select Lab incharge</option>
-                  {labIncharge.map((incharge) => (
-                    <option key={incharge._id} value={incharge._id}>
-                      {incharge.Name} ({incharge.Email})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={styles.modalActions}>
-                <button style={styles.cancelButton} onClick={() => { setShowAddModal(false); setEditingLab(null); resetForm(); }}>
-                  Cancel
-                </button>
-                <button 
-                  style={styles.saveButton} 
-                  onClick={editingLab ? handleUpdateLab : handleAddLab}
-                  disabled={saving}
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin" />
-                      {editingLab ? 'Updating...' : 'Adding...'}
-                    </>
-                  ) : (
-                    editingLab ? 'Update Lab' : 'Add Lab'
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );
