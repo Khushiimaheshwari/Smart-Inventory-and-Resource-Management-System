@@ -3,7 +3,7 @@ import { connectDB } from "../../../../app/api/utils/db";
 import mongoose from "mongoose";
 import Lab_PCs from "../../../../models/Lab_PCs";
 import Assets from "../../../../models/Asset";
-
+ 
 export async function POST(req) {
   try {
     await connectDB();

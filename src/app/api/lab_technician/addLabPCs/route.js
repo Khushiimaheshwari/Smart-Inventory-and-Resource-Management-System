@@ -8,25 +8,29 @@ export async function POST(req) {
     await connectDB();
 
     const body = await req.json();
-    const { PC_Name, Lab,} = body;
+    const { PC_Name, Lab: labId,} = body;
+    console.log(body);
 
-    if (!PC_Name || !Lab) {
+    if (!PC_Name || !labId) {
       return NextResponse.json({ error: "PC_Name and Lab are required" }, { status: 400 });
     }
 
-    const existingLab = await PCs.findOne({ PC_Name: PC_Name, Lab: Lab });
+    const existingLab = await PCs.findOne({ PC_Name: PC_Name, Lab: labId  });
     if (existingLab) {
       return NextResponse.json({ error: `A PC named "${PC_Name}" already exists in this Lab.` }, { status: 409 });
     }
 
     const newPC = await PCs.create({
       PC_Name: PC_Name,
-      Lab: Lab,          // Should be ObjectId
+      // Lab: [new mongoose.Types.ObjectId(labId)],        
+      Lab: labId,         
     });
 
-    await Lab.findByIdAndUpdate(PCs, {
-      $push: { PC: newPC._id },
-    });
+    await Lab.findByIdAndUpdate(
+      labId,
+      { $push: { PCs: newPC._id } }, 
+      { new: true }
+    );
 
     return NextResponse.json({
       message: "PC added successfully",

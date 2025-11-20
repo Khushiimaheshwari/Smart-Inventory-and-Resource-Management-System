@@ -35,27 +35,27 @@ const AssetsPage = () => {
     }
   }, [session]);
 
-  useEffect(() => {
-    const fetchPC = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/faculty/getPcById/${id}`);
-        const data = await res.json();
-        if (res.ok) {
-          setPcData(data.pc);
-          setAssets(data.pc.Assets);
-          console.log(data.pc.Assets);
-          
-        } else {
-          console.error("Failed to fetch PC:", data.error);
-        }
-      } catch (err) {
-        console.error("Error fetching PC:", err);
-      } finally {
-        setLoading(false);
+  const fetchPC = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/faculty/getPcById/${id}`);
+      const data = await res.json();
+      if (res.ok) {
+        setPcData(data.pc);
+        setAssets(data.pc.Assets);
+        console.log(data.pc.Assets);
+        
+      } else {
+        console.error("Failed to fetch PC:", data.error);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching PC:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchPC();
   }, []);
 
@@ -102,6 +102,7 @@ const AssetsPage = () => {
       alert("Issue raised successfully!");
       setAddingIssue(null);
       setIssueForm({ facultyId: '', issueDescription: '' });
+      await fetchPC();
 
     } catch (err) {
       console.error("Raise Issue Error:", err);
@@ -134,11 +135,45 @@ const AssetsPage = () => {
     const map = {
       "pending": "Pending",
       "resolved by technician": "Resolved By Technician",
-      "accepted": "Accepted"
+      "approved": "Approved"
     };
 
     return map[status] || status;
   }
+
+  const handleApproveIssue = async (issueId ,assetId) => {
+    
+    if (!assetId || !issueId ) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/faculty/approveIssueResolve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          assetId,
+          issueId,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong!");
+        return;
+      }
+
+      alert("Resolve Approved successfully!");
+      setViewingIssue(null);
+      await fetchPC();
+
+    } catch (err) {
+      console.error("Update Asset Error:", err);
+      alert("Something went wrong while updating asset.");
+    } 
+  };
 
   const handleDownloadQR = (qrCodeUrl, assetName) => {
     const link = document.createElement('a');
@@ -153,7 +188,7 @@ const AssetsPage = () => {
     switch(status) {      
       case "pending": return { backgroundColor: '#fef3c7', color: '#92400e' };
       case "resolved by technician": return { backgroundColor: '#d1fae5', color: '#065f46' };
-      case "accepted": return { backgroundColor: '#fee2e2', color: '#991b1b' };
+      case "approved": return { backgroundColor: '#fee2e2', color: '#991b1b' };
       default: return { backgroundColor: '#e5e7eb', color: '#374151' };
     }
   };
@@ -412,12 +447,27 @@ const AssetsPage = () => {
       color: '#1f2937',
       lineHeight: '1.6'
     },
-    statusBadge: {
+    issueStatusBadge: {
       display: 'inline-block',
       padding: '4px 12px',
       borderRadius: '12px',
       fontSize: '13px',
       fontWeight: 600
+    },
+    approveButton: {
+      padding: isMobile ? '8px 12px' : '10px 14px',
+      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
+      color: 'white',
+      border: 'none',
+      borderRadius: '12px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: '8px',
+      fontSize: isMobile ? '13px' : '14px',
+      transition: 'all 0.3s ease'
     },
     navButtons: {
       display: 'flex',
@@ -721,13 +771,13 @@ const AssetsPage = () => {
                     <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style={{color: '#10b981'}}>
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
                     </svg>
-                    Issues
+                    Issues 
                   </div>
                   <div style={styles.issueContainer}>
                     {asset.Issue_Reported.length > 0 ? (
                       <div 
                         style={styles.issueBlock}
-                        onClick={() => setViewingIssue(asset)}
+                        onClick={() => openIssueModal(asset)}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = '#fde68a';
                           e.currentTarget.style.transform = 'translateY(-1px)';
@@ -860,16 +910,38 @@ const AssetsPage = () => {
                     <div style={styles.issueDetailValue}>{issue.IssueDescription}</div>
                   </div>
 
+                  { issue.Status === 'resolved by technician' ? (
+                    <div style={styles.issueDetailRow}>
+                      <div style={styles.issueDetailLabel}>Resolve Description</div>
+                      <div style={styles.issueDetailValue}>{issue.ResolveDescription}</div>
+                    </div>
+                  ) : (
+                    <></>
+                  )}
+
                   <div style={styles.issueDetailRow}>
                     <div style={styles.issueDetailLabel}>Status</div>
                     <span 
                       style={{
-                        ...styles.statusBadge,
+                        ...styles.issueStatusBadge,
                         ...getIssueStatusColor(issue.Status)
                       }}>
                       {formatStatus(issue.Status)}
                     </span>
                   </div>
+
+                  { issue.Status === 'resolved by technician' ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                        <button
+                          style={styles.approveButton}
+                          onClick={ () => handleApproveIssue(issue._id, viewingIssue._id)}
+                        >
+                          Approve
+                        </button>
+                      </div>
+                  ) : (
+                    <></>
+                  )}
                 </>
               );
             })()}

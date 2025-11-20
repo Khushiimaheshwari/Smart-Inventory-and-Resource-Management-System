@@ -3,41 +3,20 @@ import { connectDB } from "../../../../app/api/utils/db";
 import PCs from "../../../../models/Lab_PCs";
 import Lab from "../../../../models/Labs";
 import LabTechnician from "../../../../models/Lab_Technician";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
-
-// export async function GET() {
-//   try {
-//     await connectDB();
- 
-//     const pcs = await PCs.find(
-//       {},
-//       "_id PC_Name Lab Assets"
-//     ).populate("Lab", "Lab_ID");
-
-//     return NextResponse.json({ pcs });
-//   } catch (error) {
-//     console.error("Error fetching PCs:", error);
-//     return NextResponse.json(
-//       { error: "Failed to PCs" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-const JWT_SECRET = process.env.JWT_SECRET;
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/authOptions";
 
 export async function GET() {
   try {
     await connectDB();
 
-    const token = cookies().get("token")?.value;
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const { email, role } = decoded;
+    const session = await getServerSession(authOptions);
+      if (!session?.user?.email) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+  
+      const email = session.user.email;
+      const role = session.user.role;
 
     if (role !== "lab_technician") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });

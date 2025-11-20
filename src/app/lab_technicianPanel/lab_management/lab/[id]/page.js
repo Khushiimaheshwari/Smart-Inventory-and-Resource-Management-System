@@ -40,9 +40,27 @@ const LabTimetablePage = () => {
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [filteredFaculties, setFilteredFaculties] = useState([]);
 
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchLab(),
+          fetchSubject()
+        ]);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAllData();
+  }, []);
+
   const fetchLab = async () => {
     try {
-      const res = await fetch(`/api/admin/getLabById/${id}`);
+      const res = await fetch(`/api/lab_technician/getLabById/${id}`);
       const data = await res.json();
       if (res.ok) {
         setLabData(data.lab);
@@ -88,24 +106,6 @@ const LabTimetablePage = () => {
   };
 
   useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading(true);
-      try {
-        await Promise.all([
-          fetchLab(),
-          fetchSubject()
-        ]);
-      } catch (error) {
-        console.error("Error loading data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchAllData();
-  }, []);
-
-  useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
       setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024);
@@ -140,7 +140,7 @@ const LabTimetablePage = () => {
     console.log(id);
 
     try {
-      const res = await fetch(`/api/admin/addLabMoreInfo/${id}`, {
+      const res = await fetch(`/api/lab_technician/addLabMoreInfo/${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -172,7 +172,7 @@ const LabTimetablePage = () => {
   const fetchSubject = async () => {
     try {
       const labID = id;
-      const res = await fetch(`/api/admin/getLabSubject?labId=${labID}`);
+      const res = await fetch(`/api/lab_technician/getLabSubject?labId=${labID}`);
       const data = await res.json();
       if (res.ok) {
         setSubjects(data.subjects);
@@ -267,7 +267,7 @@ const LabTimetablePage = () => {
       formData.append("file", file);
 
       try {
-        const res = await fetch("/api/admin/uploadListOfExperiment", {
+        const res = await fetch("/api/lab_technician/uploadListOfExperiment", {
           method: "POST",
           body: formData,
           headers: {
@@ -419,7 +419,7 @@ const LabTimetablePage = () => {
     console.log(payload);
 
     try {
-      const res = await fetch("/api/admin/bookTimetableSlot", {
+      const res = await fetch("/api/lab_technician/bookTimetableSlot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -439,7 +439,7 @@ const LabTimetablePage = () => {
       alert("Something went wrong while booking the slot.");
     }
   };
-
+ 
   const styles = {
     loaderContainer: {
       display: 'flex',
@@ -1472,16 +1472,6 @@ const LabTimetablePage = () => {
                           )}
                         </span>
                         <div style={styles.actionButtons}>
-                          <button style={{ ...styles.iconButton, ...styles.editButton }}>
-                            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
-                          </button>
-                          <button style={{ ...styles.iconButton, ...styles.deleteButton }}>
-                            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                          </button>
                           <button style={{ ...styles.iconButton, ...styles.expandButton }}>
                             {expandedId === subject._id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                           </button>

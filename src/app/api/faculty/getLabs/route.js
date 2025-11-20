@@ -17,6 +17,11 @@ export async function GET(req) {
     }
 
     const email = session.user.email;
+    const role = session.user.role;
+    
+    if (role !== "faculty") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     const faculty = await Faculty.findOne({ Email: email }).lean();
     if (!faculty) {
