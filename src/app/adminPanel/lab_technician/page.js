@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { X, ChevronDown, Loader2 } from 'lucide-react';
+import emailjs from "@emailjs/browser";
 
 export default function LabTechnicianManagement() {
   const [users, setUsers] = useState([]);
@@ -210,8 +211,16 @@ export default function LabTechnicianManagement() {
       }
 
       if (newUser.password && newUser.password.trim() !== "") {
-        // Email sending would happen here in your actual application
-        console.log("Password would be sent via email to:", newUser.email);
+        // await emailjs.send(
+        //   "service_2xk0xdb",  
+        //   "template_mq4w3fc",    
+        //   {
+        //     to_name: newUser.name,
+        //     to_email: newUser.email,
+        //     password: newUser.password,
+        //   },
+        //   "JVeTTsN2NUeZ0UlPA"
+        // );
       }
 
       setUsers([

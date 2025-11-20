@@ -33,25 +33,22 @@ export default function LabProgramsPage() {
       "Data Science",
       "Cyber Security",
       "Full Stack Development",
-      "Blockchain",
+      "AI & Robotics",
+      "UI & UX",
     ],
     "BCA": [
       "AI & DS",
-      "Cloud Computing",
-      "Full Stack Development",
-      "Mobile App Development",
+      "Cyber Security",
     ],
     "MCA": [
       "AI & ML",
-      "Data Analytics",
-      "Software Engineering",
     ],
-    "M.Tech": [
+    "B.SC": [
+      "Computer Science",
       "Data Science",
-      "VLSI Design",
-      "Embedded Systems",
-      "AI & Robotics",
+      "Cyber Security",
     ],
+    "M.Tech": [],
   };
 
   // Responsive breakpoint detection
@@ -182,7 +179,7 @@ export default function LabProgramsPage() {
   };
 
   const handleAddProgramSubmit = async () => {
-    if (!formData.programName || !formData.section || !formData.semester || !formData.batchStart || !formData.batchEnd) {
+    if (!formData.programName || !formData.semester || !formData.batchStart || !formData.batchEnd) {
       alert('Please fill all fields');
       return;
     }
@@ -816,7 +813,7 @@ export default function LabProgramsPage() {
                         </svg>
                         Section
                       </span>
-                      <span style={styles.infoValue}>Section {program.Program_Section}</span>
+                      <span style={styles.infoValue}>Section {program.Program_Section || "None"}</span>
                     </div>
                     
                     <div style={styles.infoBlock}>
@@ -836,7 +833,7 @@ export default function LabProgramsPage() {
                         </svg>
                         Group
                       </span>
-                      <span style={styles.infoValue}>{program.Program_Group}</span>
+                      <span style={styles.infoValue}>{program.Program_Group || "None"}</span>
                     </div>
                     
                     <div style={styles.infoBlock}>
@@ -917,6 +914,7 @@ export default function LabProgramsPage() {
                 <option value="">Select program name</option>
                 <option value="B.Tech">B.Tech CSE</option>
                 <option value="BCA">BCA (H)</option>
+                <option value="B.SC">B.SC</option>
                 <option value="MCA">MCA</option>
                 <option value="M.Tech">M.Tech</option>
               </select>

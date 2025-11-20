@@ -28,9 +28,18 @@ export async function POST(req) {
       );
     }
 
-    const existingSlot = await Timetable.findOne({ Day: Day, TimeSlot: TimeSlot, Lab: id });
+    const existingSlot = await Timetable.findOne({
+      Day: Day,
+      TimeSlot: TimeSlot,
+      Lab: id,
+      $or: [
+        { Faculty: Faculty, Program: Program },
+        { Faculty: null }
+      ]
+    });
+
     if (existingSlot) {
-      return NextResponse.json({ error: "Slot at this Day and Time already exists" }, { status: 409 });
+      return NextResponse.json({ error: "Slot at this Day and Time already exists for this Program and Faculty" }, { status: 409 });
     }
 
     const newBooking = await Timetable.create({

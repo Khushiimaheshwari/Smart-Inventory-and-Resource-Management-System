@@ -227,8 +227,8 @@ const LabTimetablePage = () => {
     const relatedFaculties = relatedSubjects.flatMap((subj) =>
       subj.Programs.flatMap((p) =>
         p.Subject.map((ps) => ({
-          Faculty_ID: ps.Faculty_Assigned || "Not Assigned",
-          Faculty_Name: ps.Faculty_Assigned || "Not Assigned",
+          Faculty_ID: ps.Faculty_Assigned._id || "Not Assigned",
+          Faculty_Name: ps.Faculty_Assigned.Name || "Not Assigned",
         }))
       )
     );

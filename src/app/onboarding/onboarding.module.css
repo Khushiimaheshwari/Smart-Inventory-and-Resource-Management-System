@@ -10,7 +10,7 @@
   overflow-y:hidden;
 }
 
-/* Form Wrapper */
+/* Form Wrapper */ 
 .formsWrapper {
   position: relative;
   width: 35%;
@@ -44,6 +44,29 @@
   height: 4px;
   background: linear-gradient(90deg, #00c97b 0%, #00b8d9 100%);
   border-radius: 20px 20px 0 0;
+}
+
+.arrowContainer{
+  display: flex;
+}
+
+.arrowBtn{
+  padding: 12px 16px;
+  background: white;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: clamp(13px, 3vw, 14px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #2d3748;
+  white-space: nowrap;
+}
+
+.arrowBtn:hover {
+  border-color: #00c97b;
+  background: #f7fafc;
+  transform: translateY(-1px);
 }
 
 /* Titles and Text */

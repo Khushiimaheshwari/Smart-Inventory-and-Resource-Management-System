@@ -57,13 +57,17 @@ export const authOptions = {
 
   callbacks: {
     async signIn({ user, account }) {
-      // ⭐ Allow Credential logins for ANY user
       if (account.provider !== "azure-ad") {
         return true;
       }
 
-      // ⭐ Restrict Azure AD users to @krmu.edu.in
-      if (!user.email?.endsWith("@krmu.edu.in")) {
+      const allowedDomains = ["@krmu.edu.in", "@krmangalam.edu.in"];
+
+      const isAllowed = allowedDomains.some((domain) =>
+        user.email?.endsWith(domain)
+      );
+
+      if (!isAllowed) {
         return false;
       }
 
@@ -71,15 +75,7 @@ export const authOptions = {
       let existingUser = await User.findOne({ Email: user.email });
 
       if (!existingUser) {
-        const dummyPassword = await bcrypt.hash("azure-ad-login", 10);
-
-        existingUser = await User.create({
-          Name: user.name || "Unknown",
-          Email: user.email,
-          Password: dummyPassword,
-          ProfileImage: user.image || "",
-          Role: "faculty",
-        });
+        return false;
       }
 
       return true;

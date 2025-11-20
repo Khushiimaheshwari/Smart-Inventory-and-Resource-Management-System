@@ -10,7 +10,7 @@ export async function POST(req) {
 
     const { programName, section, semester, group, batch, subjects } = body;
 
-    if (!programName || !section || !semester || !batch) {
+    if (!programName || !semester || !batch) {
       return NextResponse.json(
         { error: "Missing required fields." },
         { status: 400 }
@@ -20,7 +20,7 @@ export async function POST(req) {
     const newProgram = new Programs({
       Program_Name: programName.trim(),
       Program_Section: section,
-      Program_Semester: semester,
+      Program_Semester: semester || "-",
       Program_Group: group || "-",
       Program_Batch: batch,
       Subject:
@@ -42,7 +42,9 @@ export async function POST(req) {
           if (sub.Subject_ID) {
             await SubjectList.findByIdAndUpdate(
               sub.Subject_ID,
-              { Programs: savedProgram._id },
+              {
+                $addToSet: { Programs: savedProgram._id }  
+              },
               { new: true }
             );
           }

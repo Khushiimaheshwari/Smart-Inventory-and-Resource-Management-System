@@ -37,6 +37,7 @@ const LabTimetablePage = () => {
     EndTimeSlot: "",
     Lab: id, 
   });
+  const [visibleEventIndex, setVisibleEventIndex] = useState({});
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [filteredFaculties, setFilteredFaculties] = useState([]);
 
@@ -227,8 +228,8 @@ const LabTimetablePage = () => {
     const relatedFaculties = relatedSubjects.flatMap((subj) =>
       subj.Programs.flatMap((p) =>
         p.Subject.map((ps) => ({
-          Faculty_ID: ps.Faculty_Assigned || "Not Assigned",
-          Faculty_Name: ps.Faculty_Assigned || "Not Assigned",
+          Faculty_ID: ps.Faculty_Assigned._id || "Not Assigned",
+          Faculty_Name: ps.Faculty_Assigned.Name || "Not Assigned",
         }))
       )
     );
@@ -354,11 +355,11 @@ const LabTimetablePage = () => {
     return hours * 60 + minutes;
   };
 
-  const getEventForSlot = (day, timeSlot) => {
+  const getEventsForSlot = (day, timeSlot) => {
     const slotStart = timeSlot.split(' - ')[0];
     const slotMinutes = timeToMinutes(slotStart);
-    
-    return timetableData.find((event) => {
+
+    return timetableData.filter((event) => {
       if (event.day.toLowerCase() !== day.toLowerCase()) return false;
       const startMinutes = timeToMinutes(event.startTime);
       const endMinutes = timeToMinutes(event.endTime);
@@ -398,7 +399,23 @@ const LabTimetablePage = () => {
     setCurrentWeek(newDate);
   };
 
-  const renderedEvents = {};
+  const eventColorMap = {};
+  let colorCounter = 0;
+
+  const getEventColorIndex = (event, day, timeSlot) => {
+    const eventId = `${event.subject}-${event.course}-${event.faculty}-${day}-${timeSlot}`;
+    
+    if (eventColorMap[eventId] === undefined) {
+      eventColorMap[eventId] = colorCounter % colors.length;
+      colorCounter++;
+    }
+    
+    return eventColorMap[eventId];
+  };
+
+  const filteredPrograms = programs.filter(program =>
+    program.Subject?.some(sub => sub.Lab_Allocated === id)
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -431,6 +448,15 @@ const LabTimetablePage = () => {
         alert("Timetable Slot Booked successfully!");
         fetchLab();
         setShowForm(false);
+        setFormData({
+          Subject: "",
+          Program: "",
+          Faculty: "",
+          Day: "",
+          StartTimeSlot: "",
+          EndTimeSlot: "",
+          Lab: id, 
+        })
       } else {
         alert(data.error || "Failed to book slot");
       }
@@ -1610,42 +1636,78 @@ const LabTimetablePage = () => {
           ))}
 
           {/* Time Slots and Events */}
-          {timeSlots.map((time, timeIndex) => (
+          {timeSlots.map((time) => (
             <React.Fragment key={time}>
               <div style={styles.timeSlot}>{time}</div>
               {days.map((day) => {
-                const event = getEventForSlot(day, time);
-                const eventKey = event ? `${event.id}-${day}` : null;
+                const events = getEventsForSlot(day, time);
+                const eventKey = `${day}-${time}`;
 
-                if (event && isEventStart(event, time) && !renderedEvents[eventKey]) {
-                  renderedEvents[eventKey] = true;
-                  const rowSpan = calculateRowSpan(event);
+                if (!events || events.length === 0) {
+                  return <div key={eventKey} style={styles.emptyCell}></div>;
+                }
 
-                  return (
-                    <div
-                      key={`${day}-${time}`}
-                      style={{
-                        ...styles.emptyCell,
-                        ...styles.eventCell,
-                        background: event.color,
-                        gridRow: `span ${rowSpan}`,
-                      }}
-                    >
-                      <div style={styles.eventTitle}>{event.subject}</div>
-                      <div style={styles.eventDetails}>{event.course}</div>
-                      <div style={styles.eventDetails}>{event.faculty}</div>
-                      <div style={styles.eventDetails}>
-                        {formatTime(event.startTime)} - {formatTime(event.endTime)}
-                      </div>
+                const firstEvent = events[0];
+                if (!isEventStart(firstEvent, time)) return null;
+
+                const rowSpan = calculateRowSpan(firstEvent);
+                const visibleIndex = visibleEventIndex[eventKey] || 0;
+                const eventToShow = events[visibleIndex];
+                
+                const colorIndex = getEventColorIndex(eventToShow, day, time);
+
+                return (
+                  <div
+                    key={eventKey}
+                    style={{
+                      ...styles.emptyCell,
+                      ...styles.eventCell,
+                      background: colors[colorIndex],
+                      gridRow: `span ${rowSpan}`,
+                      position: 'relative',
+                    }}
+                  >
+                    <div style={styles.eventTitle}>{eventToShow.subject}</div>
+                    <div style={styles.eventDetails}>{eventToShow.course}</div>
+                    {/* <div style={styles.eventDetails}>{eventToShow.faculty}</div> */}
+                    <div style={styles.eventDetails}>
+                      {formatTime(eventToShow.startTime)} - {formatTime(eventToShow.endTime)}
                     </div>
-                  );
-                }
 
-                if (!event) {
-                  return <div key={`${day}-${time}`} style={styles.emptyCell}></div>;
-                }
-
-                return null;
+                    {events.length > 1 && (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '2px',
+                        right: '2px',
+                        display: 'flex',
+                        gap: '2px',
+                      }}>
+                        <button
+                          style={styles.arrowButton}
+                          onClick={() =>
+                            setVisibleEventIndex({
+                              ...visibleEventIndex,
+                              [eventKey]: (visibleIndex - 1 + events.length) % events.length
+                            })
+                          }
+                        >
+                          ◀
+                        </button>
+                        <button
+                          style={styles.arrowButton}
+                          onClick={() =>
+                            setVisibleEventIndex({
+                              ...visibleEventIndex,
+                              [eventKey]: (visibleIndex + 1) % events.length
+                            })
+                          }
+                        >
+                          ▶
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
               })}
             </React.Fragment>
           ))}
@@ -1664,7 +1726,9 @@ const LabTimetablePage = () => {
               style={styles.select}
             >
               <option value="">Select Program</option>
-              {programs.map(p => (               
+              {console.log(filteredPrograms)}
+              
+              {filteredPrograms.map(p => (               
                 (<option key={p._id} value={p._id}>{ p.Program_Section + " - " + p.Program_Name + " - Sem " + p.Program_Semester + " " + p.Program_Batch + " " + p.Program_Group}</option>)
               ))}
             </select>

@@ -35,32 +35,26 @@ export default function OnboardingPage() {
           }
         } catch (err) {
           console.error("Error fetching profile:", err);
-        } finally {
-          setLoading(false);
-        }
+        } 
       };
   
       fetchProfile();
     }, []);
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Go to next step
   const handleNextStep = (e) => {
     e.preventDefault();
     setStep(2);
   };
 
-  // Go back to previous step
   const handleBackStep = () => {
     setStep(1);
   };
 
-  // Handle avatar upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -69,7 +63,6 @@ export default function OnboardingPage() {
     }
   };
 
-  // Generate random avatar
   const generateRandomAvatar = () => {
     const randomId = Math.floor(Math.random() * 1000);
     const url = `https://api.dicebear.com/7.x/adventurer/svg?seed=${randomId}`;
@@ -84,7 +77,6 @@ export default function OnboardingPage() {
     try {
       let res;
 
-      // Case 1: avatar is a File (uploaded image)
       if (formData.avatar instanceof File) {
         const data = new FormData();
         data.append("fullName", formData.fullName);
@@ -97,7 +89,7 @@ export default function OnboardingPage() {
           body: data,
         });
       } 
-      // Case 2: avatar is a URL (dicebear/pravatar)
+
       else {
         res = await fetch("/api/auth/onboarding", {
           method: "POST",
@@ -140,7 +132,6 @@ export default function OnboardingPage() {
     <div className={styles.container}>
       <div className={styles.formsWrapper}>
 
-        {/* Step 1 */}
         <form
           onSubmit={handleNextStep}
           className={styles.form}
@@ -195,7 +186,6 @@ export default function OnboardingPage() {
           </div>
         </form>
 
-        {/* Step 2 */}
         <form
           onSubmit={handleFinalSubmit}
           className={styles.form}

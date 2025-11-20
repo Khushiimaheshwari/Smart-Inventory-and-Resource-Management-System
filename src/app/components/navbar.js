@@ -16,7 +16,7 @@ export default function Navbar() {
         <Link href="/">
           <Image
       src="/logo.png"
-      alt="Asserta Logo"
+      alt="Lab360 Logo"
       width={120}
       height={40}
       priority
@@ -35,8 +35,8 @@ export default function Navbar() {
 
       {/* Desktop Right Side: Login + Profile */}
       <div className={styles.desktopActions}>
-        <Link href="/signup">
-          <button className={styles.loginBtn}>Login/Signup</button>
+        <Link href="/login">
+          <button className={styles.loginBtn}>Login</button>
         </Link>
 
       </div>

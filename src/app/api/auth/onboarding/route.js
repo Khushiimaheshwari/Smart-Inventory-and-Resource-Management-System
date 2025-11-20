@@ -1,30 +1,19 @@
 import { NextResponse } from "next/server";
 import { updateUserProfile } from "../../../../models/User.js";
-import jwt from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../[...nextauth]/route.js";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 export async function POST(req) {
   try {
     let userId;
 
-    const token = req.cookies.get("token")?.value;
-    if (token) {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      userId = decoded.userId;
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    if (!userId) {
-      const session = await getServerSession(authOptions);
-      if (!session || !session.user?.id) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-      userId = session.user.id;
-    }
+    userId = session.user.id;
 
     let profileImage;
 
