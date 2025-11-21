@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { connectDB } from "../../../../app/api/utils/db";
 import SubjectList from "../../../../models/Subject_List";
 import Programs from "../../../../models/Programs";
+import Lab from "../../../../models/Labs";
+import Faculty from "../../../../models/Faculty";
 
 export async function GET(req) {
   try {

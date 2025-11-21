@@ -1,16 +1,94 @@
 "use client";
+import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function Dashboard() {
-  const [metrics] = useState({
-    totalAssets: 3245,
-    totalLabs:19,
-    totalSubjects:73,
-    totalPrograms: 12,
-    totalTechnicians:29,
-    totalFaculty:72,
+  const [loading, setLoading] = useState(true);
+  const [metrics, setMetrics] = useState({
+    totalAssets: 0,
+    totalLabs: 0,
+    totalSubjects: 0,
+    totalPrograms: 0,
+    totalTechnicians: 0,
+    totalFaculty: 0,
   });
+  const [assetCategoryData, setAssetCategoryData] = useState([]);
+  const [labDistributionData, setLabDistributionData] = useState([]);
+  const [facultyDistributionData, setFacultyDistributionData] = useState([]);
+  const [assetBreakdown, setAssetBreakdown] = useState([]);
+  const [subjectsByProgram, setSubjectsByProgram] = useState([]);
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchMetrics()
+        ]);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAllData();
+  }, []);
+
+  async function fetchMetrics() {
+    try {
+      const res = await fetch("/api/admin/getMetricsCount"); 
+      const data = await res.json();
+      if (data.metrics) {
+        setMetrics(data.metrics);
+        setAssetCategoryData(data.assetCategoryData);
+        setLabDistributionData(data.labDistributionData);
+        setFacultyDistributionData(data.facultyDistributionData);
+        console.log(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch metrics:", err);
+    }
+  }
+
+  async function fetchAssetBreakdown() {
+    try {
+      const res = await fetch("/api/admin/getAssetBreakdown");
+
+      const data = await res.json();
+
+      if (data.assetBreakdown) {
+        console.log(data);
+        setAssetBreakdown(data.assetBreakdown)
+      };
+      
+    } catch (err) {
+      console.error("Failed to fetch asset breakdown:", err);
+    }
+  }
+
+  async function fetchSubjectsByProgram() {
+    try {
+      const res = await fetch("/api/admin/getDashboardProgram");
+
+      const data = await res.json();
+
+      if (data.programs) {
+        console.log(data);
+        setSubjectsByProgram(data.programs)
+      };
+
+    } catch (err) {
+      console.error("Failed to fetch subjects by program:", err);
+    }
+  }
+
+  useEffect(() => {
+    fetchMetrics();
+    fetchAssetBreakdown();
+    fetchSubjectsByProgram();
+  }, []);
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -23,40 +101,6 @@ export default function Dashboard() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  const assetCategoryData = [
-    { name: 'Technical', value:19, color: '#10b981' },
-    { name: 'Non-Technical', value:0, color: '#3b82f6' },
-  ];
-
-  const labDistributionData = [
-    { name: 'Computer Science', value:19, color: '#10b981' },
-    { name: 'Chemistry', value:0, color: '#3b82f6' },
-    { name: 'Mechanics', value:0, color: '#f59e0b' },
-    { name: 'Electronics', value:0, color: '#8b5cf6' },
-    { name: 'Others', value:0, color: '#ec4899' },
-  ];
-
-  const facultyDistributionData = [
-    { name: 'Professors', value:3, color: '#10b981' },
-    { name: 'Assistant Professors', value:54, color: '#3b82f6' },
-    { name: 'Visiting Faculty', value:29, color: '#f59e0b' },
-  ];
-
-  const assetBreakdown = [
-    { category: 'Keyboards', total:851, iMaC:18, hp:200, lenovo:633},
-    { category: 'Mouse', total:851, iMaC:18, hp:200, lenovo:633 },
-    { category: 'PCs/Desktops', total:851, iMaC:18, hp:200, lenovo:633 },
-  ]
-
-  const subjectsByProgram = [
-    { program: 'B.Tech CSE (AI & ML) - Batch 2025', subjects: 7 },
-    { program: 'B.Tech CSE (Data Science) - Batch 2025', subjects: 7 },
-    { program: 'B.Tech CSE (AI & Robotics) - Batch 2025', subjects: 7 },
-    { program: 'B.Tech Cyber Security - Batch 2025', subjects: 7 },
-    { program: 'B.Tech CSE ( UI & UX) - Batch 2025', subjects: 7 },
-    { program: 'Others', subjects: 17 },
-  ];
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
     const RADIAN = Math.PI / 180;
@@ -77,6 +121,33 @@ export default function Dashboard() {
       </text>
     );
   };
+
+  const styles = {
+    container: {
+      width: isMobile ? '100%' : 'calc(100% - 255px)',
+      minHeight: '100vh',
+      backgroundColor: '#f9fafb',
+      padding: isMobile ? '1rem' : '2rem',
+      boxSizing: 'border-box',
+      marginLeft: isMobile ? '0' : '255px',
+      overflowX: 'hidden',
+    },
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
+    }
+  }
 
   const containerStyle = {
     width: isMobile ? '100%' : 'calc(100% - 255px)',
@@ -204,6 +275,17 @@ export default function Dashboard() {
   };
 
   const iconSize = isMobile ? '32px' : '40px';
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={containerStyle}>
@@ -384,6 +466,7 @@ export default function Dashboard() {
               
                 <th style={thStyle}>HP</th>
                 <th style={thStyle}>Lenovo</th>
+                <th style={thStyle}>Mac</th>
                
               </tr>
             </thead>
@@ -395,6 +478,7 @@ export default function Dashboard() {
                   
                   <td style={tdStyle}>{item.hp}</td>
                   <td style={tdStyle}>{item.lenovo}</td>
+                  <td style={tdStyle}>{item.imac}</td>
                   
                 </tr>
               ))}
@@ -405,8 +489,8 @@ export default function Dashboard() {
 
       <div style={detailsSectionStyle}>
         <div style={chartHeaderStyle}>
-          <div style={chartTitleStyle}>Subjects by Program</div>
-          <div style={chartSubtitleStyle}>Subject distribution across batches</div>
+          <div style={chartTitleStyle}>Programs</div>
+          <div style={chartSubtitleStyle}>Subject distribution across programs</div>
         </div>
         <div style={programGridStyle}>
           {subjectsByProgram.map((item) => (
