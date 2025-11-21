@@ -23,19 +23,7 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: "Lab PC not found" }, { status: 404 });
     }
 
-    const filteredAssets = pc.Assets.map(asset => ({
-      ...asset.toObject(),
-      Issue_Reported: asset.Issue_Reported.filter(
-        issue => issue.Status !== "approved"
-      )
-    }));
-
-    const responseData = {
-      ...pc.toObject(),
-      Assets: filteredAssets
-    };
-
-    return NextResponse.json({ pc: responseData });
+    return NextResponse.json({ pc: pc });
     
   } catch (error) {
     console.error("Error fetching PC", error);

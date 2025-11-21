@@ -28,7 +28,6 @@ export async function POST(req) {
       Brand: Brand,
       PC_Name: [new mongoose.Types.ObjectId(PC)],
       Lab_Name: [new mongoose.Types.ObjectId(Lab)],
-      Issue_Reported: "",
       QR_Code: "",
     });
 

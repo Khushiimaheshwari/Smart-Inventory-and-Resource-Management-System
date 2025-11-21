@@ -80,7 +80,7 @@ function AssetsPage() {
           Brand: newAsset.Brand,
           PC: pcData._id,
           Lab: pcData.Lab?._id,
-        }),
+        }), 
       });
 
       const data = await res.json();
