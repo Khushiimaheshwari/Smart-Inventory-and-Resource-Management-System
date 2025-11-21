@@ -1,20 +1,20 @@
 /* body, html {
   overflow-x: hidden;
   height: 100%;
-}
+} */
 
 /* Hide scrollbar for Chrome, Safari and Opera */
-body::-webkit-scrollbar,
+/* body::-webkit-scrollbar,
 .signup-container::-webkit-scrollbar {
   display: none;
-}
+} */
 
 /* Hide scrollbar for IE, Edge and Firefox */
-body,
+/* body,
 .signup-container {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
-} */
+}  */
 
 .signup-container {
   min-height: 100vh;
