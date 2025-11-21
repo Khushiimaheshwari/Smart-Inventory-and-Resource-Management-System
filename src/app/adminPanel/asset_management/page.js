@@ -217,6 +217,15 @@ export default function AssetManagement() {
   };
 
   const styles = {
+    container: {
+      width: isMobile ? '100%' : 'calc(100% - 255px)',
+      minHeight: '100vh',
+      backgroundColor: '#f9fafb',
+      padding: isMobile ? '1rem' : '2rem',
+      boxSizing: 'border-box',
+      marginLeft: isMobile ? '0' : '255px',
+      overflowX: 'hidden',
+    },
     loaderContainer: {
       display: 'flex',
       justifyContent: 'center',
@@ -231,15 +240,6 @@ export default function AssetManagement() {
       color: '#6b7280',
       fontSize: '16px',
       fontWeight: '500',
-    },
-    container: {
-      width: isMobile ? '100%' : 'calc(100% - 255px)',
-      minHeight: '100vh',
-      backgroundColor: '#f9fafb',
-      padding: isMobile ? '1rem' : '2rem',
-      boxSizing: 'border-box',
-      marginLeft: isMobile ? '0' : '255px',
-      overflowX: 'hidden',
     },
     header: {
       display: 'flex',

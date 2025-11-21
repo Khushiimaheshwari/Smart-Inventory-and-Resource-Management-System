@@ -147,14 +147,11 @@ const LabTimetablePage = () => {
     const relatedFaculties = relatedSubjects.flatMap((subj) =>
       subj.Programs.flatMap((p) =>
         p.Subject.map((ps) => ({
-          Faculty_ID: ps.Faculty_Assigned || "Not Assigned",
-          Faculty_Name: ps.Faculty_Assigned || "Not Assigned",
+          Faculty_ID: ps.Faculty_Assigned._id || "Not Assigned",
+          Faculty_Name: ps.Faculty_Assigned.Name || "Not Assigned",
         }))
       )
     );
-
-    console.log(relatedSubjects);
-    console.log(relatedFaculties);
     
     setFilteredSubjects(relatedSubjects);
     setFilteredFaculties(relatedFaculties);
@@ -1415,7 +1412,7 @@ const LabTimetablePage = () => {
       </div>
 
       {/* Book Timetable Slot */}
-      {showForm && (
+      {showForm && ( 
         <div style={styles.overlay}>
           <div style={styles.modalTT}>
             <h2 style={styles.heading}>New Booking</h2>
@@ -1426,7 +1423,8 @@ const LabTimetablePage = () => {
               style={styles.select}
             >
               <option value="">Select Program</option>
-              {programs.map(p => (               
+              {programs.map(p => (     
+                          
                 (<option key={p._id} value={p._id}>{ p.Program_Section + " - " + p.Program_Name + " - Sem " + p.Program_Semester + " " + p.Program_Batch + " " + p.Program_Group}</option>)
               ))}
             </select>
@@ -1450,7 +1448,6 @@ const LabTimetablePage = () => {
               disabled={!formData.Program || !filteredFaculties.length}              
             >
               <option value="">Select Faculty</option>
-              {console.log(faculties)}
               {filteredFaculties.map(f => (
                 <option key={f.Faculty_ID} value={f.Faculty_ID}>
                   {f.Faculty_Name}

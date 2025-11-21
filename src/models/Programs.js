@@ -3,9 +3,9 @@ import { connectDB } from "../app/api/utils/db.js";
 
 const ProgramsSchema = new mongoose.Schema({
   Program_Name: { type: String, required: true },
-  Program_Section: { type: String, required: true },
+  Program_Section: { type: String },
   Program_Semester: { type: String, required: true },
-  Program_Group: { type: String, required: true },
+  Program_Group: { type: String },
   Program_Batch: { type: String, required: true },
   Subject:[{
     Subject_ID: { type: mongoose.Schema.Types.ObjectId, ref: "SubjectList" },

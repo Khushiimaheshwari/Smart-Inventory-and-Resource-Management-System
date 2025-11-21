@@ -692,7 +692,15 @@ export default function LabManagement() {
 
               <div style={styles.formGroup}>
                 <label style={styles.label}>Lab Name</label>
-                <input type="text" style={styles.input} value={newLab.name} onChange={(e) => setNewLab({...newLab, name: e.target.value})} placeholder="Enter lab name" />
+                {/* <input type="text" style={styles.input} value={newLab.name} onChange={(e) => setNewLab({...newLab, name: e.target.value})} placeholder="Enter lab name" /> */}
+                <select style={styles.select} value={newLab.name} onChange={(e) => setNewLab({...newLab, name: e.target.value})}>
+                  <option value="">Select Lab Name</option>
+                  <option value="Computer Science Lab">Computer Science Lab</option>
+                  <option value="Chemistry Lab">Chemistry Lab</option>
+                  <option value="Mechanics Lab">Mechanics Lab</option>
+                  <option value="Electronics Lab">Electronics Lab</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
 
               <div style={styles.formGroup}>

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { X, ChevronDown, Loader2 } from 'lucide-react';
+import emailjs from "@emailjs/browser";
 
 export default function FacultyManagement() {
   const [faculty, setFaculty] = useState([]);
@@ -225,7 +226,7 @@ export default function FacultyManagement() {
     if (!newFaculty.name || !newFaculty.email || !newFaculty.password) {
       alert("Please fill all required fields");
       return;
-    }
+    } 
 
     setSaving(true);
     const payload = {
@@ -255,6 +256,17 @@ export default function FacultyManagement() {
         alert(data.error || "Something went wrong!");
         return;
       }
+
+      // await emailjs.send(
+      //   "service_2xk0xdb",  
+      //   "template_mq4w3fc",    
+      //   {
+      //     to_name: newFaculty.name,
+      //     to_email: newFaculty.email,
+      //     password: newFaculty.password,
+      //   },
+      //   "JVeTTsN2NUeZ0UlPA"
+      // );
 
       alert("Faculty added successfully!");
       setShowAddModal(false);
@@ -328,6 +340,19 @@ export default function FacultyManagement() {
       if (!res.ok) {
         alert(data.error || "Something went wrong!");
         return;
+      }
+
+      if (newFaculty.password && newFaculty.password.trim() !== "") {
+        // await emailjs.send(
+        //   "service_2xk0xdb",  
+        //   "template_mq4w3fc",    
+        //   {
+        //     to_name: newFaculty.name,
+        //     to_email: newFaculty.email,
+        //     password: newFaculty.password,
+        //   },
+        //   "JVeTTsN2NUeZ0UlPA"
+        // );
       }
 
       alert("Faculty updated successfully!");

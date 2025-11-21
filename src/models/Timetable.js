@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+ 
 const TimetableSchema = new mongoose.Schema({
   Lab: {
     type: mongoose.Schema.Types.ObjectId, ref: "Lab", required: true,
