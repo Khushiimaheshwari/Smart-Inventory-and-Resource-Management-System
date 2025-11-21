@@ -1,16 +1,72 @@
 "use client";
+import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function Dashboard() {
-  const [metrics] = useState({
-    totalAssets: 3245,
-    totalLabs:19,
-    totalSubjects:73,
-    totalPrograms: 12,
-    totalTechnicians:29,
-    totalFaculty:72,
+  const [loading, setLoading] = useState(true);
+  const [metrics, setMetrics] = useState({
+    totalAssets: 0,
+    totalLabs: 0,
+    totalSubjects: 0,
+    totalPrograms: 0,
+    totalTechnicians: 0,
+    totalFaculty: 0,
   });
+  const [assetCategoryData, setAssetCategoryData] = useState([]);
+  const [labDistributionData, setLabDistributionData] = useState([]);
+  const [facultyDistributionData, setFacultyDistributionData] = useState([]);
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchMetrics()
+        ]);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAllData();
+  }, []);
+
+  async function fetchMetrics() {
+    try {
+      const res = await fetch("/api/faculty/getMetricsCount"); 
+      const data = await res.json();
+      if (data.metrics) {
+        setMetrics(data.metrics);
+        setAssetCategoryData(data.assetCategoryData);
+        setLabDistributionData(data.labDistributionData);
+        console.log(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch metrics:", err);
+    }
+  }
+
+  async function fetchFaculty() {
+    try {
+      const res = await fetch("/api/faculty/getFacultyDistribution"); 
+      const data = await res.json();
+      if (data.facultyDistributionData) {
+        setFacultyDistributionData(data.facultyDistributionData);
+        console.log(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch metrics:", err);
+    }
+  }
+
+
+  useEffect(() => {
+    fetchMetrics();
+    fetchFaculty();
+  }, []);
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -23,40 +79,6 @@ export default function Dashboard() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  const assetCategoryData = [
-    { name: 'Technical', value:19, color: '#10b981' },
-    { name: 'Non-Technical', value:0, color: '#3b82f6' },
-  ];
-
-  const labDistributionData = [
-    { name: 'Computer Science', value:19, color: '#10b981' },
-    { name: 'Chemistry', value:0, color: '#3b82f6' },
-    { name: 'Mechanics', value:0, color: '#f59e0b' },
-    { name: 'Electronics', value:0, color: '#8b5cf6' },
-    { name: 'Others', value:0, color: '#ec4899' },
-  ];
-
-  const facultyDistributionData = [
-    { name: 'Professors', value:3, color: '#10b981' },
-    { name: 'Assistant Professors', value:54, color: '#3b82f6' },
-    { name: 'Visiting Faculty', value:29, color: '#f59e0b' },
-  ];
-
-  const assetBreakdown = [
-    { category: 'Keyboards', total:851, iMaC:18, hp:200, lenovo:633},
-    { category: 'Mouse', total:851, iMaC:18, hp:200, lenovo:633 },
-    { category: 'PCs/Desktops', total:851, iMaC:18, hp:200, lenovo:633 },
-  ]
-
-  const subjectsByProgram = [
-    { program: 'B.Tech CSE (AI & ML) - Batch 2025', subjects: 7 },
-    { program: 'B.Tech CSE (Data Science) - Batch 2025', subjects: 7 },
-    { program: 'B.Tech CSE (AI & Robotics) - Batch 2025', subjects: 7 },
-    { program: 'B.Tech Cyber Security - Batch 2025', subjects: 7 },
-    { program: 'B.Tech CSE ( UI & UX) - Batch 2025', subjects: 7 },
-    { program: 'Others', subjects: 17 },
-  ];
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
     const RADIAN = Math.PI / 180;
@@ -77,6 +99,33 @@ export default function Dashboard() {
       </text>
     );
   };
+
+  const styles = {
+    container: {
+      width: isMobile ? '100%' : 'calc(100% - 255px)',
+      minHeight: '100vh',
+      backgroundColor: '#f9fafb',
+      padding: isMobile ? '1rem' : '2rem',
+      boxSizing: 'border-box',
+      marginLeft: isMobile ? '0' : '255px',
+      overflowX: 'hidden',
+    },
+    loaderContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#f9fafb',
+      flexDirection: 'column',
+      gap: '1rem',
+    },
+    loaderText: {
+      color: '#6b7280',
+      fontSize: '16px',
+      fontWeight: '500',
+    }
+  }
 
   const containerStyle = {
     width: isMobile ? '100%' : 'calc(100% - 255px)',
@@ -162,48 +211,18 @@ export default function Dashboard() {
     color: '#6b7280' 
   };
 
-  const detailsSectionStyle = {
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    padding: isMobile ? '1rem' : '1.25rem',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    marginBottom: '1.5rem'
-  };
-
-  const tableStyle = { 
-    width: '100%', 
-    borderCollapse: 'collapse', 
-    fontSize: isMobile ? '0.75rem' : '0.875rem' 
-  };
-  const theadStyle = { backgroundColor: '#f9fafb' };
-  const thStyle = { 
-    padding: isMobile ? '0.5rem' : '0.75rem 1rem', 
-    textAlign: 'left', 
-    fontWeight: '600', 
-    color: '#374151', 
-    borderBottom: '2px solid #e5e7eb' 
-  };
-  const tdStyle = { 
-    padding: isMobile ? '0.5rem' : '0.75rem 1rem', 
-    color: '#6b7280', 
-    borderBottom: '1px solid #f3f4f6' 
-  };
-
-  const programGridStyle = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-    gap: '1rem',
-    marginTop: '1rem'
-  };
-
-  const programCardStyle = {
-    backgroundColor: '#f9fafb',
-    borderRadius: '8px',
-    padding: '1rem',
-    borderLeft: '4px solid #10b981'
-  };
-
   const iconSize = isMobile ? '32px' : '40px';
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loaderContainer}>
+          <Loader2 size={48} className="animate-spin" color="#10b981" />
+          <p style={styles.loaderText}>Loading data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={containerStyle}>
@@ -221,7 +240,7 @@ export default function Dashboard() {
               </svg>
             </div>
           </div>
-          <div style={metricValueStyle}>{metrics.totalAssets.toLocaleString()}</div>
+          <div style={metricValueStyle}>{metrics.totalLabAssets.toLocaleString()}</div>
          
         </div>
 
@@ -262,32 +281,6 @@ export default function Dashboard() {
           </div>
           <div style={metricValueStyle}>{metrics.totalPrograms}</div>
          
-        </div>
-
-        <div style={metricCardStyle}>
-          <div style={metricHeaderStyle}>
-            <div style={metricTitleStyle}>Lab Technicians</div>
-            <div style={{ width: iconSize, height: iconSize, borderRadius: '10px', backgroundColor: '#d1fae5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 20 20" fill="currentColor">
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-              </svg>
-            </div>
-          </div>
-          <div style={metricValueStyle}>{metrics.totalTechnicians}</div>
-          
-        </div>
-
-        <div style={metricCardStyle}>
-          <div style={metricHeaderStyle}>
-            <div style={metricTitleStyle}>Total Faculty</div>
-            <div style={{ width: iconSize, height: iconSize, borderRadius: '10px', backgroundColor: '#dbeafe', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-              </svg>
-            </div>
-          </div>
-          <div style={metricValueStyle}>{metrics.totalFaculty}</div>
-          
         </div>
       </div>
 
