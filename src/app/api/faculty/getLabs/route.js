@@ -7,7 +7,7 @@ import { connectDB } from "../../utils/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/authOptions";
 
-export async function GET(req) {
+export async function GET(req) { 
   try {
     await connectDB();
     

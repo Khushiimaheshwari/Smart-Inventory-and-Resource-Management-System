@@ -24,6 +24,10 @@ export default function LabManagement() {
     incharge: '',
   });
 
+  const labIDs = Array.from({ length: 30 }, (_, i) => ({
+    ID: `Lab ${i + 1}`,
+  }));
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -687,7 +691,18 @@ export default function LabManagement() {
               
               <div style={styles.formGroup}>
                 <label style={styles.label}>Lab ID</label>
-                <input type="text" style={styles.input} value={newLab.id} onChange={(e) => setNewLab({...newLab, id: e.target.value})} placeholder="Enter lab Id" />
+                <select
+                    style={styles.select}
+                    value={newLab.id}
+                    onChange={(e) => setNewLab({ ...newLab, id: e.target.value })}
+                  >
+                    <option value="">Select Lab</option>
+                    {labIDs.map((lab) => (
+                      <option key={lab.ID} value={lab.ID}>
+                        {lab.ID}
+                      </option>
+                    ))}
+                  </select>
               </div>
 
               <div style={styles.formGroup}>
