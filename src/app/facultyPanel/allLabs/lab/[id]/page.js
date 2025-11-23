@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Upload, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Upload, ChevronDown, ChevronUp, Loader2, X, Edit, Trash2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 const LabTimetablePage = () => {
@@ -16,6 +16,8 @@ const LabTimetablePage = () => {
   const [showForm, setShowForm] = useState(false);
   const [programs, setPrograms] = useState([]);
   const [faculties, setFaculties] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     Subject: "",
@@ -24,8 +26,10 @@ const LabTimetablePage = () => {
     Day: "",
     StartTimeSlot: "",
     EndTimeSlot: "",
+    Status: "",
     Lab: id, 
   });
+  const [visibleEventIndex, setVisibleEventIndex] = useState({});
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [filteredFaculties, setFilteredFaculties] = useState([]);
 
@@ -60,6 +64,7 @@ const LabTimetablePage = () => {
                   : item.Faculty?.Name || "",
               startTime: start.trim(),
               endTime: end.trim(),
+              status: item.Status,
               color: colors[index % colors.length],
             };
           })
@@ -271,11 +276,11 @@ const LabTimetablePage = () => {
     return hours * 60 + minutes;
   };
 
-  const getEventForSlot = (day, timeSlot) => {
+  const getEventsForSlot = (day, timeSlot) => {
     const slotStart = timeSlot.split(' - ')[0];
     const slotMinutes = timeToMinutes(slotStart);
-    
-    return timetableData.find((event) => {
+
+    return timetableData.filter((event) => {
       if (event.day.toLowerCase() !== day.toLowerCase()) return false;
       const startMinutes = timeToMinutes(event.startTime);
       const endMinutes = timeToMinutes(event.endTime);
@@ -315,12 +320,63 @@ const LabTimetablePage = () => {
     setCurrentWeek(newDate);
   };
 
-  const renderedEvents = {};
+  const eventColorMap = {};
+  let colorCounter = 0;
+
+  const getEventColorIndex = (event, day, timeSlot) => {
+    const eventId = `${event.subject}-${event.course}-${event.faculty}-${day}-${timeSlot}`;
+    
+    if (eventColorMap[eventId] === undefined) {
+      eventColorMap[eventId] = colorCounter % colors.length;
+      colorCounter++;
+    }
+    
+    return eventColorMap[eventId];
+  };
+
+  const handleSlotClick = (event) => {
+    setSelectedSlot(event);
+  };
+
+  const formatStatus = (status) => {    
+    if (typeof status !== 'string') return status;
+    const s = status.trim().toLowerCase();
+    return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+  const handleDeleteSlot = () => {
+    if (selectedSlot) {
+      setTimetableData(timetableData.filter(item => item.id !== selectedSlot.id));
+      setSelectedSlot(null);
+    }
+  };
+
+  const handleEditSlot = () => {
+    if (!selectedSlot) return;
+
+	setFormData({
+		Subject: selectedSlot.subject || "",
+		Program: selectedSlot.course || "",
+		Faculty: selectedSlot.faculty || "",
+		Day: selectedSlot.day || "",
+		StartTimeSlot: selectedSlot.startTime,
+		EndTimeSlot: selectedSlot.endTime,
+		Status: selectedSlot.status || "",
+		Lab: id,
+	});
+
+	setIsEditing(true);
+	setShowForm(true);
+  };
+
+  const filteredPrograms = programs.filter(program =>
+    program.Subject?.some(sub => sub.Lab_Allocated === id)
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.Subject || !formData.Program || !formData.Day || !formData.StartTimeSlot || !formData.EndTimeSlot || !formData.Lab) {
+    if (!formData.Subject || !formData.Program || !formData.Day || !formData.Status || !formData.StartTimeSlot || !formData.EndTimeSlot || !formData.Lab) {
       alert("Please fill in all required fields!");
       return;
     }
@@ -331,6 +387,7 @@ const LabTimetablePage = () => {
       Faculty: formData.Faculty,
       Day: formData.Day,
       TimeSlot: `${formData.StartTimeSlot} - ${formData.EndTimeSlot}`,
+      Status: formData.Status,
       Lab: formData.Lab,
      };
     console.log(payload);
@@ -348,6 +405,55 @@ const LabTimetablePage = () => {
         alert("Timetable Slot Booked successfully!");
         fetchLab();
         setShowForm(false);
+      } else {
+        alert(data.error || "Failed to book slot");
+      }
+    } catch (error) {
+      console.error("Error booking slot:", error);
+      alert("Something went wrong while booking the slot.");
+    }
+  };
+
+  const handleEditSubmit = async (e) => {
+	e.preventDefault();
+
+	console.log(selectedSlot.id);
+
+    const payload = { 
+      Subject: formData.Subject,
+      Program: formData.Program,
+      Faculty: formData.Faculty,
+      Day: formData.Day,
+      TimeSlot: `${formData.StartTimeSlot} - ${formData.EndTimeSlot}`,
+      Status: formData.Status,
+      Lab: formData.Lab,
+     };
+    console.log(payload);
+
+    try {
+	  const res = await fetch(`/api/faculty/editTimetableSlot/${selectedSlot.id}`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(payload),
+	  });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Timetable Slot Booked successfully!");
+        fetchLab();
+        setShowForm(false);
+        setFormData({
+          Subject: "",
+          Program: "",
+          Faculty: "",
+          Day: "",
+          StartTimeSlot: "",
+          EndTimeSlot: "",
+          Status: "",
+          Lab: id, 
+        })
+		setSelectedSlot(null);
       } else {
         alert(data.error || "Failed to book slot");
       }
@@ -836,6 +942,9 @@ const LabTimetablePage = () => {
       backgroundColor: "#10a981",     
       transform: "translateY(-1px)",
     },
+    redirectButton: {
+      color: '#f3f4f6'
+    },
     fileName: {
       fontSize: '14px',
       color: '#374151',
@@ -1034,11 +1143,138 @@ const LabTimetablePage = () => {
       marginBottom: '1rem',
       textAlign: 'center',
     },
+    subHeading: {
+      fontSize: '0.8rem',
+      marginBottom: '1.5rem',
+      textAlign: 'center',
+	  color: '#718096'
+    },
     buttonContainer: {
       display: 'flex',
       justifyContent: 'flex-end',
       gap: '0.75rem',
     },
+    slotOverlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000,
+    },
+    slotModal: {
+      backgroundColor: '#fff',
+      borderRadius: '16px',
+      boxShadow: '0 4px 20px rgba(0, 201, 123, 0.08)',
+      padding: '28px 30px',
+      width: '90%',
+      maxWidth: '500px',
+      position: 'relative'
+    },
+    slotModalHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '24px',
+      paddingBottom: '16px',
+      borderBottom: '2px solid rgba(0, 201, 123, 0.1)'
+    },
+    slotModalTitle: {
+      fontSize: '24px',
+      fontWeight: 700,
+      color: '#2d3748',
+      margin: 0
+    },
+    slotCloseButton: {
+      background: 'transparent',
+      border: 'none',
+      color: '#718096',
+      cursor: 'pointer',
+      padding: '4px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: '6px',
+      transition: 'all 0.2s ease'
+    },
+    slotModalContent: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px'
+    },
+    slotInfoRow: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px'
+    },
+    slotInfoLabel: {
+      fontSize: '12px',
+      color: '#718096',
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px'
+    },
+    slotInfoValue: {
+      fontSize: '15px',
+      color: '#2d3748',
+      fontWeight: 500,
+      padding: '10px',
+      background: '#f7fafc',
+      borderRadius: '8px'
+    },
+    slotStatusBadge: {
+      padding: '8px 16px',
+      borderRadius: '20px',
+      fontSize: '14px',
+      fontWeight: 600,
+      background: 'rgba(0, 201, 123, 0.1)',
+      color: '#00c97b',
+      display: 'inline-block',
+      width: 'fit-content'
+    },
+    slotModalActions: {
+      display: 'flex',
+      gap: '12px',
+      marginTop: '24px',
+      paddingTop: '20px',
+      borderTop: '1px solid #e2e8f0'
+    },
+    slotEditButton: {
+      flex: 1,
+      padding: '12px',
+      background: 'linear-gradient(135deg, #00c97b 0%, #00b8d9 100%)',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      fontSize: '14px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px',
+      transition: 'all 0.3s ease'
+    },
+    slotDeleteButton: {
+      flex: 1,
+      padding: '12px',
+      background: '#ef4444',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      fontSize: '14px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px',
+      transition: 'all 0.3s ease'
+    }
   };
 
   if (loading) {
@@ -1369,62 +1605,164 @@ const LabTimetablePage = () => {
           ))}
 
           {/* Time Slots and Events */}
-          {timeSlots.map((time, timeIndex) => (
+          {timeSlots.map((time) => (
             <React.Fragment key={time}>
               <div style={styles.timeSlot}>{time}</div>
               {days.map((day) => {
-                const event = getEventForSlot(day, time);
-                const eventKey = event ? `${event.id}-${day}` : null;
+                const events = getEventsForSlot(day, time);
+                const eventKey = `${day}-${time}`;
 
-                if (event && isEventStart(event, time) && !renderedEvents[eventKey]) {
-                  renderedEvents[eventKey] = true;
-                  const rowSpan = calculateRowSpan(event);
+                if (!events || events.length === 0) {
+                  return <div key={eventKey} style={styles.emptyCell}></div>;
+                }
 
-                  return (
-                    <div
-                      key={`${day}-${time}`}
-                      style={{
-                        ...styles.emptyCell,
-                        ...styles.eventCell,
-                        background: event.color,
-                        gridRow: `span ${rowSpan}`,
-                      }}
-                    >
-                      <div style={styles.eventTitle}>{event.subject}</div>
-                      <div style={styles.eventDetails}>{event.course}</div>
-                      <div style={styles.eventDetails}>{event.faculty}</div>
-                      <div style={styles.eventDetails}>
-                        {formatTime(event.startTime)} - {formatTime(event.endTime)}
-                      </div>
+                const firstEvent = events[0];
+                if (!isEventStart(firstEvent, time)) return null;
+
+                const rowSpan = calculateRowSpan(firstEvent);
+                const visibleIndex = visibleEventIndex[eventKey] || 0;
+                const eventToShow = events[visibleIndex];
+                
+                const colorIndex = getEventColorIndex(eventToShow, day, time);
+
+                return (
+                  <div
+                    key={eventKey}
+                    style={{
+                      ...styles.emptyCell,
+                      ...styles.eventCell,
+                      background: colors[colorIndex],
+                      gridRow: `span ${rowSpan}`,
+                      position: 'relative',
+                    }}
+                  >
+                    <div style={styles.eventTitle}>{eventToShow.subject}</div>
+                    <div style={styles.eventDetails}>{eventToShow.course}</div>
+                    {/* <div style={styles.eventDetails}>{eventToShow.faculty}</div> */}
+                    <div style={styles.eventDetails}>
+                      {formatTime(eventToShow.startTime)} - {formatTime(eventToShow.endTime)}
                     </div>
-                  );
-                }
 
-                if (!event) {
-                  return <div key={`${day}-${time}`} style={styles.emptyCell}></div>;
-                }
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center',  }}>
 
-                return null;
+                      <button
+                      style={{...styles.iconButton, ...styles.redirectButton}}
+                      onClick={() => handleSlotClick(eventToShow)}
+                      title="View Details"
+                      >
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
+                      </svg>
+                      </button>
+
+                      {events.length > 1 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 8 }}>
+                        <button
+                        style={styles.arrowButton}
+                        onClick={() =>
+                          setVisibleEventIndex({
+                            ...visibleEventIndex,
+                            [eventKey]: (visibleIndex - 1 + events.length) % events.length
+                          })
+                        }
+                        >
+                        ◀
+                        </button>
+                        <button
+                        style={styles.arrowButton}
+                        onClick={() =>
+                          setVisibleEventIndex({
+                            ...visibleEventIndex,
+                            [eventKey]: (visibleIndex + 1) % events.length
+                          })
+                        }
+                        >
+                        ▶
+                        </button>
+                      </div>
+                      )}
+                    </div>
+                  </div>
+                );
               })}
             </React.Fragment>
           ))}
         </div>
       </div>
 
+      {/* Slot Details Popup */}
+      {selectedSlot && (
+        <div style={styles.slotOverlay} onClick={() => setSelectedSlot(null)}>
+          <div style={styles.slotModal} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.slotModalHeader}>
+              <h2 style={styles.slotModalTitle}>Slot Details</h2>
+              <button 
+                style={styles.slotCloseButton}
+                onClick={() => setSelectedSlot(null)}
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div style={styles.slotModalContent}>
+              <div style={styles.slotInfoRow}>
+                <span style={styles.slotInfoLabel}>Subject</span>
+                <span style={styles.slotInfoValue}>{selectedSlot.subject}</span>
+              </div>
+
+              <div style={styles.slotInfoRow}>
+                <span style={styles.slotInfoLabel}>Program</span>
+                <span style={styles.slotInfoValue}>{selectedSlot.course}</span>
+              </div>
+
+              <div style={styles.slotInfoRow}>
+                <span style={styles.slotInfoLabel}>Time Slot</span>
+                <span style={styles.slotInfoValue}>
+                  {selectedSlot.day}, {formatTime(selectedSlot.startTime)} - {formatTime(selectedSlot.endTime)}
+                </span>
+              </div>
+
+              <div style={styles.slotInfoRow}>
+                <span style={styles.slotInfoLabel}>Status</span>
+                <span style={styles.statusBadge}>{formatStatus(selectedSlot.status)}</span>
+              </div>
+            </div>
+
+            <div style={styles.slotModalActions}>
+              <button style={styles.slotEditButton} onClick={handleEditSlot}>
+                <Edit size={18} />
+                Edit
+              </button>
+              <button style={styles.slotDeleteButton} onClick={handleDeleteSlot}>
+                <Trash2 size={18} />
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Book Timetable Slot */}
-      {showForm && ( 
+      {showForm && (
         <div style={styles.overlay}>
           <div style={styles.modalTT}>
-            <h2 style={styles.heading}>New Booking</h2>
+            <h2 style={styles.heading}>{isEditing ? "Edit Booking" : "New Booking"}</h2>
+              {isEditing ? (
+                <p style={styles.subHeading}>Program, Subject and Faculty can not be edited</p>
+              ) : (
+                <></>
+              )}
 
             <select
               value={formData.Program}
               onChange={(e) => handleProgramChange(e.target.value)}
               style={styles.select}
+              disabled={isEditing} 
             >
               <option value="">Select Program</option>
-              {programs.map(p => (     
-                          
+              
+              {filteredPrograms.map(p => (               
                 (<option key={p._id} value={p._id}>{ p.Program_Section + " - " + p.Program_Name + " - Sem " + p.Program_Semester + " " + p.Program_Batch + " " + p.Program_Group}</option>)
               ))}
             </select>
@@ -1432,7 +1770,7 @@ const LabTimetablePage = () => {
             <select
               value={formData.Subject}
               onChange={(e) => setFormData({ ...formData, Subject: e.target.value })}
-              disabled={!formData.Program || !filteredSubjects.length}
+              disabled={!formData.Program || !filteredSubjects.length || isEditing }
               style={styles.select}
             >
               <option value="">Select Subject</option>
@@ -1445,7 +1783,7 @@ const LabTimetablePage = () => {
               value={formData.Faculty}
               onChange={(e) => setFormData({ ...formData, Faculty: e.target.value })}
               style={styles.select}
-              disabled={!formData.Program || !filteredFaculties.length}              
+              disabled={!formData.Program || !filteredFaculties.length || isEditing}              
             >
               <option value="">Select Faculty</option>
               {filteredFaculties.map(f => (
@@ -1484,6 +1822,16 @@ const LabTimetablePage = () => {
               {endTimeSlots.map(slot => <option key={slot} value={slot}>{slot}</option>)}
             </select>
 
+            <select
+              value={formData.Status}
+              onChange={(e) => setFormData({ ...formData, Status: e.target.value })}
+              style={styles.select}
+            >
+              <option value="">Select Status</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="temporary">Temporary</option>
+            </select>
+
             <div style={styles.buttonContainer}>
               <button 
                 onClick={() => {
@@ -1493,8 +1841,8 @@ const LabTimetablePage = () => {
                 style={styles.cancelButton}>
                 Cancel
               </button>
-              <button onClick={handleSubmit} style={styles.saveButton}>
-                Save
+              <button onClick={isEditing ? handleEditSubmit : handleSubmit} style={styles.saveButton}>
+                {isEditing ? "Edit" : "Save"}
               </button>
             </div>
           </div>

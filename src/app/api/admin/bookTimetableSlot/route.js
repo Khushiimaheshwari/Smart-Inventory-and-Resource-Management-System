@@ -11,9 +11,9 @@ export async function POST(req) {
     const body = await req.json();
     console.log(body);
     
-    let { Subject, Program, Faculty , Day, TimeSlot, Lab: id } = body;
+    let { Subject, Program, Faculty , Day, TimeSlot, Status, Lab: id } = body;
 
-    if (!Subject || !Program || !Day || !TimeSlot || !id) {
+    if (!Subject || !Program || !Day || !TimeSlot || !Status || !id) {
       return NextResponse.json({ error: "All details are required" }, { status: 400 });
     }
 
@@ -48,6 +48,7 @@ export async function POST(req) {
       Faculty: Faculty,
       Day: Day,
       TimeSlot: TimeSlot,
+      Status: Status,
       Lab: id,
     });
 

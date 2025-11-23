@@ -16,7 +16,7 @@ export async function GET(req, { params }) {
       .populate("Lab_Incharge", "Name Email")
       .populate({
         path: "TimeTable",
-        select: "_id Subject Program Faculty Day TimeSlot",
+        select: "_id Subject Program Faculty Day TimeSlot Status",
         populate: [
           { path: "Subject", select: "Course_Name Course_Code" },
           { path: "Program", select: "Program_Name Program_Section Program_Semester Program_Batch Program_Group" },

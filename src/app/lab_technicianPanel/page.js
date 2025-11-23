@@ -3,14 +3,18 @@ import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function Dashboard() {
-  const [metrics] = useState({
-    totalAssets: 3245,
-    totalLabs:19,
-    totalSubjects:73,
-    totalPrograms: 12,
-    totalTechnicians:29,
-    totalFaculty:72,
+  const [loading, setLoading] = useState(true);
+  const [metrics, setMetrics] = useState({
+    totalAssets: 0,
+    totalLabs: 0,
+    totalSubjects: 0,
+    totalPrograms: 0,
+    totalTechnicians: 0,
+    totalFaculty: 0,
   });
+  const [assetCategoryData, setAssetCategoryData] = useState([]);
+  const [labDistributionData, setLabDistributionData] = useState([]);
+  const [assetBreakdown, setAssetBreakdown] = useState([]);
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -24,39 +28,58 @@ export default function Dashboard() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const assetCategoryData = [
-    { name: 'Technical', value:19, color: '#10b981' },
-    { name: 'Non-Technical', value:0, color: '#3b82f6' },
-  ];
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchMetrics()
+        ]);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAllData();
+  }, []);
 
-  const labDistributionData = [
-    { name: 'Computer Science', value:19, color: '#10b981' },
-    { name: 'Chemistry', value:0, color: '#3b82f6' },
-    { name: 'Mechanics', value:0, color: '#f59e0b' },
-    { name: 'Electronics', value:0, color: '#8b5cf6' },
-    { name: 'Others', value:0, color: '#ec4899' },
-  ];
+  async function fetchMetrics() {
+    try {
+      const res = await fetch("/api/lab_technician/getMetricsCount"); 
+      const data = await res.json();
+      if (data.metrics) {
+        setMetrics(data.metrics);
+        setAssetCategoryData(data.assetCategoryData);
+        setLabDistributionData(data.labDistributionData);
+        console.log(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch metrics:", err);
+    }
+  }
 
-  const facultyDistributionData = [
-    { name: 'Professors', value:3, color: '#10b981' },
-    { name: 'Assistant Professors', value:54, color: '#3b82f6' },
-    { name: 'Visiting Faculty', value:29, color: '#f59e0b' },
-  ];
+  async function fetchAssetBreakdown() {
+    try {
+      const res = await fetch("/api/lab_technician/getAssetBreakdown");
 
-  const assetBreakdown = [
-    { category: 'Keyboards', total:851, iMaC:18, hp:200, lenovo:633},
-    { category: 'Mouse', total:851, iMaC:18, hp:200, lenovo:633 },
-    { category: 'PCs/Desktops', total:851, iMaC:18, hp:200, lenovo:633 },
-  ]
+      const data = await res.json();
 
-  const subjectsByProgram = [
-    { program: 'B.Tech CSE (AI & ML) - Batch 2025', subjects: 7 },
-    { program: 'B.Tech CSE (Data Science) - Batch 2025', subjects: 7 },
-    { program: 'B.Tech CSE (AI & Robotics) - Batch 2025', subjects: 7 },
-    { program: 'B.Tech Cyber Security - Batch 2025', subjects: 7 },
-    { program: 'B.Tech CSE ( UI & UX) - Batch 2025', subjects: 7 },
-    { program: 'Others', subjects: 17 },
-  ];
+      if (data.assetBreakdown) {
+        console.log(data);
+        setAssetBreakdown(data.assetBreakdown)
+      };
+      
+    } catch (err) {
+      console.error("Failed to fetch asset breakdown:", err);
+    }
+  }
+
+  useEffect(() => {
+    fetchMetrics();
+    fetchAssetBreakdown();
+  }, []);
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
     const RADIAN = Math.PI / 180;
@@ -130,10 +153,6 @@ export default function Dashboard() {
     marginBottom: '0.5rem' 
   };
   
-  const metricChangeStyle = { 
-    fontSize: isMobile ? '0.7rem' : '0.875rem', 
-    color: '#6b7280' 
-  };
 
   const chartsGridStyle = {
     display: 'grid',
@@ -189,20 +208,6 @@ export default function Dashboard() {
     borderBottom: '1px solid #f3f4f6' 
   };
 
-  const programGridStyle = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-    gap: '1rem',
-    marginTop: '1rem'
-  };
-
-  const programCardStyle = {
-    backgroundColor: '#f9fafb',
-    borderRadius: '8px',
-    padding: '1rem',
-    borderLeft: '4px solid #10b981'
-  };
-
   const iconSize = isMobile ? '32px' : '40px';
 
   return (
@@ -235,59 +240,6 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={metricValueStyle}>{metrics.totalLabs}</div>
-          <div style={metricChangeStyle}>5 departments</div>
-        </div>
-
-        <div style={metricCardStyle}>
-          <div style={metricHeaderStyle}>
-            <div style={metricTitleStyle}>Total Subjects</div>
-            <div style={{ width: iconSize, height: iconSize, borderRadius: '10px', backgroundColor: '#ede9fe', color: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 20 20" fill="currentColor">
-                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
-              </svg>
-            </div>
-          </div>
-          <div style={metricValueStyle}>{metrics.totalSubjects}</div>
-          
-        </div>
-
-        <div style={metricCardStyle}>
-          <div style={metricHeaderStyle}>
-            <div style={metricTitleStyle}>Total Programs</div>
-            <div style={{ width: iconSize, height: iconSize, borderRadius: '10px', backgroundColor: '#fed7aa', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
-              </svg>
-            </div>
-          </div>
-          <div style={metricValueStyle}>{metrics.totalPrograms}</div>
-         
-        </div>
-
-        <div style={metricCardStyle}>
-          <div style={metricHeaderStyle}>
-            <div style={metricTitleStyle}>Lab Technicians</div>
-            <div style={{ width: iconSize, height: iconSize, borderRadius: '10px', backgroundColor: '#d1fae5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 20 20" fill="currentColor">
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-              </svg>
-            </div>
-          </div>
-          <div style={metricValueStyle}>{metrics.totalTechnicians}</div>
-          
-        </div>
-
-        <div style={metricCardStyle}>
-          <div style={metricHeaderStyle}>
-            <div style={metricTitleStyle}>Total Faculty</div>
-            <div style={{ width: iconSize, height: iconSize, borderRadius: '10px', backgroundColor: '#dbeafe', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-              </svg>
-            </div>
-          </div>
-          <div style={metricValueStyle}>{metrics.totalFaculty}</div>
-          
         </div>
       </div>
 

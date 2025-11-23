@@ -254,7 +254,6 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={metricValueStyle}>{metrics.totalLabs}</div>
-          <div style={metricChangeStyle}>5 departments</div>
         </div>
 
         <div style={metricCardStyle}>

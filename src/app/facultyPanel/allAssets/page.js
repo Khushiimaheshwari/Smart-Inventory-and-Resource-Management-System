@@ -26,7 +26,7 @@ export default function AssetManagement() {
       try {
         await Promise.all([
           fetchPCs(),
-          fetchLabs()
+          fetchAllLabs()
         ]);
       } catch (error) {
         console.error("Error loading data:", error);
@@ -64,20 +64,30 @@ export default function AssetManagement() {
     }
   };
 
-  const fetchLabs = async () => {
+  const fetchAllLabs = async () => {
     try {
-      const res = await fetch("/api/faculty/getLabs");
-      const data = await res.json();
-      console.log(data);       
+      const [resTaught, resIncharge] = await Promise.all([
+        fetch("/api/faculty/getLabs"),
+        fetch("/api/faculty/fetchInchargeLab")
+      ]);
 
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to fetch labs");
-      }
+      const taughtData = await resTaught.json();
+      const inchargeData = await resIncharge.json();
 
-      setLabs(data.labs.map((l) => {
-        return l.lab;
-      }));
-      
+      if (!resTaught.ok) throw new Error(taughtData.error || "Failed to fetch taught labs");
+      if (!resIncharge.ok) throw new Error(inchargeData.error || "Failed to fetch incharge labs");
+
+      const taughtLabs = (taughtData.labs || []).map(({ lab }) => lab);
+      const inchargeLabs = inchargeData.inchargeLabs || [];
+
+      const merged = Array.from(
+        new Map(
+          [...taughtLabs, ...inchargeLabs].map((lab) => [lab._id, lab])
+        ).values()
+      );
+
+      setLabs(merged);
+
     } catch (err) {
       console.error("Error fetching labs:", err);
       alert("Failed to load labs. Please try again later.");

@@ -50,12 +50,16 @@ const handleLogin = async (e) => {
     email,
     password,
   });
+  console.log(res);
 
   if (res?.error) {
     setError(res.error);
+    alert("Login Failed! Wrong Credentials")
     setLoading(false);
     return;
   }
+
+  alert("Login Successful!")
 
   const sessionRes = await fetch("/api/auth/session");
   const sessionData = await sessionRes.json();

@@ -17,6 +17,7 @@ const TimetableSchema = new mongoose.Schema({
     type: String, enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], required: true,
   },
   TimeSlot: { type: String, required: true,},
+  Status: { type: String, enum:[ "confirmed", "temporary"] }
 }, { timestamps: true });
 
 const Timetable = mongoose.models.Timetable || mongoose.model("Timetable", TimetableSchema);

@@ -23,6 +23,7 @@ export async function GET(req) {
     }
 
     const programSubjectPairs = faculty.ProgramSubjectPairs;
+    const facultyInchargeLabs = faculty.Labs || [];
 
     const results = [];
 
@@ -57,6 +58,23 @@ export async function GET(req) {
             pcs: labPCs
           });
         }
+      }
+    }
+
+    for (const labId of facultyInchargeLabs) {
+      const lab = await Lab.findById(labId)
+        .select("Lab_ID Lab_Name _id")
+        .lean();
+
+      if (lab) {
+        const labPCs = await PCs.find({ Lab: lab._id })
+          .select("PC_Name Assets _id")
+          .lean();
+
+        results.push({
+          lab,
+          pcs: labPCs,
+        });
       }
     }
 
