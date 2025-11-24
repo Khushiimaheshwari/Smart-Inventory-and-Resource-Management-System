@@ -67,54 +67,21 @@ export default function HandoverFormPage() {
   const dummyHandoverForms = [
     {
       _id: '1',
-      formName: 'Lab Equipment Handover - CS Lab 1',
-      labName: 'Computer Science Lab 1',
-      handoverByName: 'Dr. John Smith',
-      handoverByDesignation: 'Professor',
-      handoverToName: 'Dr. Sarah Johnson',
-      handoverToDesignation: 'Associate Professor',
-      handoverDate: '2024-01-15',
+      formName: 'Lab Equipment Handover - Lab 1',
+      labName: 'Lab 1',
+      handoverByName: 'Sneh',
+      handoverByDesignation: 'Lab Technician',
+      handoverToName: 'Dr. Pankaj Agarwal ',
+      handoverToDesignation: 'Professor & Dean',
+      handoverDate: '2024-11-26',
       purpose: 'Annual Lab Maintenance',
-      status: 'Completed',
-      equipment: [
-        { serialNo: 'SN001', equipmentType: 'Computer', brand: 'Dell XPS 15', remarks: 'Working condition' },
-        { serialNo: 'SN002', equipmentType: 'Projector', brand: 'Epson EB-X41', remarks: 'Good' }
-      ]
-    },
-    {
-      _id: '2',
-      formName: 'Network Equipment Transfer',
-      labName: 'Networking Lab',
-      handoverByName: 'Prof. Mike Wilson',
-      handoverByDesignation: 'Head of Department',
-      handoverToName: 'Dr. Emily Brown',
-      handoverToDesignation: 'Lab Coordinator',
-      handoverDate: '2024-01-20',
-      purpose: 'Lab Upgrade',
       status: 'Pending',
       equipment: [
-        { serialNo: 'RT001', equipmentType: 'Router', brand: 'Cisco 2901', remarks: 'New' },
-        { serialNo: 'SW001', equipmentType: 'Switch', brand: 'D-Link 24 Port', remarks: 'Working' }
+        { serialNo: 'MP28Y01M', equipmentType: 'Monitor', brand: 'Lenovo', remarks: 'Working condition' },
       ]
     },
-    {
-      _id: '3',
-      formName: 'Laboratory Tools Handover',
-      labName: 'Electronics Lab',
-      handoverByName: 'Dr. Robert Davis',
-      handoverByDesignation: 'Senior Lecturer',
-      handoverToName: 'Prof. Lisa Anderson',
-      handoverToDesignation: 'Lab Manager',
-      handoverDate: '2024-01-18',
-      purpose: 'Equipment Audit',
-      status: 'In Progress',
-      equipment: [
-        { serialNo: 'OSC001', equipmentType: 'Oscilloscope', brand: 'Tektronix TBS1052B', remarks: 'Calibrated' },
-        { serialNo: 'MM001', equipmentType: 'Multimeter', brand: 'Fluke 87V', remarks: 'Good condition' }
-      ]
-    }
   ];
-
+  
   const displayForms = handoverForms.length > 0 ? handoverForms : dummyHandoverForms;
 
   const handleAddEquipment = () => {

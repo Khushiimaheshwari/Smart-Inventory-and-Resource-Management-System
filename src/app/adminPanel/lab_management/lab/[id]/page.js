@@ -44,16 +44,7 @@ const LabTimetablePage = () => {
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [filteredFaculties, setFilteredFaculties] = useState([]);
   const [showNotifyForm, setShowNotifyForm] = useState(false);
-  const [notifications, setNotifications] = useState([
-    {
-    id: 1732451200000,
-    eventType: 'Placement Drive',
-    date: '2024-11-25',
-    startTime: '10:00',
-    endTime: '14:00',
-    description: 'Campus Placement Drive for Final Year Students. All eligible students must report to the lab by 9:45 AM. Please bring your resume, ID card, and relevant documents.'
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
   const [notifyFormData, setNotifyFormData] = useState({
     eventType: '',
     date: '',
@@ -100,6 +91,19 @@ const LabTimetablePage = () => {
         );
 
         setTimetableData(formattedData);
+
+        const notifyEvents = data.lab?.NotifyEvent || [];
+
+        const formattedNotifications = notifyEvents.map((e) => ({
+          id: e._id,
+          eventType: e.EventType,
+          date: new Date(e.Date).toISOString().split("T")[0], 
+          startTime: e.StartTime,
+          endTime: e.EndTime,
+          description: e.Description,
+        }));
+
+        setNotifications(formattedNotifications);
         console.log(data);
         
       } else {
@@ -140,29 +144,73 @@ const LabTimetablePage = () => {
   }, []);
 
   const handleInputChange = (e) => {
-    setNotifyFormData({
-      ...notifyFormData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setNotifyFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === "eventType" && value !== "Other" && { customEventType: "" })
+    }));
   };
 
-  const handleSubmitNotification = () => {
-    if (notifyFormData.eventType && notifyFormData.date && notifyFormData.startTime && notifyFormData.endTime && notifyFormData.description) {
-      const newNotification = {
-        id: Date.now(),
-        ...notifyFormData
-      };
-      setNotifications([...notifications, newNotification]);
-      setNotifyFormData({
-        eventType: '',
-        date: '',
-        startTime: '',
-        endTime: '',
-        description: ''
-      });
-      setShowNotifyForm(false);
-    }
-  };
+  const eventTypes = [
+    "Exam",
+    "Placement Drive",
+    "Workshop",
+    "Seminar",
+    "Maintenance",
+    "Other"
+  ];
+
+  const handleSubmitNotification = async () => {
+
+    console.log(notifyFormData);
+    
+      if(!notifyFormData.eventType || !notifyFormData.date || !notifyFormData.startTime || !notifyFormData.endTime || !notifyFormData.description) {
+        alert("Please fill in all required fields!");
+        return;
+      }
+      
+      const payload = {
+        eventType: notifyFormData.eventType,
+        date: notifyFormData.date,
+        startTime: notifyFormData.startTime,
+        endTime: notifyFormData.endTime,
+        description: notifyFormData.description,
+      }
+
+      console.log(payload); 
+      console.log(id); 
+
+      try {
+        const res = await fetch(`/api/admin/addEventNotify/${id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        
+        const data = await res.json();
+
+        if (res.ok) {
+          alert("Event Notification added successfully!");
+            setNotifications(data.eventNotify);
+            setNotifyFormData({
+              eventType: '',
+              date: '',
+              startTime: '',
+              endTime: '',
+              description: ''
+            });
+            setShowNotifyForm(false);
+          fetchLab();
+
+        } else {
+          alert(data.error || "Failed to add info");
+        }
+      } catch (error) {
+        console.error("Error adding info:", error);
+        alert("Something went wrong while adding the info.");
+      }
+    };
 
   const removeNotification = (id) => {
     setNotifications(notifications.filter(notif => notif.id !== id));
@@ -1663,33 +1711,46 @@ const LabTimetablePage = () => {
         <div style={styles.notifyModalOverlay} onClick={() => setShowNotifyForm(false)}>
           <div style={styles.notifyModalContent} onClick={(e) => e.stopPropagation()}>
             <h2 style={styles.notifyModalHeader}>Add Lab Notification</h2>
-            
+
             <div style={styles.notifyFormGroup}>
               <label style={styles.notifyLabel}>Event Type *</label>
               <select
                 name="eventType"
-                value={formData.eventType}
+                value={notifyFormData.eventType}
                 onChange={handleInputChange}
                 style={styles.notifyInput}
-                onFocus={(e) => e.target.style.borderColor = '#00c97b'}
-                onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+                onFocus={(e) => (e.target.style.borderColor = "#00c97b")}
+                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
               >
                 <option value="">Select event type</option>
-                <option value="Exam">Exam</option>
-                <option value="Placement Drive">Placement Drive</option>
-                <option value="Workshop">Workshop</option>
-                <option value="Seminar">Seminar</option>
-                <option value="Maintenance">Maintenance</option>
-                <option value="Other">Other</option>
+                {eventTypes.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
               </select>
             </div>
+
+            {notifyFormData.eventType === "Other" && (
+              <div style={styles.notifyFormGroup}>
+                <label style={styles.notifyLabel}>Specify Event *</label>
+                <input
+                  type="text"
+                  name="customEventType"
+                  value={notifyFormData.customEventType || ""}
+                  onChange={handleInputChange}
+                  placeholder="Enter event name"
+                  style={styles.notifyInput}
+                  onFocus={(e) => (e.target.style.borderColor = "#00c97b")}
+                  onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                />
+              </div>
+            )}
 
             <div style={styles.formGroup}>
               <label style={styles.notifyLabel}>Date *</label>
               <input
                 type="date"
                 name="date"
-                value={formData.date}
+                value={notifyFormData.date}
                 onChange={handleInputChange}
                 style={styles.notifyInput}
                 onFocus={(e) => e.target.style.borderColor = '#00c97b'}
@@ -1704,7 +1765,7 @@ const LabTimetablePage = () => {
                   <input
                     type="time"
                     name="startTime"
-                    value={formData.startTime}
+                    value={notifyFormData.startTime}
                     onChange={handleInputChange}
                     style={styles.notifyInput}
                     onFocus={(e) => e.target.style.borderColor = '#00c97b'}
@@ -1715,7 +1776,7 @@ const LabTimetablePage = () => {
                   <input
                     type="time"
                     name="endTime"
-                    value={formData.endTime}
+                    value={notifyFormData.endTime}
                     onChange={handleInputChange}
                     style={styles.notifyInput}
                     onFocus={(e) => e.target.style.borderColor = '#00c97b'}
@@ -1729,7 +1790,7 @@ const LabTimetablePage = () => {
               <label style={styles.notifyLabel}>Description *</label>
               <textarea
                 name="description"
-                value={formData.description}
+                value={notifyFormData.description}
                 onChange={handleInputChange}
                 style={styles.notifyTextarea}
                 placeholder="Enter event details..."
@@ -1749,7 +1810,7 @@ const LabTimetablePage = () => {
               </button>
               <button
                 style={styles.notifySubmitBtn}
-                onClick={handleSubmitNotification}
+                onClick={ handleSubmitNotification }
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#00b36e'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#00c97b'}
               >
