@@ -30,7 +30,8 @@ export async function POST(_, { params }) {
       );
     }
 
-    const baseUrl = process.env.NEXTAUTH_URL;
+    // const baseUrl = process.env.NEXTAUTH_URL;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL;
 
     const qrValue = `${baseUrl}/adminPanel/asset_management/asset/${asset.PC_Name._id}`;
 
