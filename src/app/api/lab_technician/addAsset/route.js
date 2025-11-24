@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "../../../../app/api/utils/db";
+import { connectDB } from "../../utils/db";
 import mongoose from "mongoose";
 import Lab_PCs from "../../../../models/Lab_PCs";
 import Assets from "../../../../models/Asset";
+import { generateQRCodeForAsset } from "../../utils/generateQR";
+// import { generateQRCodeForAsset } from "../../../../utils/generateQR";
  
 export async function POST(req) { 
   try {
@@ -28,7 +30,6 @@ export async function POST(req) {
       Brand: Brand,
       PC_Name: [new mongoose.Types.ObjectId(PC)],
       Lab_Name: [new mongoose.Types.ObjectId(Lab)],
-      Issue_Reported: "",
       QR_Code: "",
     });
 
@@ -36,9 +37,13 @@ export async function POST(req) {
       $push: { Assets: newAsset._id },
     });
 
-    await fetch(`${process.env.NEXTAUTH_URL}/api/admin/generateQRCode/${newAsset._id}`, {
-      method: "POST",
-    });
+    // await fetch(`${process.env.NEXTAUTH_URL}/api/admin/generateQRCode/${newAsset._id}`, {
+    //   method: "POST",
+    // });
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    console.log("Generating QR for:", newAsset._id, "Base:", baseUrl);
+
+    await generateQRCodeForAsset(newAsset._id, baseUrl);
 
     return NextResponse.json({
       message: "Asset added successfully",

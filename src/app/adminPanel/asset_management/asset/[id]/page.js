@@ -33,6 +33,8 @@ function AssetsPage() {
       const res = await fetch(`/api/admin/getPcById/${id}`);
       const data = await res.json();
       if (res.ok) {
+        console.log(data);
+        
         setPcData(data.pc);
         setAssets(data.pc.Assets || []);
       } else {
