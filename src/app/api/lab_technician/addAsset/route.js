@@ -4,7 +4,6 @@ import mongoose from "mongoose";
 import Lab_PCs from "../../../../models/Lab_PCs";
 import Assets from "../../../../models/Asset";
 import { generateQRCodeForAsset } from "../../utils/generateQR";
-// import { generateQRCodeForAsset } from "../../../../utils/generateQR";
  
 export async function POST(req) { 
   try {
@@ -37,9 +36,6 @@ export async function POST(req) {
       $push: { Assets: newAsset._id },
     });
 
-    // await fetch(`${process.env.NEXTAUTH_URL}/api/admin/generateQRCode/${newAsset._id}`, {
-    //   method: "POST",
-    // });
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     console.log("Generating QR for:", newAsset._id, "Base:", baseUrl);
 

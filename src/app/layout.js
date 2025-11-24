@@ -6,7 +6,7 @@ import Navbar from "./components/navbar";
 export default function RootLayout({ children }) {
   const pathname = usePathname();
 
-  const hideNavbarRoutes = ["/login", "/signup", "/onboarding", "/unauthorized", "/redirectAfterLogin"];
+  const hideNavbarRoutes = ["/login", "/signup", "/onboarding", "/unauthorized", "/redirectAfterLogin", "/qrRedirect"];
 
   const isAdminRoute = pathname.startsWith("/adminPanel");
   const isLabTechnicianRoute = pathname.startsWith("/lab_technicianPanel");

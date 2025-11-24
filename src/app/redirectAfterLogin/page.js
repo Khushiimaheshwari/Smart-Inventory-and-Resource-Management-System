@@ -20,28 +20,6 @@ export default function RedirectAfterLogin() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // useEffect(() => {
-  //   if (status === "loading") return; 
-
-  //   if (!session) {
-  //     alert("No active session found, redirecting to login.");
-  //     window.location.href("/login");
-  //     return;
-  //   }
-
-  //   const role = session?.user?.role;
-
-  //   if (role === "admin") {
-  //     window.location.href = "/adminPanel";
-  //   } else if (role === "lab_technician") {
-  //     window.location.href = "/lab_technicianPanel";
-  //   } else if (role === "faculty") {
-  //     window.location.href = "/facultyPanel";
-  //   }else { 
-  //     router.push("/login");
-  //   }
-  // }, [session, status, router]);
-
   useEffect(() => {
     if (status === "loading") return;
 
