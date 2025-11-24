@@ -20,6 +20,13 @@ const LabSchema = new mongoose.Schema({
     Brand: { type: String, default: "" },
     Serial_No: { type: String, default: "" },
   }],
+  NotifyEvent: [{
+    EventType: { type: String , default: "" },
+    Date: { type: Date },
+    StartTime: { type: String, default: "" },
+    EndTime: { type: String, default: "" },
+    Description: { type: String, default: "" },
+  }],
 
 }, { timestamps: true });
 

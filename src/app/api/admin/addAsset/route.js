@@ -35,6 +35,10 @@ export async function POST(req) {
       $push: { Assets: newAsset._id },
     });
 
+    await fetch(`${process.env.NEXTAUTH_URL}/api/admin/generateQRCode/${newAsset._id}`, {
+      method: "POST",
+    });
+
     return NextResponse.json({
       message: "Asset added successfully",
       asset: newAsset,

@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import Lab_PCs from "../../../../models/Lab_PCs";
 import Assets from "../../../../models/Asset";
  
-export async function POST(req) {
+export async function POST(req) { 
   try {
     await connectDB();
 
@@ -34,6 +34,10 @@ export async function POST(req) {
 
     await Lab_PCs.findByIdAndUpdate(PC, {
       $push: { Assets: newAsset._id },
+    });
+
+    await fetch(`${process.env.NEXTAUTH_URL}/api/admin/generateQRCode/${newAsset._id}`, {
+      method: "POST",
     });
 
     return NextResponse.json({

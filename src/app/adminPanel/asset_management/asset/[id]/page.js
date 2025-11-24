@@ -67,7 +67,7 @@ function AssetsPage() {
       alert("Please fill all required fields");
       return;
     }
-
+ 
     setSaving(true);
     try {
       const res = await fetch("/api/admin/addAsset", {

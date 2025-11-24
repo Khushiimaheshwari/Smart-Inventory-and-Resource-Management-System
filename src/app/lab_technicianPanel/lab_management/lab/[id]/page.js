@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Upload, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Upload, ChevronDown, ChevronUp, Loader2, Calendar, Clock, AlertCircle } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 const LabTimetablePage = () => {
@@ -39,6 +39,7 @@ const LabTimetablePage = () => {
   });
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [filteredFaculties, setFilteredFaculties] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -95,6 +96,19 @@ const LabTimetablePage = () => {
         );
 
         setTimetableData(formattedData);
+
+        const notifyEvents = data.lab?.NotifyEvent || [];
+
+        const formattedNotifications = notifyEvents.map((e) => ({
+          id: e._id,
+          eventType: e.EventType,
+          date: new Date(e.Date).toISOString().split("T")[0], 
+          startTime: e.StartTime,
+          endTime: e.EndTime,
+          description: e.Description,
+        }));
+
+        setNotifications(formattedNotifications);
         console.log(data);
         
       } else {
@@ -116,6 +130,9 @@ const LabTimetablePage = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const removeNotification = (id) => {
+    setNotifications(notifications.filter(notif => notif.id !== id));
+  };
 
   const addMoreInfo = () => {
     setShowAddModal(true);
@@ -464,6 +481,61 @@ const LabTimetablePage = () => {
       boxSizing: 'border-box',
       marginLeft: isMobile ? '0' : isTablet ? '200px' : '255px',
       overflowX: 'hidden',
+    },
+    notificationBanner: {
+      background: 'linear-gradient(135deg, rgba(253, 164, 175, 0.95) 0%, rgba(251, 113, 133, 0.95) 100%)',
+      backdropFilter: 'blur(20px)',
+      borderRadius: '16px',
+      padding: '20px',
+      marginBottom: '16px',
+      boxShadow: '0 8px 24px rgba(251, 113, 133, 0.25)',
+      color: 'white',
+      position: 'relative'
+    },
+    notifHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: '12px'
+    },
+    notifType: {
+      fontSize: '18px',
+      fontWeight: 700,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px'
+    },
+    notifyCloseBtn: {
+      background: 'rgba(255, 255, 255, 0.2)',
+      border: 'none',
+      color: 'white',
+      borderRadius: '50%',
+      width: '28px',
+      height: '28px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease'
+    },
+    notifDetails: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px'
+    },
+    notifRow: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      fontSize: '14px',
+      opacity: 0.95
+    },
+    notifDescription: {
+      marginTop: '8px',
+      fontSize: '14px',
+      lineHeight: '1.6',
+      paddingTop: '12px',
+      borderTop: '1px solid rgba(255, 255, 255, 0.3)'
     },
     labInfoCard: {
       background: 'rgba(255, 255, 255, 0.95)',
@@ -1141,6 +1213,39 @@ const LabTimetablePage = () => {
 
   return (
     <div style={styles.container}>
+
+      {/* Notification Banners */}
+      {notifications.map(notif => (
+        <div key={notif.id} style={styles.notificationBanner}>
+          <div style={styles.notifHeader}>
+            <div style={styles.notifType}>
+              <AlertCircle size={22} />
+              {notif.eventType}
+            </div>
+            <button 
+              style={styles.notifyCloseBtn}
+              onClick={() => removeNotification(notif.id)}
+              onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
+              onMouseLeave={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
+            >
+              <X size={16} />
+            </button>
+          </div>
+          <div style={styles.notifDetails}>
+            <div style={styles.notifRow}>
+              <Calendar size={16} />
+              <strong>Date:</strong> {new Date(notif.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </div>
+            <div style={styles.notifRow}>
+              <Clock size={16} />
+              <strong>Time:</strong> {notif.startTime} - {notif.endTime}
+            </div>
+            <div style={styles.notifDescription}>
+              {notif.description}
+            </div>
+          </div>
+        </div>
+      ))}
 
       {/* Lab Information Card */}
       {labData ? (
