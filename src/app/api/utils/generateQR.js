@@ -16,7 +16,10 @@ export async function generateQRCodeForAsset(assetId, baseUrl) {
     lab_technician: `${baseUrl}/lab_technicianPanel/asset_management/asset/${asset.PC_Name._id}`
   };
 
-  const qrValue = JSON.stringify(qrPayload);
+  const encoded = Buffer.from(JSON.stringify(qrPayload)).toString("base64");
+
+  // QR code will open this universal redirect page
+  const qrValue = `${baseUrl}/qrRedirect?data=${encoded}`;
 
   const qrImage = await QRCode.toDataURL(qrValue);
 
