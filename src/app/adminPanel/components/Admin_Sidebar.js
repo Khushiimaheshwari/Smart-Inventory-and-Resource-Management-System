@@ -13,6 +13,13 @@ const navItems = [
     ),
   },
   {
+    name: "Lab Inventory",
+    href: "/adminPanel/inventory",
+    icon: (
+      <path d="M2 4a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H3a1 1 0 01-1-1V4zm0 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H3a1 1 0 01-1-1V9zm0 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H3a1 1 0 01-1-1v-2z" />
+    ),
+  },
+  {
     name: "Asset Management",
     href: "/adminPanel/asset_management",
     icon: (
