@@ -7,6 +7,17 @@ import { Loader2 } from "lucide-react";
 export default function QrRedirectPage({ searchParams }) {
   const { data: session } = useSession();
   const data = searchParams.data;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (!data || !session) return;
