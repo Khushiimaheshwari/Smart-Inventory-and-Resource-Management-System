@@ -1,11 +1,18 @@
 "use client";
-import { Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
 
-export default function LabOverview() {
+import React from "react";
+import { Loader2, ArrowLeft } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function LabDetail({ params }) {
+  // const labId = params.id; 
+  const { id: labId } = React.use(params);
   const [loading, setLoading] = useState(true);
-  const [labDetails, setLabDetails] = useState([]);
+  const [labData, setLabData] = useState(null);
+  const [assets, setAssets] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -18,26 +25,28 @@ export default function LabOverview() {
   }, []);
 
   useEffect(() => {
-    const fetchLabData = async () => {
+    const fetchLabDetail = async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/admin/labAssetSummary");
+        const res = await fetch(`/api/admin/getLabDetail/${labId}`);
         const data = await res.json();
-
-        console.log(data);
-        
-        if (data.summary) {
-          setLabDetails(data.summary);
+        if (data.labData) {
+          console.log(data);
+          
+          setLabData(data.labData);
+          setAssets(data.assets);
         }
       } catch (error) {
-        console.error("Error loading lab data:", error);
+        console.error("Error loading lab detail:", error);
       } finally {
         setLoading(false);
       }
     };
     
-    fetchLabData();
-  }, []);
+    if (labId) {
+      fetchLabDetail();
+    }
+  }, [labId]);
 
   const styles = {
     container: {
@@ -64,6 +73,22 @@ export default function LabOverview() {
       color: '#6b7280',
       fontSize: '16px',
       fontWeight: '500',
+    },
+    backButton: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.5rem 1rem',
+      backgroundColor: 'white',
+      border: '1px solid #e5e7eb',
+      borderRadius: '8px',
+      color: '#374151',
+      fontSize: '0.875rem',
+      fontWeight: '500',
+      cursor: 'pointer',
+      marginBottom: '1rem',
+      width: 'fit-content',
+      transition: 'all 0.2s'
     },
     header: {
       marginBottom: '1.5rem'
@@ -129,7 +154,7 @@ export default function LabOverview() {
     table: {
       width: '100%',
       borderCollapse: 'collapse',
-      fontSize: isMobile ? '0.75rem' : '0.875rem'
+      fontSize: isMobile ? '0.65rem' : '0.875rem'
     },
     thead: {
       backgroundColor: '#f9fafb'
@@ -155,7 +180,7 @@ export default function LabOverview() {
     statusBadge: {
       padding: '0.25rem 0.75rem',
       borderRadius: '12px',
-      fontSize: isMobile ? '0.7rem' : '0.75rem',
+      fontSize: isMobile ? '0.65rem' : '0.75rem',
       fontWeight: '500',
       display: 'inline-block'
     },
@@ -163,13 +188,13 @@ export default function LabOverview() {
       backgroundColor: '#d1fae5',
       color: '#065f46'
     },
-    statusNonActive: {
-      backgroundColor: '#fee2e2',
-      color: '#991b1b'
-    },
     statusMaintenance: {
       backgroundColor: '#fef3c7',
       color: '#92400e'
+    },
+    statusInactive: {
+      backgroundColor: '#fee2e2',
+      color: '#991b1b'
     }
   };
 
@@ -178,63 +203,92 @@ export default function LabOverview() {
       <div style={styles.container}>
         <div style={styles.loaderContainer}>
           <Loader2 size={48} className="animate-spin" color="#10b981" />
-          <p style={styles.loaderText}>Loading lab data...</p>
+          <p style={styles.loaderText}>Loading lab details...</p>
         </div>
       </div>
     );
   }
 
+  const getStatusStyle = (status) => {
+    if (status === 'Yes') return styles.statusActive;
+    if (status === 'No') return styles.statusInactive;
+    return styles.statusMaintenance;
+  };
+
   return (
     <div style={styles.container}>
+      <button 
+        style={styles.backButton}
+        onClick={() => router.back()}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#f9fafb';
+          e.currentTarget.style.borderColor = '#10b981';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'white';
+          e.currentTarget.style.borderColor = '#e5e7eb';
+        }}
+      >
+        <ArrowLeft size={16} />
+        Back to Labs
+      </button>
+
       <header style={styles.header}>
-        <h1 style={styles.title}>Lab Inventory</h1>
-        <p style={styles.subtitle}>Comprehensive view of all laboratory facilities</p>
+        <h1 style={styles.title}>{labData.Lab_ID}</h1>
+        <p style={styles.subtitle}>Complete asset inventory and status</p>
       </header>
 
       <div style={styles.tableSection}>
         <div style={styles.tableHeader}>
-          <div style={styles.tableTitle}>Laboratory Details</div>
-          <div style={styles.tableSubtitle}>Asset distribution across all labs</div>
+          <div style={styles.tableTitle}>Asset Details</div>
+          <div style={styles.tableSubtitle}>All assets with their current status</div>
         </div>
         <div style={styles.tableWrapper}>
           <table style={styles.table}>
             <thead style={styles.thead}>
               <tr>
-                <th style={styles.th}>Lab ID</th>
-                <th style={styles.th}>PC Count</th>
-                <th style={styles.th}>Total Assets</th>
-                <th style={styles.th}>Active Assets</th>
-                <th style={styles.th}>Non Active Assets</th>
-                <th style={styles.th}>Under Maintenance</th>
+                <th style={styles.th}>PC No.</th>
+                <th style={styles.th}>Monitor</th>
+                <th style={styles.th}>Status</th>
+                <th style={styles.th}>Keyboard</th>
+                <th style={styles.th}>Status</th>
+                <th style={styles.th}>Mouse</th>
+                <th style={styles.th}>Status</th>
+                <th style={styles.th}>UPS</th>
+                <th style={styles.th}>Status</th>
               </tr>
             </thead>
             <tbody>
-              {labDetails.map((lab) => (
+              {assets.map((asset, index) => (
                 <tr 
-                  key={lab.labId}
+                  key={index}
                   style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    window.location.href = `/adminPanel/inventory/labDetails/${lab.id}`;
-                  }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
-                  <td style={styles.tdBold}>{lab.labId}</td>
-                  <td style={styles.td}>{lab.pcCount}</td>
-                  <td style={{...styles.td, fontWeight: '600', color: '#10b981'}}>{lab.totalAssets}</td>
+                  <td style={styles.tdBold}>{asset.pcName}</td>
+                  <td style={styles.td}>{asset.monitor?.name || "-"}</td>
                   <td style={styles.td}>
-                    <span style={{...styles.statusBadge, ...styles.statusActive}}>
-                      {lab.activeAssets}
+                    <span style={{...styles.statusBadge, ...getStatusStyle(asset.monitor?.status)}}>
+                      {asset.monitor?.status || "-"}
                     </span>
                   </td>
+                  <td style={styles.td}>{asset.keyboard?.name || "-"}</td>
                   <td style={styles.td}>
-                    <span style={{...styles.statusBadge, ...styles.statusNonActive}}>
-                      {lab.nonActiveAssets}
+                    <span style={{...styles.statusBadge, ...getStatusStyle(asset.keyboard?.status)}}>
+                      {asset.keyboard?.status || "-"}
                     </span>
                   </td>
+                  <td style={styles.td}>{asset.mouse?.name || "-"}</td>
                   <td style={styles.td}>
-                    <span style={{...styles.statusBadge, ...styles.statusMaintenance}}>
-                      {lab.underMaintenance}
+                    <span style={{...styles.statusBadge, ...getStatusStyle(asset.mouse?.status)}}>
+                      {asset.mouse?.status || "-"}
+                    </span>
+                  </td>
+                  <td style={styles.td}>{asset.ups?.name || "-"}</td>
+                  <td style={styles.td}>
+                    <span style={{...styles.statusBadge, ...getStatusStyle(asset.ups?.status)}}>
+                      {asset.ups?.status || "-"}
                     </span>
                   </td>
                 </tr>
