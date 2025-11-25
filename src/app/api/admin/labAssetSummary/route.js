@@ -8,7 +8,7 @@ export async function GET() {
   try {
     await connectDB();
 
-    const labs = await Lab.find({}, "Lab_ID Lab_Name PCs").lean();
+    const labs = await Lab.find({}, "_id Lab_ID Lab_Name PCs").lean();
 
     const summary = [];
 
@@ -43,6 +43,7 @@ export async function GET() {
       }).length;
 
       summary.push({
+        id: lab._id,
         labId: lab.Lab_ID,
         labName: lab.Lab_Name,
         pcCount,
