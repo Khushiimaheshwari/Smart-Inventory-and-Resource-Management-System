@@ -53,6 +53,18 @@ The system goes beyond traditional inventory tracking by incorporating data anal
 
 <img width="1150" height="295" alt="image" src="https://github.com/user-attachments/assets/f124ce79-3fdd-4eae-8ab4-61b0c7c38c6f" />
 
+## Environment Configuration
+
+```bash
+MONGODB_URI=your-mongodb-url
+AZURE_AD_CLIENT_ID=your-azure-client-id
+AZURE_AD_TENANT_ID=your-azure-tenant-id
+AZURE_AD_CLIENT_SECRET=your-azure-client-secret
+NEXTAUTH_URL=your-next-app-url
+NEXTAUTH_SECRET=your-nextauth-secret-key-here
+NEXT_PUBLIC_BASE_URL=your-next-app-url
+```
+
 ## Project Structure
 ```bash
 ├── src
