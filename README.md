@@ -12,13 +12,13 @@ The system goes beyond traditional inventory tracking by incorporating data anal
 
 ### Core System Features
 
-* **Role-Based Access Control (RBAC)**: Secure authentication and authorization for admins, faculty, technicians, and storekeepers using JWT-based sessions.
+* **Role-Based Access Control (RBAC)**: Secure authentication and authorization for admins, faculty and technicians using JWT-based sessions.
 
 * **Centralized Asset & Lab Management**: Complete CRUD operations for assets, laboratories, PCs, and schedules with real-time status tracking.
 
-* **Data-Driven Dashboards**: Interactive dashboards to visualize asset utilization, maintenance trends, and operational metrics.
+* **Data-Driven Dashboards**: Interactive dashboards to visualize asset utilization.
 
-* **Integrated Workflow Automation**: Automated workflows for asset allocation, maintenance reporting, issue resolution, and approvals.
+* **Integrated Workflow Automation**: Automated workflows for asset allocation, issue resolution, and approvals.
 
 * **Scalable Architecture**: Modular backend models and optimized database interactions designed for long-term scalability and maintainability.
 
